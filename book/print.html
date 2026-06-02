@@ -1,0 +1,514 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TitanEngine Preview</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-5e2beb50.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-ce6044a5.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">TitanEngine Preview</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="tgs-solver-sample"><a href="#tgs-solver-sample" class="header">TGS Solver Sample</a></h1>
+<div class="lang-switch-container">
+  <button class="lang-btn active" onclick="switchLanguage(&#39;hinglish&#39;)">Hinglish</button>
+  <button class="lang-btn" onclick="switchLanguage(&#39;english&#39;)">English</button>
+  <button class="lang-btn" onclick="switchLanguage(&#39;spanish&#39;)">Español</button>
+</div>
+
+<div class="lang-marker" data-lang="hinglish"></div>
+
+<p>Temporal Gauss-Seidel (TGS) ek bare-metal matrix solver hai jo physical constraints ke interconnected web ko balance karta hai.</p>
+<p>TGS solver modern physics engines ka backbone hai. Jab hum ek massive web of constraints (jaise stacked boxes ya character joints) ko balance karte hain, to pure system ko simultaneous equations ke system ki tarah solve karna hota hai. TGS is system ko step-by-step resolve karta hai. Iska mathematical basis is iterative equation par dependent hai:</p>
+<p>\[
+x_i^{(k+1)} = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)} - \sum_{j=i+1}^{n} a_{ij} x_j^{(k)} \right)
+\]</p>
+<p>Yahan, <span class="keyword-highlight" data-tooltip="Yeh target coordinate element hai jise solver resolve kar raha hai. Humare cliffhanger scenario me, ye wo suspended insaan &#92;( B1 &#92;) hai jo edge par latka hai. Iske balance hone par hi baqi logon ka latakna depend karta hai.">\(x_i^{(k+1)}\)</span> target object ki updated state hai jo current frame \(k+1\) me calculate ho rahi hai. Term <span class="keyword-highlight" data-tooltip="Ye effective mass ya inertia tensor value hai, jo movement ke khilaf resistance (stubbornness) dikhata hai. Cliffhanger me ye B1 ka apna weight aur edge ke sath grip friction resistance hai.">\(a_{ii}\)</span> effective mass ya inertia matrix ke diagonal elements ko represent karta hai, jo object ke dynamic resistance ko define karte hain. Vector <span class="keyword-highlight" data-tooltip="Ye target object par lagne wala pure external force hai. Cliffhanger me ye B1 ka apna isolated weight hai (mass multiplied by gravity) jo use niche khinch raha hai.">\(b_i\)</span> external forces (gravity, collision impulses, external damping) ko represent karta hai.</p>
+<p>Dono summation terms (Sigmas) surrounding elements ke feedback loops hain. Pehla summation <span class="keyword-highlight" data-tooltip="Ye T-array hai, yaani cliff ke upar khade log &#92;( [T3, T2, T1] &#92;) jo B1 ko upar khinch rahe hain. Kyunki CPU inko pehle hi process kar chuka hai, inki states updated &#92;( k+1 &#92;) hain.">\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\)</span> un neighbors ko update karta hai jo current iteration cycle me pehle hi calculate ho chuke hain, isliye inke paas present frame \(k+1\) ki state hai. Dusra summation <span class="keyword-highlight" data-tooltip="Ye B-array hai, yaani B1 ke niche latakte hue log &#92;( [B2, B3] &#92;) jo use niche drag kar rahe hain. CPU abhi tak in tak nahi pahuncha, isliye ye pichli state &#92;( k &#92;) carry karte hain.">\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\)</span> un neighbors ko evaluate karta hai jahan CPU sweep abhi tak nahi pahuncha hai, isliye ye past frame \(k\) ki states carry karte hain. Term <span class="keyword-highlight" data-tooltip="Ye coupling coefficients hain jo stiffness represent karte hain. Cliffhanger me ye haath ki pakad (grip stiffness) hai jo force transfer karti hai.">\(a_{ij}\)</span> coupling matrix coefficients hain jo cross-element constraint stiffness ko adjust karte hain.</p>
+<p>Lekin is heavy, sequential chain-reaction ko CPU cycles exhaust karne se bachane ke liye, yeh ‘Time’ (Temporal) ka element inject karta hai. Kaise? Pichle frame ke final physics state ko recycle karke aur use naye frame ke liye initial guess ki tarah use karke. Chunki objects 1/60th of a second me na ke barabar move karte hain, toh ye <span class="keyword-highlight" data-tooltip="Yeh kya hai? Har frame me scratch se calculation shuru karne ke bajaye, solver pichle frame ki final state ko naye frame ke starting point ki tarah reuse karta hai. Chunki ek second ke 60th part me objects bohot kam move hote hain, ye shortcut CPU ke dozens of loops bacha leta hai aur system ko stability deta hai.">Temporal Coherence</span> shortcut dozens of calculation loops ko bacha leta hai aur complex physical webs ko stabilize kar deta hai.</p>
+<p>Agar hum TGS formula ko dhyan se dekhein, toh solver basically array me se ek single object ko isolate kar raha hota hai. Saare surrounding forces ko hata kar, ye sirf us specific object ke inertia (mass) aur external gravity par focus karta hai.</p>
+<p>Isliye, formula is inertia ko reverse kar deta hai, yaani use ulta kar deta hai: \(1 / a_{ii}\). Aur inertia ke is inverse ko hum <span class="keyword-highlight" data-tooltip="Mass aur inertia stubbornness hai—yaani movement ke khilaf resistance. Par physics constraint ko resolve karne ke liye hume movement chahiye. Isliye, formula is resistance ko invert (ulta) kar deta hai: &#92;( 1/a_{ii} &#92;). Isi value ko hum Mobility kehte hain jo constraint slip ko calculate karne ke kaam aati hai.">Mobility</span> kehte hain.</p>
+<p>Main bracket ke andar jo sabse pehla term hai, wo hai \(b_i\). Ye strictly target object ka apna isolated weight hai (uska mass multiplied by gravity) jo use niche khinch raha hai. To CPU karta kya hai? Wo bracket ke andar \(b_i\) (target object ki gravity) me se un dono Sigmas (upar aur niche wale elements ke pull) ko subtract karta hai. Subtraction ke baad jo bachta hai, jise hum <span class="keyword-highlight" data-tooltip="Maniye target object ki apni gravity aur niche wale elements ka pull milkar total 100 force niche lagate hain. Aur upar khinchne wala element sirf 90 force se upar khinch raha hai. Jab hum subtract karenge (100 minus 90), to hamare paas 10 downward force bachega. Yahi bacha hua force hamara Unbalanced Force hai jo dikhata hai ki object balance me nahi hai.">Unbalanced Force</span> yaani Residual kehte hain.</p>
+<p>Is Unbalanced Force ki wajah se target object apni position badlega. To CPU object ki Mobility ko is Unbalanced Force se multiply karta hai:</p>
+<p>\[
+\text{Mobility } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
+\]</p>
+<p>Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel ho jayein. Yahi nayi position hume &#92;( x_i^{(k+1)} &#92;) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.</p>
+<details class="admonition admonish-example">
+  <summary class="admonition-title">Deep Dive: The Cliffhanger Analogy</summary>
+<p>Imagine kijiye ek insaan cliff ke edge se latka hua hai, jise hum <span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element &#92;( x_i^{(k+1)} &#92;) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span> kahenge.</p>
+<p>Par B1 akela nahi hai. Uske pair kisi aur ne pakde hain—jise hum <span class="keyword-highlight" data-tooltip="Ye equation ka Dusra Sigma (j = i+1 to n) represent karta hai. Ye wo connected rigid bodies hain jo target body ke baad aati hain aur purani state &#92;( k &#92;) carry karti hain.">B2</span> kehte hain. Aur B2 ke pair ek teesre insaan ne pakde hain, B3. To aapke paas cliff ke edge par latakte hue teen logon ki chain hai. Code me, hum inhe bottom array ki tarah group kar sakte hain: <code>[B1, B2, B3]</code>. B3 sabse niche hai, aur B1 sabse upar edge pakde hue hai.</p>
+<p>Ab sochiye cliff ke upar kya ho raha hai. Wahan kuch log unhe upar khinchne ki koshish kar rahe hain. Ek insaan ne directly B1 ka hath pakda hai—jise hum <span class="keyword-highlight" data-tooltip="Ye equation ka Pehla Sigma (j = 1 to i-1) represent karta hai. Ye wo rigid bodies hain jo target body se connected hain aur sequence me pehle solve ho chuki hain (Present state &#92;( k+1 &#92;)).">T1</span> kahenge. Dusra insaan T1 ko khinch raha hai—T2. Aur ek teesra insaan sabko anchor kar raha hai zameen par—T3. Ye hamara upper array banata hai: <code>[T3, T2, T1]</code>. T1 wo insaan hai jo edge par khada hai aur B1 ko pakde hue hai.</p>
+<p>Agar hum sabko jod dein, to hume ek single chain milegi: <code>[T3, T2, T1, B1, B2, B3]</code>.</p>
+<p>Ab, B1 hamara main focus kyun hai? Agar B1 ne hath choda, to B2 aur B3 turant niche gir jayenge. Par iski ek aur wajah hai. T1, T2, aur T3 zameen par khade hain. B1 hi pehla insaan hai jo hawa me latka hai. Wo suspended hai. Jab tak hum ye na jaan lein ke B1 ke sath kya ho raha hai, tab tak hum B2 aur B3 ke sath kya hoga ye calculate nahi kar sakte. Hume pehle B1 ko solve karna hoga.</p>
+<p>To, B1 apne aap ko kaise balance karta hai? Wo apne aas-paas ke forces ko dekhta hai. T1 use upar khinch raha hai. B2 use niche khinch raha hai. B1 ko apne grip ko adjust karne ke liye apne upar lagne wale net force ko calculate karna hoga. Agar T1 ka pull 90 hai aur B1 aur B2 ka weight 100 hai, to B1 ko niche ki taraf 10 ka net force feel hoga. Yahi net force use slide ya slip karne par majboor karta hai. Balance pane ke liye, use apne hath ko aisi nayi jagah slide karna hoga jahan forces barabar ho jayein. Aur solver bilkul yahi kaam karta hai.</p>
+<p>Aur isi tarah ye simple human chain solver ke interconnected elements ke logic ko explain karti hai.</p>
+</details>
+<details class="admonition admonish-example">
+  <summary class="admonition-title">Deep Dive: Silicon-Level Verification</summary>
+<p>Hum real math ko Rust code execution se verify kar sakte hain:</p>
+<pre class="language-rust"><code class="language-rust">
+let mut config = PhysicsConfig::default();
+config.<span class="keyword-highlight" data-tooltip="The number of sub-intervals we split a single 1/60s frame into (the temporal aspect of the solver).">sub_steps</span> = 4;
+config.<span class="keyword-highlight" data-tooltip="The number of Gauss-Seidel relaxation passes we run per sub-step.">iterations</span> = 12;
+
+let mut world = PhysicsWorld::new(config);
+let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
+
+let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
+t3.body_type = <span class="keyword-highlight" data-tooltip="A rigid body that never moves, representing an infinite mass anchor (like the cliff/ground).">BodyType::Static</span>;
+t3.mass_props.<span class="keyword-highlight" data-tooltip="Setting inverse mass to zero mathematically means infinite mass. It cannot move.">inv_mass</span> = 0.0;
+world.add_body(t3); // T3 Anchor
+
+let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
+t2.body_type = <span class="keyword-highlight" data-tooltip="A rigid body affected by gravity and impulses (like the hanging people).">BodyType::Dynamic</span>;
+world.add_body(t2); // T2
+
+let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
+t1.body_type = BodyType::Dynamic;
+world.add_body(t1); // T1
+
+let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
+b1.body_type = BodyType::Dynamic;
+let b1_handle = world.add_body(b1); // B1 Focus
+
+let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
+b2.body_type = BodyType::Dynamic;
+world.add_body(b2); // B2
+
+let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
+b3.body_type = BodyType::Dynamic;
+world.add_body(b3); // B3
+
+world.<span class="keyword-highlight" data-tooltip="The main entry point that runs collision detection and calls the TGS solver to update positions.">update</span>(1.0 / 60.0, None, None);
+</code></pre>
+
+<p>Engine is code ko compile aur execute karke ye telemetry logs deta hai:</p>
+<pre><code class="language-text">
+--- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
+Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
+B1 Initial Position Y: 3.0000
+B1 Initial Velocity Y: 0.0000
+
+Executing 1 Frame (dt = 0.0166)...
+[SOLVE_TGS] Entry: <span class="keyword-highlight" data-tooltip="The 5 joints connecting the 6 bodies in our cliffhanger chain.">constraints=5</span>, <span class="keyword-highlight" data-tooltip="Parallel execution batches to resolve independent constraints.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight" data-tooltip="Constraints resolved using SIMD lane vectorization for hardware speed.">total_simd_constraints=2</span>
+
+B1 Final Position Y: 3.000041
+B1 Final Velocity Y: 0.003417
+B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
+------------------------------------------------------------
+</code></pre>
+
+</details>
+<p>Aur isi tarah ye math poore physical grid ko frame by frame stabilize karta hai.</p>
+<div class="lang-marker" data-lang="english"></div>
+
+<p>Here is how the Temporal Gauss-Seidel solver brings physical systems into balance at the hardware level.</p>
+<p>The Temporal Gauss-Seidel (TGS) solver is a fundamental algorithm in rigid body physics simulation. When solving large systems of physical constraints, the engine formulates a global system of equations representing the impulses required to prevent interpenetration. TGS approximates the solution by sweeping through constraints iteratively. The mathematical foundation of this relaxation method is governed by:</p>
+<p>\[
+x_i^{(k+1)} = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)} - \sum_{j=i+1}^{n} a_{ij} x_j^{(k)} \right)
+\]</p>
+<p>Here, <span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">\(x_i^{(k+1)}\)</span> denotes the updated state of the active constraint being relaxed at iteration step \(k+1\). The matrix element <span class="keyword-highlight" data-tooltip="This is the effective mass or inertia tensor value, showing resistance to movement. In the cliffhanger analogy, this maps to B1&#39;s weight and grip friction.">\(a_{ii}\)</span> corresponds to the effective mass of the joint or contact, derived from the constraint Jacobian and the inverse mass properties of the interacting rigid bodies. The vector term <span class="keyword-highlight" data-tooltip="This is the pure external force acting on the target object. In the analogy, it represents B1&#39;s own isolated gravity pulling him down.">\(b_i\)</span> gathers the external biases and forces, including gravity and penetration error correction terms.</p>
+<p>The two summation operations (Sigmas) evaluate the coupling terms with surrounding constraints. The first summation <span class="keyword-highlight" data-tooltip="This is the T-array—the people standing on top of the cliff pulling up. Since the CPU already solved these upper elements, they have the updated present state &#92;( k+1 &#92;).">\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\)</span> aggregates constraint impulses from bodies that have already been updated within the current iteration loop, thus utilizing the present state \(k+1\). The second summation <span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn&#39;t reached them yet in this loop, they carry the past state &#92;( k &#92;).">\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\)</span> accounts for impulses from constraints that have not yet been evaluated, relying on the past state \(k\). The coupling term <span class="keyword-highlight" data-tooltip="This is the coupling coefficient representing grid stiffness. In the analogy, it maps to the grip strength between characters.">\(a_{ij}\)</span> scales the force transmission stiffness between these connected coordinates.</p>
+<p>Lekin is heavy, sequential chain-reaction ko CPU cycles exhaust karne se bachane ke liye, yeh ‘Time’ (Temporal) ka element inject karta hai. Kaise? Pichle frame ke final physics state ko recycle karke aur use naye frame ke liye initial guess ki tarah use karke. Since objects barely move in a split second, this <span class="keyword-highlight" data-tooltip="Instead of starting from scratch on every frame, the solver recycles the final physics state from the previous frame as the starting guess for the new one. Since objects barely move in a fraction of a second, this trick saves dozens of calculation loops and keeps things stable.">Temporal Coherence</span> trick saves tons of calculation loops and keeps things stable.</p>
+<p>If we look at the TGS math, the solver isolates one object. It filters out surrounding forces to focus on the object’s own weight and movement resistance.</p>
+<p>So, the math flips this inertia upside down: \(1 / a_{ii}\). The inverse of inertia is what we call <span class="keyword-highlight" data-tooltip="Mass and inertia mean stubbornness—how much an object resists moving. But to solve constraints, we want movement, not stubbornness. So, the math flips this inertia upside down: 1/a_ii. The inverse of inertia is what we call Mobility.">Mobility</span>.</p>
+<p>Inside the bracket, it takes the weight (\(b_i\)) and subtracts those two Sigmas (the pulls from above and below). The result is the <span class="keyword-highlight" data-tooltip="Say B1&#39;s weight and the pull from the guys below equal 100 force pulling down. The person above pulls up with a force of 90. When we subtract, we have a net downward force of 10. That net force is our Unbalanced Force. It means B1 is not balanced.">Unbalanced Force</span>, or the residual.</p>
+<p>Since B1 must move because of this force, the CPU takes B1’s Mobility and multiplies it by the Unbalanced Force:</p>
+<p>\[
+\text{Mobility } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
+\]</p>
+<p>This multiplication represents the exact moment the coordinates slip. This <span class="keyword-highlight" data-tooltip="This slip isn&#39;t a bug. It&#39;s the physical movement caused by that net force of 10. The math drives B1&#39;s hand to slide to a new spot where all forces cancel out. That new, stable position is our final output: x_i(k+1).">Slip</span> isn’t a bug, but the physical displacement caused by that remaining force. Driven entirely by the math, the coordinates will physically slide to a brand new position where all forces cancel out. That newly calculated, stable position becomes our final output.</p>
+<details class="admonition admonish-example">
+  <summary class="admonition-title">Deep Dive: The Cliffhanger Analogy</summary>
+<p>Imagine a person hanging off the edge of a cliff, and we’ll call him B1.</p>
+<p>But B1 isn’t alone. He’s got someone holding onto his legs—let’s call him B2. And B2 has someone else holding onto <em>his</em> legs, B3. So you’ve got this chain of three people hanging over the edge, dangling helplessly. In code, we can group these guys as our bottom array: <code>[B1, B2, B3]</code>. B3 is at the very bottom, and B1 is at the top holding the edge.</p>
+<p>Now, think about what’s happening on top of the cliff. We have people trying to pull them up. One person is holding B1’s hand directly—let’s call them T1. Another person is pulling T1—T2. And a third person is anchoring them all to the safety of the ground—T3. This forms our upper array: <code>[T3, T2, T1]</code>. T1 is the guy right at the edge, holding onto B1.</p>
+<p>If we connect everyone, we get a single chain: <code>[T3, T2, T1, B1, B2, B3]</code>.</p>
+<p>Now, why is B1 our main focus? If B1 lets go, everyone below falls. Also, B1 is the very first person hanging in the air instead of standing on the mountain. Until the solver stabilizes B1, we can’t figure out what happens to B2 and B3. We have to solve B1 first.</p>
+<p>So, how does B1 balance himself? He looks at the forces around him. T1 is pulling him up. B2 is pulling him down. B1 has to calculate the net force acting on him to adjust his grip. If the pull from T1 is 90 and the weight from B1 and B2 is 100, B1 is feeling a net downward pull of 10. That net force is what makes him slide or slip. To find balance, he has to slide his hands to a new spot where the forces equal out. And that’s exactly what the solver does.</p>
+<p>And that’s how this simple human chain maps perfectly to how the solver handles interconnected physics elements.</p>
+</details>
+<details class="admonition admonish-example">
+  <summary class="admonition-title">Deep Dive: Silicon-Level Verification</summary>
+<p>We can check the physical math behavior using Rust code:</p>
+<pre class="language-rust"><code class="language-rust">
+let mut config = PhysicsConfig::default();
+config.<span class="keyword-highlight" data-tooltip="The number of sub-intervals we split a single 1/60s frame into (the temporal aspect of the solver).">sub_steps</span> = 4;
+config.<span class="keyword-highlight" data-tooltip="The number of Gauss-Seidel relaxation passes we run per sub-step.">iterations</span> = 12;
+
+let mut world = PhysicsWorld::new(config);
+let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
+
+let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
+t3.body_type = <span class="keyword-highlight" data-tooltip="A rigid body that never moves, representing an infinite mass anchor (like the cliff/ground).">BodyType::Static</span>;
+t3.mass_props.<span class="keyword-highlight" data-tooltip="Setting inverse mass to zero mathematically means infinite mass. It cannot move.">inv_mass</span> = 0.0;
+world.add_body(t3); // T3 Anchor
+
+let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
+t2.body_type = <span class="keyword-highlight" data-tooltip="A rigid body affected by gravity and impulses (like the hanging people).">BodyType::Dynamic</span>;
+world.add_body(t2); // T2
+
+let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
+t1.body_type = BodyType::Dynamic;
+world.add_body(t1); // T1
+
+let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
+b1.body_type = BodyType::Dynamic;
+let b1_handle = world.add_body(b1); // B1 Focus
+
+let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
+b2.body_type = BodyType::Dynamic;
+world.add_body(b2); // B2
+
+let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
+b3.body_type = BodyType::Dynamic;
+world.add_body(b3); // B3
+
+world.<span class="keyword-highlight" data-tooltip="The main entry point that runs collision detection and calls the TGS solver to update positions.">update</span>(1.0 / 60.0, None, None);
+</code></pre>
+
+<p>When we run this code, the engine prints the following output:</p>
+<pre><code class="language-text">
+--- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
+Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
+B1 Initial Position Y: 3.0000
+B1 Initial Velocity Y: 0.0000
+
+Executing 1 Frame (dt = 0.0166)...
+[SOLVE_TGS] Entry: <span class="keyword-highlight" data-tooltip="The 5 joints connecting the 6 bodies in our cliffhanger chain.">constraints=5</span>, <span class="keyword-highlight" data-tooltip="Parallel execution batches to resolve independent constraints.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight" data-tooltip="Constraints resolved using SIMD lane vectorization for hardware speed.">total_simd_constraints=2</span>
+
+B1 Final Position Y: 3.000041
+B1 Final Velocity Y: 0.003417
+B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
+------------------------------------------------------------
+</code></pre>
+
+</details>
+<p>And that is how the math stabilizes the entire physical grid frame by frame.</p>
+<div class="lang-marker" data-lang="spanish"></div>
+
+<p>Así es como el resolvedor Temporal Gauss-Seidel equilibra los sistemas físicos a nivel de hardware.</p>
+<p>El resolvedor Temporal Gauss-Seidel (TGS) es un algoritmo fundamental en la simulación física de cuerpos rígidos. Al resolver grandes sistemas de restricciones físicas, el motor formula un sistema global de ecuaciones que representa los impulsos necesarios para evitar la interpenetración. TGS aproxima la solución recorriendo las restricciones de forma iterativa. La base matemática de este método de relajación se define mediante:</p>
+<p>\[
+x_i^{(k+1)} = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)} - \sum_{j=i+1}^{n} a_{ij} x_j^{(k)} \right)
+\]</p>
+<p>Aquí, <span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">\(x_i^{(k+1)}\)</span> denota el estado actualizado de la restricción activa que se está relajando en el paso de iteración \(k+1\). El elemento de matriz <span class="keyword-highlight" data-tooltip="Esta es la masa efectiva o valor del tensor de inercia, que muestra resistencia al movimiento. En la analogía, esto se mapea con el peso y agarre de B1.">\(a_{ii}\)</span> corresponde a la masa efectiva de la articulación o contacto, derivada del jacobiano de la restricción y las propiedades de masa inversa de los cuerpos rígidos que interactúan. El término vectorial <span class="keyword-highlight" data-tooltip="Esta es la fuerza externa pura sobre el objeto. En la analogía, representa el propio peso de B1 tirando de él hacia abajo.">\(b_i\)</span> gathers los sesgos y fuerzas externos, incluidos la gravedad y los términos de corrección de errores de penetración.</p>
+<p>Las dos operaciones de suma (Sigmas) evalúan los términos de acoplamiento con las restricciones circundantes. La primera suma <span class="keyword-highlight" data-tooltip="Esta es la lista T: las personas en la cima del acantilado tirando hacia arriba. Como la CPU ya resolvió estos elementos, tienen el estado actualizado &#92;( k+1 &#92;).">\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\)</span> acumula los impulsos de restricción de los cuerpos que ya han sido actualizados dentro del bucle de iteración actual, utilizando así el estado presente \(k+1\). La segunda suma <span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado &#92;( k &#92;).">\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\)</span> contabiliza los impulsos de las restricciones que aún no han sido evaluadas, basándose en el estado pasado \(k\). El término de acoplamiento <span class="keyword-highlight" data-tooltip="Este es el coeficiente de acoplamiento que representa la rigidez de la red. En la analogía, se asocia con la fuerza de agarre.">\(a_{ij}\)</span> escala la rigidez de transmisión de fuerza entre estas coordenadas conectadas.</p>
+<p>Por eso usa un atajo de tiempo. Toma el estado físico final del último fotograma y lo usa como punto de partida para el nuevo. Como los objetos apenas se mueven en una fracción de segundo, este truco de <span class="keyword-highlight" data-tooltip="En lugar de empezar de cero en cada fotograma, el resolvedor reutiliza el estado físico final del fotograma anterior como punto de partida. Como los objetos apenas se mueven en una fracción de segundo, este truco ahorra muchos ciclos de cálculo.">Coherencia Temporal</span> ahorra muchos ciclos de cálculo y mantiene todo estable.</p>
+<p>Si miramos la matemática de TGS, el resolvedor aísla un solo objeto. Filtra las fuerzas de alrededor para enfocarse solo en el peso del objeto y su resistencia al movimiento.</p>
+<p>Así que las matemáticas voltean esta inercia al revés: \(1 / a_{ii}\). Lo opuesto a la inercia es lo que llamamos <span class="keyword-highlight" data-tooltip="La masa y la inercia significan terquedad: cuánto se resiste un objeto a moverse. Pero para resolver restricciones, queremos movimiento. Así que las matemáticas voltean esta inercia al revés: 1/a_ii. Lo opuesto a la inercia es lo que llamamos Movilidad.">Movilidad</span>.</p>
+<p>Dentro del paréntesis, toma el peso (\(b_i\)) y resta esas dos Sigmas (los tirones de arriba y de abajo). El resultado es la <span class="keyword-highlight" data-tooltip="Digamos que el peso de B1 y el tirón de abajo suman 100 de fuerza hacia abajo. La persona de arriba tira con una fuerza de 90. Al restar, nos queda una fuerza neta hacia abajo de 10. Esa es la Fuerza Desequilibrada. Significa que B1 no está en equilibrio. Está siendo tirado hacia abajo.">Fuerza Desequilibrada</span> o el residuo.</p>
+<p>Como B1 debe moverse por esta fuerza, la CPU toma la Movilidad de B1 y la multiplica por la Fuerza Desequilibrada:</p>
+<p>\[
+\text{Movilidad } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
+\]</p>
+<p>Esta multiplicación representa el momento exacto en que la mano de B1 se desliza. Este <span class="keyword-highlight" data-tooltip="Este deslizamiento no es un error. Es el movimiento físico causado por esa fuerza neta de 10. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.">Deslizamiento</span> no es un error, sino el desplazamiento real provocado por la fuerza restante. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.</p>
+<details class="admonition admonish-example">
+  <summary class="admonition-title">Deep Dive: La Analogía del Acantilado</summary>
+<p>Imagina a una persona colgando del borde de un acantilado, a la que llamaremos B1.</p>
+<p>Pero B1 no está solo. Tiene a alguien sujeto de sus piernas; llamémoslo B2. Y B2 tiene a otra persona sujeta de sus piernas, B3. Así que tienes a esta cadena de tres personas colgando del borde, suspendidas sin poder hacer nada. En código, podemos agrupar a estos chicos como nuestra lista de abajo: <code>[B1, B2, B3]</code>. B3 está en el fondo y B1 está en la cima sosteniendo el borde.</p>
+<p>Ahora, piensa en lo que pasa arriba del acantilado. Tenemos a personas que intentan subirlos. Una persona sostiene la mano de B1 directamente; llamémosla T1. Otra persona tira de T1; T2. Y una tercera persona asegura a todos al suelo firme; T3. Esto forma nuestra lista de arriba: <code>[T3, T2, T1]</code>. T1 es quien está justo en el borde, sosteniendo a B1.</p>
+<p>Si los conectamos a todos, obtenemos una sola cadena: <code>[T3, T2, T1, B1, B2, B3]</code>.</p>
+<p>Ahora, ¿por qué B1 es nuestro punto de atención? Si B1 se suelta, todos los de abajo caen. Pero hay otra razón. T1, T2 y T3 están de pie en el suelo. B1 es la primera persona que está colgada en el aire. Está suspendido. Hasta que descubramos qué le pasa a B1, no podemos calcular lo que les pasa a B2 y B3. Primero tenemos que resolver B1.</p>
+<p>¿Cómo se equilibra B1? Mira las fuerzas a su alrededor. T1 lo tira hacia arriba. B2 lo tira hacia abajo. B1 tiene que calcular la fuerza neta que actúa sobre él para ajustar su agarre. Si el tirón de T1 es de 90 y el peso de B1 y B2 es de 100, B1 siente un tirón neto hacia abajo de 10. Esa fuerza neta es lo que hace que se deslice o resbale. Para encontrar el equilibrio, tiene que deslizar sus manos a un nuevo punto donde las fuerzas se igualen. Y eso es exactamente lo que hace el resolvedor.</p>
+<p>Y así es como esta cadena humana se conecta con la forma en que el resolvedor maneja los elementos físicos acoplados.</p>
+</details>
+<details class="admonition admonish-example">
+  <summary class="admonition-title">Deep Dive: Verificación a Nivel de Silicio</summary>
+<p>Podemos comprobar el comportamiento matemático real usando código Rust:</p>
+<pre class="language-rust"><code class="language-rust">
+let mut config = PhysicsConfig::default();
+config.<span class="keyword-highlight" data-tooltip="El número de subintervalos en los que dividimos un solo fotograma de 1/60s (el aspecto temporal del resolvedor).">sub_steps</span> = 4;
+config.<span class="keyword-highlight" data-tooltip="El número de pasadas de relajación de Gauss-Seidel que ejecutamos por subpaso.">iterations</span> = 12;
+
+let mut world = PhysicsWorld::new(config);
+let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
+
+let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
+t3.body_type = <span class="keyword-highlight" data-tooltip="Un cuerpo rígido que nunca se mueve, que representa un anclaje de masa infinita (como el acantilado).">BodyType::Static</span>;
+t3.mass_props.<span class="keyword-highlight" data-tooltip="Establecer la masa inversa a cero matemáticamente significa masa infinita. No se puede mover.">inv_mass</span> = 0.0;
+world.add_body(t3); // T3 Anchor
+
+let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
+t2.body_type = <span class="keyword-highlight" data-tooltip="Un cuerpo rígido afectado por la gravedad y los impulsos (como las personas colgadas).">BodyType::Dynamic</span>;
+world.add_body(t2); // T2
+
+let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
+t1.body_type = BodyType::Dynamic;
+world.add_body(t1); // T1
+
+let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
+b1.body_type = BodyType::Dynamic;
+let b1_handle = world.add_body(b1); // B1 Focus
+
+let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
+b2.body_type = BodyType::Dynamic;
+world.add_body(b2); // B2
+
+let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
+b3.body_type = BodyType::Dynamic;
+world.add_body(b3); // B3
+
+world.<span class="keyword-highlight" data-tooltip="El punto de entrada principal que ejecuta la detección de colisiones y llama al resolvedor TGS para actualizar las posiciones.">update</span>(1.0 / 60.0, None, None);
+</code></pre>
+
+<p>Cuando ejecutamos este código, el motor imprime el siguiente resultado:</p>
+<pre><code class="language-text">
+--- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
+Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
+B1 Initial Position Y: 3.0000
+B1 Initial Velocity Y: 0.0000
+
+Executing 1 Frame (dt = 0.0166)...
+[SOLVE_TGS] Entry: <span class="keyword-highlight" data-tooltip="Las 5 articulaciones que conctan los 6 cuerpos en nuestra cadena del acantilado.">constraints=5</span>, <span class="keyword-highlight" data-tooltip="Lotes de ejecución paralela para resolver restricciones independientes.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight" data-tooltip="Restricciones resueltas usando la vectorización de carriles SIMD para mayor velocidad del hardware.">total_simd_constraints=2</span>
+
+B1 Final Position Y: 3.000041
+B1 Final Velocity Y: 0.003417
+B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
+------------------------------------------------------------
+</code></pre>
+
+</details>
+<p>Y así es como las matemáticas estabilizan toda la cuadrícula física fotograma a fotograma.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+        <script src="lang-switcher-59772da9.js"></script>
+
+        <script>
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+
+
+    </div>
+    </body>
+</html>

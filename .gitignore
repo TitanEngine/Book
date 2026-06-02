@@ -1,0 +1,6 @@
+# mdBook build output
+book/
+
+# OS generated files
+.DS_Store
+Thumbs.db

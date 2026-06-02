@@ -1,0 +1,12 @@
+[book]
+title = "TitanEngine Preview"
+authors = ["Ameen"]
+language = "en"
+
+[output.html]
+mathjax-support = true
+additional-css = ["./mdbook-admonish.css"]
+additional-js = ["mermaid.min.js", "mermaid-init.js", "lang-switcher.js"]
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"

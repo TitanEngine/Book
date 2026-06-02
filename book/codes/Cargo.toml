@@ -1,0 +1,14 @@
+[package]
+name = "book_codes"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "tgs_concept"
+path = "tgs_concept.rs"
+
+[dependencies]
+engine_core = { path = "../../../../../crates/engine_core" }
+
+[workspace]
+
