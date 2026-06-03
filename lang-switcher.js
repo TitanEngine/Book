@@ -29,6 +29,23 @@ if (!sessionStorage.getItem('theme-forced-rust')) {
           max-width: 100% !important;
           height: auto !important;
         }
+        @media (max-width: 768px) {
+          body, .content main, .drawer-body {
+            font-size: 0.94rem !important;
+            line-height: 1.55 !important;
+          }
+          .drawer-body pre, .drawer-body code, pre code {
+            font-size: 0.82rem !important;
+          }
+          .content p, .drawer-body p, .content li, .drawer-body li {
+            text-align: justify !important;
+            text-justify: inter-word !important;
+          }
+          .MathJax_Display, mjx-container {
+            font-size: 0.72em !important;
+            padding: 2px 0 !important;
+          }
+        }
     `;
     if (document.head) {
         document.head.appendChild(style);

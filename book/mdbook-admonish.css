@@ -1152,3 +1152,29 @@ img, iframe {
   max-width: 100% !important;
   height: auto !important;
 }
+
+/* Mobile Typography, Justification and Math Scaling Rules (max-width: 768px) */
+@media (max-width: 768px) {
+  /* Scale down base font sizes to fit screen viewports comfortably */
+  body, .content main, .drawer-body {
+    font-size: 0.94rem !important;
+    line-height: 1.55 !important;
+  }
+  
+  /* Scale down code blocks text size to prevent excessive scrolling/wrapping */
+  .drawer-body pre, .drawer-body code, pre code {
+    font-size: 0.82rem !important;
+  }
+
+  /* Row Margins Justification: prevent ragged right edges for clean alignment */
+  .content p, .drawer-body p, .content li, .drawer-body li {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+  }
+
+  /* Math Scaling: Shrink MathJax block equations so they fit without scrollbars */
+  .MathJax_Display, mjx-container {
+    font-size: 0.72em !important;
+    padding: 2px 0 !important;
+  }
+}
