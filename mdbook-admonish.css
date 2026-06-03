@@ -1132,3 +1132,23 @@ div[id^="silicon-drawer-"].drawer-container .drawer-backdrop {
 #keyword-deepdive-drawer {
   z-index: 10025 !important;
 }
+
+/* --- Mobile Viewport & Horizontal Overflow Prevention --- */
+/* Prevents wide elements (like code, tables, math formulas) from expanding the page width and zooming out the mobile layout */
+.page-wrapper, .page, .content, main {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Allow horizontal scrolling locally for code blocks, preformatted text, and MathJax block equations */
+pre, code, .MathJax_Display, .MathJax, mjx-container {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+/* Ensure images and iframe elements scale within the viewport bounds */
+img, iframe {
+  max-width: 100% !important;
+  height: auto !important;
+}
