@@ -455,6 +455,34 @@ function initKeywordDrawer() {
     document.body.appendChild(drawer);
 }
 
+
+function updateSidebarToC() {
+    try {
+        const tocLinks = document.querySelectorAll('.on-this-page a');
+        tocLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                const targetId = href.substring(1);
+                const decodedId = decodeURIComponent(targetId);
+                const target = document.getElementById(decodedId) || document.getElementById(targetId);
+                if (target) {
+                    const langWrapper = target.closest('.lang-content');
+                    const li = link.closest('li');
+                    if (li) {
+                        if (langWrapper && (langWrapper.style.display === 'none' || !langWrapper.classList.contains('active'))) {
+                            li.style.display = 'none';
+                        } else {
+                            li.style.display = 'block';
+                        }
+                    }
+                }
+            }
+        });
+    } catch (e) {
+        console.error("ToC update failed:", e);
+    }
+}
+
 function switchLanguage(lang) {
     const contents = document.querySelectorAll('.lang-content');
     
@@ -484,6 +512,9 @@ function switchLanguage(lang) {
             el.classList.add('active');
             el.style.opacity = '1';
         });
+
+        // Sync sidebar Table of Contents with visible headers
+        updateSidebarToC();
     };
 
     if (activeContent && activeContent !== targetContents[0]) {
@@ -556,6 +587,9 @@ function initLanguageToggle() {
     // Restore selected language
     const savedLang = localStorage.getItem('preferred-language') || 'hinglish';
     switchLanguage(savedLang);
+
+    // Filter sidebar ToC once built dynamically
+    setTimeout(updateSidebarToC, 100);
 }
 
 let activeTooltip = null;
@@ -897,6 +931,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initLanguageToggle();
     initKeywordDrawer();
     initTooltips();
+    
+    // Set up MutationObserver to sync Table of Contents as soon as it is rendered
+    try {
+        const observer = new MutationObserver((mutations) => {
+            const toc = document.querySelector('.on-this-page');
+            if (toc) {
+                updateSidebarToC();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {
+        console.error("ToC MutationObserver failed:", e);
+    }
 });
 
 // --- Sliding Drawer Operations ---

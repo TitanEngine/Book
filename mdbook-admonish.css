@@ -364,7 +364,7 @@ summary.admonition-title::-webkit-details-marker {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  margin: 15px 24px 25px 24px;
   position: sticky;
   top: 10px;
   z-index: 100;
@@ -375,10 +375,10 @@ summary.admonition-title::-webkit-details-marker {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--fg);
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
-  font-size: 0.85em;
+  font-size: 0.95em;
   font-weight: 600;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -1194,5 +1194,17 @@ img, iframe {
     -moz-user-select: text !important;
     -ms-user-select: text !important;
     user-select: text !important;
+  }
+}
+
+/* Desktop layout breathing room and text justification overrides */
+@media (min-width: 1025px) {
+  .content main {
+    padding: 0 25px !important;
+  }
+  .content main p, .content main li {
+    text-align: justify;
+    text-justify: inter-word;
+    line-height: 1.68;
   }
 }
