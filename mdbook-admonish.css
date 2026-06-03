@@ -413,16 +413,38 @@ summary.admonition-title::-webkit-details-marker {
   border-bottom: 2px dashed #448aff;
   cursor: pointer;
   display: inline;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  background-color: transparent;
+  transition: background-color 0.2s, border-bottom-style 0.2s, text-shadow 0.2s;
+}
+.keyword-highlight:hover {
+  background-color: rgba(68, 138, 255, 0.08);
+  border-bottom-style: solid;
+  text-shadow: 0 0 10px rgba(68, 138, 255, 0.25);
+}
+.tooltip-click-cta {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  justify-content: flex-end;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 .keyword-tooltip-box.global-tooltip {
   position: absolute;
   visibility: hidden;
   opacity: 0;
   z-index: 9999;
-  max-width: 380px;
-  width: calc(100vw - 40px);
+  max-width: 290px;
+  width: calc(100vw - 32px);
   background-color: rgba(25, 25, 25, 0.98);
-  color: #fff;
+  color: #e2d1b7;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
@@ -435,7 +457,14 @@ summary.admonition-title::-webkit-details-marker {
   pointer-events: none;
   font-weight: 400;
   white-space: normal;
-  transition: opacity 0.15s ease-out;
+  transform: translateY(8px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.25s;
+}
+.keyword-tooltip-box.global-tooltip.tooltip-show {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0s;
 }
 .keyword-tooltip-box.global-tooltip::after {
   content: "";
@@ -454,7 +483,7 @@ summary.admonition-title::-webkit-details-marker {
 }
 .light .keyword-tooltip-box.global-tooltip, .rust .keyword-tooltip-box.global-tooltip {
   background-color: rgba(255, 255, 255, 0.99);
-  color: #222;
+  color: #5d4037;
   border-color: rgba(0, 0, 0, 0.15);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
@@ -464,40 +493,48 @@ summary.admonition-title::-webkit-details-marker {
 .light .keyword-tooltip-box.global-tooltip.tooltip-bottom::after, .rust .keyword-tooltip-box.global-tooltip.tooltip-bottom::after {
   border-color: transparent transparent rgba(255, 255, 255, 0.99) transparent;
 }
+.light .tooltip-click-cta, .rust .tooltip-click-cta {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.8);
+}
 
 /* --- Sliding Drawer / Side-Sheet UI --- */
 
 /* Trigger Button */
 .drawer-trigger-btn {
-  display: inline-block;
-  margin: 10px 0 20px 0;
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 12px 20px 0;
+  padding: 12px 24px;
+  min-width: 260px; /* Mathematically symmetric */
   font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, rgba(230, 80, 0, 0.85), rgba(255, 115, 0, 0.85));
+  background: linear-gradient(135deg, rgba(230, 80, 0, 0.9), rgba(255, 115, 0, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(230, 80, 0, 0.25);
+  box-shadow: 0 4px 15px rgba(230, 80, 0, 0.2);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   font-family: inherit;
+  box-sizing: border-box;
 }
 .drawer-trigger-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(230, 80, 0, 0.4);
-  background: linear-gradient(135deg, rgba(230, 80, 0, 0.95), rgba(255, 115, 0, 0.95));
+  box-shadow: 0 6px 20px rgba(230, 80, 0, 0.35);
+  background: linear-gradient(135deg, rgba(230, 80, 0, 1), rgba(255, 115, 0, 1));
 }
 .drawer-trigger-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 10px rgba(230, 80, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(230, 80, 0, 0.15);
 }
 
 /* Light theme trigger button overrides */
 .light .drawer-trigger-btn, .rust .drawer-trigger-btn {
-  background: linear-gradient(135deg, rgba(220, 70, 0, 0.9), rgba(240, 100, 0, 0.9));
-  box-shadow: 0 4px 12px rgba(220, 70, 0, 0.2);
+  background: linear-gradient(135deg, rgba(220, 70, 0, 0.95), rgba(240, 100, 0, 0.95));
+  box-shadow: 0 4px 12px rgba(220, 70, 0, 0.15);
 }
 .light .drawer-trigger-btn:hover, .rust .drawer-trigger-btn:hover {
   background: linear-gradient(135deg, rgba(220, 70, 0, 1), rgba(240, 100, 0, 1));
@@ -542,8 +579,9 @@ summary.admonition-title::-webkit-details-marker {
   position: absolute;
   top: 0;
   right: 0;
-  width: 480px;
-  max-width: 90%;
+  width: 45vw;
+  min-width: 320px;
+  max-width: 480px;
   height: 100%;
   background: rgba(20, 20, 25, 0.85);
   color: #f5f5f7;
@@ -556,6 +594,7 @@ summary.admonition-title::-webkit-details-marker {
   overflow: hidden;
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
+  will-change: transform;
 }
 .drawer-container.open .drawer-content {
   transform: translateX(0);
@@ -611,6 +650,8 @@ summary.admonition-title::-webkit-details-marker {
   flex: 1;
   font-size: 1.15rem;
   line-height: 1.6;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .drawer-body pre, .drawer-body code {
   background: rgba(0, 0, 0, 0.2);
@@ -632,4 +673,317 @@ summary.admonition-title::-webkit-details-marker {
 }
 .lang-content.active {
   opacity: 1;
+}
+
+/* Mobile and Split-Screen General Optimizations (<= 1024px) */
+@media (max-width: 1024px) {
+  /* Tooltip (Sticky Note) Sizing: Compact and responsive max-width */
+  .keyword-tooltip-box.global-tooltip {
+    font-size: 0.9rem !important;
+    padding: 14px 18px !important;
+    border-radius: 12px !important;
+    max-width: min(260px, calc(100vw - 32px)) !important;
+    box-sizing: border-box !important;
+  }
+  .tooltip-click-cta {
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+    font-size: 0.68rem !important;
+  }
+
+  /* Language Switcher to Flat GitHub Tags on Mobile/Split Screen */
+  .lang-switch-container {
+    justify-content: center !important;
+    margin: 15px 0 25px 0 !important;
+    position: relative !important;
+    top: auto !important;
+  }
+  
+  .lang-btn {
+    background: rgba(120, 120, 120, 0.1) !important;
+    color: var(--fg) !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important; /* GitHub tag rectangular design */
+    padding: 6px 12px !important; /* Increased for better readability on desktop split-screen */
+    font-size: 0.88rem !important; /* Readable text size */
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: all 0.15s ease-in-out !important;
+  }
+  
+  /* Active Distinct Colors for GitHub tags (Light Theme values by default) */
+  .lang-btn[onclick*="hinglish"].active {
+    background-color: rgba(240, 140, 0, 0.12) !important;
+    color: #e65100 !important;
+    border: 1px solid rgba(240, 140, 0, 0.25) !important;
+  }
+  .lang-btn[onclick*="english"].active {
+    background-color: rgba(68, 138, 255, 0.12) !important;
+    color: #0d47a1 !important;
+    border: 1px solid rgba(68, 138, 255, 0.25) !important;
+  }
+  .lang-btn[onclick*="spanish"].active {
+    background-color: rgba(76, 175, 80, 0.12) !important;
+    color: #1b5e20 !important;
+    border: 1px solid rgba(76, 175, 80, 0.25) !important;
+  }
+
+  /* Active Distinct Colors for Dark Themes (coal, navy, ayu) */
+  .coal .lang-btn[onclick*="hinglish"].active,
+  .navy .lang-btn[onclick*="hinglish"].active,
+  .ayu .lang-btn[onclick*="hinglish"].active {
+    background-color: rgba(240, 140, 0, 0.2) !important;
+    color: #ffb74d !important;
+    border: 1px solid rgba(240, 140, 0, 0.4) !important;
+  }
+  .coal .lang-btn[onclick*="english"].active,
+  .navy .lang-btn[onclick*="english"].active,
+  .ayu .lang-btn[onclick*="english"].active {
+    background-color: rgba(68, 138, 255, 0.2) !important;
+    color: #90caf9 !important;
+    border: 1px solid rgba(68, 138, 255, 0.4) !important;
+  }
+  .coal .lang-btn[onclick*="spanish"].active,
+  .navy .lang-btn[onclick*="spanish"].active,
+  .ayu .lang-btn[onclick*="spanish"].active {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    color: #a5d6a7 !important;
+    border: 1px solid rgba(76, 175, 80, 0.4) !important;
+  }
+}
+
+/* Mobile and Tablet Overlay Layouts (Width <= 768px, or <= 1024px with Touch Pointer) */
+@media (max-width: 768px), (max-width: 1024px) and (pointer: coarse) {
+  /* Mobile Sizing for Language Switcher Buttons */
+  .lang-btn {
+    padding: 10px 18px !important;
+    font-size: 0.96rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* 1. Sidebar Bottom Sheet Layout Overlay */
+  .sidebar {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 70dvh !important;
+    max-height: 70dvh !important;
+    border: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    background: rgba(20, 20, 25, 0.85) !important;
+    color: #f5f5f7 !important;
+    box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    z-index: 10008 !important; /* sit below the deep dive drawer but above page content */
+    
+    /* Animation: slide up/down instead of left/right */
+    transform: translateY(100%) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    will-change: transform;
+  }
+  
+  #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
+    transform: translateY(0) !important;
+  }
+  
+  .light .sidebar, .rust .sidebar {
+    background: rgba(250, 250, 252, 0.85) !important;
+    color: #1d1d1f !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .sidebar-resize-handle {
+    display: none !important;
+  }
+  
+  .sidebar .sidebar-scrollbox {
+    padding: 24px 20px !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Prevent page content from shifting horizontally on open */
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    transform: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Page Wrapper Glassmorphic Blur when sidebar is active */
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    filter: blur(5px) !important;
+    opacity: 0.5 !important;
+    pointer-events: none !important; /* Disable all hover/active/click interactions in background */
+    transition: filter 0.3s ease, opacity 0.3s ease !important;
+  }
+  
+  #mdbook-sidebar-toggle-anchor:not(:checked) ~ .page-wrapper {
+    transition: filter 0.3s ease, opacity 0.3s ease !important;
+  }
+
+  /* Make sure the toggle menu button remains interactive to allow closing the sidebar */
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper #mdbook-sidebar-toggle {
+    pointer-events: auto !important;
+  }
+
+  /* 2. Drawer Bottom Sheet Layout Overlay */
+  .drawer-content {
+    top: auto !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 70dvh !important; /* Use dvh instead of vh */
+    max-height: 70dvh !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    transform: translateY(100%) !important;
+    box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .drawer-container.open .drawer-content {
+    transform: translateY(0) !important;
+  }
+
+  .light .drawer-content, .rust .drawer-content {
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* 3. Elastic Scroll Lock: Bottom sheet scroll locks */
+  .drawer-body {
+    padding: 24px 20px !important;
+    font-size: 1.05rem !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important; /* Prevents scroll chaining to parent */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .drawer-header {
+    padding: 16px 20px !important;
+  }
+}
+
+/* Screen widths under 600px (Mobile Portrait / Narrow snapping): Stack Trigger Buttons */
+@media (max-width: 600px) {
+  .drawer-trigger-btn {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 85% !important;
+    max-width: 320px !important;
+    min-width: 0 !important;
+    margin: 12px auto !important;
+  }
+  
+  p:has(.drawer-trigger-btn) {
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+}
+
+/* Touch Device Sizing Adjustments (Fat Finger support) */
+@media (pointer: coarse) {
+  /* Fat-finger Touch target overrides for language buttons */
+  .lang-btn {
+    padding: 8px 16px !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Expanded hover highlights without layout shifts */
+  .keyword-highlight {
+    padding: 4px 8px !important;
+    margin: -4px -8px !important;
+  }
+
+  /* Spacious spacing to prevent adjacent tap triggers */
+  main p, .drawer-body p {
+    line-height: 1.85 !important;
+  }
+}
+
+/* --- Snapped Window / Split-Screen Sidebar Overlap Fix --- */
+/* 1. Ensure the page container dynamically respects the sidebar width when visible */
+#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+  margin-left: var(--sidebar-width, 300px) !important;
+  padding-left: 0 !important;
+  transform: none !important; /* Prevent double shift with mdbook default translateX */
+}
+#mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
+  transform: translateX(0) !important; /* Force show when checked */
+}
+
+/* 2. Safety Valve: If the window is halved so much that both can't fit side-by-side, 
+   force the sidebar to behave as a clean toggle overlay instead of crushing the text */
+@media (max-width: 1024px) and (pointer: fine) {
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    margin-left: 0 !important;
+    padding-left: 1.5rem !important; /* Keeps a safe margin from the screen edge */
+    padding-right: 1.5rem !important;
+    transform: none !important; /* Prevent transition shift */
+  }
+  
+  #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: var(--sidebar-width, 300px) !important;
+    transform: translateX(0) !important;
+    z-index: 10010 !important; /* Sits cleanly on top only when manually toggled open */
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3) !important;
+  }
+}
+
+/* 3. Global Text Box Safety to prevent container blowouts */
+main, .content, p {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* --- Responsive Sidebar Text Truncation --- */
+/* Forces chapter links to dynamically truncate with ellipsis instead of wrapping or overflowing when sidebar is resized */
+.chapter-link-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.chapter-link-wrapper a, 
+.chapter li a {
+  display: block !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Fix mdBook previous chapter button transition jitter */
+.nav-chapters.previous {
+  left: 0;
+  transition: left 0.3s ease;
+}
+#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper .nav-chapters.previous {
+  left: var(--sidebar-width, 300px);
+}
+@media (max-width: 1024px) {
+  .nav-chapters.previous,
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper .nav-chapters.previous {
+    left: 0 !important;
+  }
 }

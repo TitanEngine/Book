@@ -479,47 +479,50 @@ function showTooltip(event) {
     const text = target.getAttribute('data-tooltip');
     if (!text) return;
 
+    const ctaText = 'Click for more details';
+
     // Create the tooltip element with explicit tex2jax_process class to force typesetting
     const tooltip = document.createElement('div');
     tooltip.className = 'keyword-tooltip-box global-tooltip tex2jax_process';
     tooltip.id = 'tgs-hover-tooltip';
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.opacity = '0';
-    tooltip.innerHTML = text;
+    tooltip.innerHTML = `
+        <div class="tooltip-body-content">${text}</div>
+        <div class="tooltip-click-cta">${ctaText}</div>
+    `;
     
     // Add to body to measure size
     document.body.appendChild(tooltip);
     
-    // Position callback to run AFTER MathJax typesetting completes
     const positionTooltip = () => {
-        // Ensure the tooltip is still active and has not been removed in the meantime
         if (!document.getElementById('tgs-hover-tooltip')) return;
 
         const rect = target.getBoundingClientRect();
         const tooltipWidth = tooltip.offsetWidth;
         const tooltipHeight = tooltip.offsetHeight;
         
-        // Center it above the target
         let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2);
         let top = rect.top + window.scrollY - tooltipHeight - 12;
         
-        // Boundary check: prevent overflowing off left/right
-        if (left < 10) {
-            left = 10;
-        } else if (left + tooltipWidth > window.innerWidth - 10) {
-            left = window.innerWidth - tooltipWidth - 10;
+        // Mobile Safety Boundaries: Ensure tooltip never bleeds off the viewport edges
+        const paddingSafety = 16;
+        if (left < paddingSafety) {
+            left = paddingSafety;
+        } else if (left + tooltipWidth > window.innerWidth - paddingSafety) {
+            left = window.innerWidth - tooltipWidth - paddingSafety;
         }
         
-        // Boundary check: if it goes off top of viewport, flip to bottom
-        if (rect.top - tooltipHeight - 12 < 10) {
+        if (rect.top - tooltipHeight - 12 < paddingSafety) {
             top = rect.bottom + window.scrollY + 12;
             tooltip.classList.add('tooltip-bottom');
+        } else {
+            tooltip.classList.remove('tooltip-bottom');
         }
         
         tooltip.style.left = left + 'px';
         tooltip.style.top = top + 'px';
-        tooltip.style.visibility = 'visible';
-        tooltip.style.opacity = '1';
+        
+        void tooltip.offsetHeight;
+        tooltip.classList.add('tooltip-show');
     };
 
     // Trigger MathJax typeset if available (handles both v2 and v3)
@@ -549,21 +552,80 @@ function showTooltip(event) {
     }
     
     activeTooltip = tooltip;
+    tooltip.targetNode = target;
 }
 
 function hideTooltip() {
     const existing = document.getElementById('tgs-hover-tooltip');
     if (existing) {
-        existing.remove();
+        existing.removeAttribute('id');
+        existing.classList.remove('tooltip-show');
+        const currentTooltip = existing;
+        setTimeout(() => {
+            if (currentTooltip.parentNode) {
+                currentTooltip.remove();
+            }
+        }, 250);
     }
     if (activeTooltip) {
         activeTooltip = null;
     }
 }
 
+function openDrawerForKeyword(highlight) {
+    // Resolve the active preferred language directly from local storage
+    const lang = localStorage.getItem('preferred-language') || 'hinglish';
+    
+    // Resolve the keyword key
+    const textContent = highlight.textContent || '';
+    const key = getKeywordKey(textContent);
+    
+    if (key && keywordDeepDives[lang] && keywordDeepDives[lang][key]) {
+        const data = keywordDeepDives[lang][key];
+        
+        // Populate the drawer title and content
+        const titleEl = document.getElementById('keyword-drawer-title');
+        titleEl.textContent = "Deep Dive: " + data.title;
+        const bodyEl = document.getElementById('keyword-drawer-body');
+        bodyEl.innerHTML = data.content;
+        
+        const openDrawerCallback = () => {
+            openDrawer('keyword-deepdive-drawer');
+        };
+
+        // Trigger MathJax typeset on both title and body elements before opening the drawer
+        if (window.MathJax) {
+            if (window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([titleEl, bodyEl])
+                    .then(openDrawerCallback)
+                    .catch(err => {
+                        console.error("MathJax typesetting failed:", err);
+                        openDrawerCallback();
+                    });
+            } else if (window.MathJax.typeset) {
+                window.MathJax.typeset([titleEl, bodyEl]);
+                openDrawerCallback();
+            } else if (window.MathJax.Hub && window.MathJax.Hub.Queue) {
+                window.MathJax.Hub.Queue(
+                    ["Typeset", window.MathJax.Hub, [titleEl, bodyEl]],
+                    openDrawerCallback
+                );
+            } else {
+                openDrawerCallback();
+            }
+        } else {
+            openDrawerCallback();
+        }
+    }
+}
+
 function initTooltips() {
+    const isMobileTouch = () => window.matchMedia('(pointer: coarse)').matches;
+
     // We listen to hover events on document body to handle dynamically added elements correctly
     document.addEventListener('mouseover', (e) => {
+        if (isMobileTouch()) return; // Disable hover triggers on touch devices
+        
         // Do not show tooltip if drawer is open or if we are actively pressing/dragging a keyword
         if (document.body.classList.contains('drawer-open') || activePressedHighlight !== null) {
             return;
@@ -577,6 +639,8 @@ function initTooltips() {
     });
 
     document.addEventListener('mouseout', (e) => {
+        if (isMobileTouch()) return; // Disable hover triggers on touch devices
+        
         const highlight = e.target.closest('.keyword-highlight');
         if (highlight && (!e.relatedTarget || !e.relatedTarget.closest('.keyword-highlight'))) {
             hideTooltip();
@@ -585,6 +649,8 @@ function initTooltips() {
 
     // Mousedown to track click intent and hide tooltip immediately
     document.addEventListener('mousedown', (e) => {
+        if (isMobileTouch()) return; // Ignore mousedown/mouseup logic on touch devices
+        
         // Do not process mousedown if a drawer is already open
         if (document.body.classList.contains('drawer-open')) {
             return;
@@ -598,6 +664,8 @@ function initTooltips() {
 
     // Mouseup on document to detect drag-away and cancel click intent
     document.addEventListener('mouseup', (e) => {
+        if (isMobileTouch()) return; // Ignore mousedown/mouseup logic on touch devices
+        
         if (!activePressedHighlight) return;
         const highlight = e.target.closest('.keyword-highlight');
         if (highlight !== activePressedHighlight) {
@@ -606,68 +674,75 @@ function initTooltips() {
         }
     });
 
-    // Click handler to open the dynamic keyword deep dive drawer
+    // Click handler to open the dynamic keyword deep dive drawer or show/hide tooltip
     document.addEventListener('click', (e) => {
-        const highlight = e.target.closest('.keyword-highlight');
-        if (highlight) {
-            // Only open drawer if click was completed on the same keyword without dragging away
-            if (activePressedHighlight === highlight) {
-                // Reset click intent state
-                activePressedHighlight = null;
+        // Close sidebar on mobile/split-screen if clicked outside the sidebar and not on the sidebar toggle icon
+        const isSidebarOverlay = window.innerWidth <= 1024;
+        if (isSidebarOverlay && document.documentElement.classList.contains('sidebar-visible')) {
+            const sidebar = document.getElementById('mdbook-sidebar');
+            const toggleBtn = document.getElementById('mdbook-sidebar-toggle');
+            if (sidebar && !sidebar.contains(e.target) && (!toggleBtn || !toggleBtn.contains(e.target))) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Hide tooltip just in case
-                hideTooltip();
-
-                // Resolve the active preferred language directly from local storage
-                const lang = localStorage.getItem('preferred-language') || 'hinglish';
-                
-                // Resolve the keyword key
-                const textContent = highlight.textContent || '';
-                const key = getKeywordKey(textContent);
-                
-                if (key && keywordDeepDives[lang] && keywordDeepDives[lang][key]) {
-                    const data = keywordDeepDives[lang][key];
-                    
-                    // Populate the drawer title and content
-                    const titleEl = document.getElementById('keyword-drawer-title');
-                    titleEl.textContent = "Deep Dive: " + data.title;
-                    const bodyEl = document.getElementById('keyword-drawer-body');
-                    bodyEl.innerHTML = data.content;
-                    
-                    const openDrawerCallback = () => {
-                        openDrawer('keyword-deepdive-drawer');
-                    };
-
-                    // Trigger MathJax typeset on both title and body elements before opening the drawer
-                    if (window.MathJax) {
-                        if (window.MathJax.typesetPromise) {
-                            window.MathJax.typesetPromise([titleEl, bodyEl])
-                                .then(openDrawerCallback)
-                                .catch(err => {
-                                    console.error("MathJax typesetting failed:", err);
-                                    openDrawerCallback();
-                                });
-                        } else if (window.MathJax.typeset) {
-                            window.MathJax.typeset([titleEl, bodyEl]);
-                            openDrawerCallback();
-                        } else if (window.MathJax.Hub && window.MathJax.Hub.Queue) {
-                            window.MathJax.Hub.Queue(
-                                ["Typeset", window.MathJax.Hub, [titleEl, bodyEl]],
-                                openDrawerCallback
-                            );
-                        } else {
-                            openDrawerCallback();
-                        }
-                    } else {
-                        openDrawerCallback();
-                    }
+                const anchor = document.getElementById('mdbook-sidebar-toggle-anchor');
+                if (anchor) {
+                    anchor.checked = false;
+                    document.documentElement.classList.remove('sidebar-visible');
+                    localStorage.setItem('mdbook-sidebar', 'hidden');
                 }
-            } else {
-                // Clean up state if clicked but click intent was cancelled (e.g. mouseup was outside)
-                activePressedHighlight = null;
+                return;
             }
         }
+
+        const highlight = e.target.closest('.keyword-highlight');
+        const inTooltip = e.target.closest('.keyword-tooltip-box');
+        
+        // 1. Hide tooltip when clicking outside both the keyword highlight and the tooltip box
+        if (!highlight && !inTooltip) {
+            hideTooltip();
+            return;
+        }
+
+        // 2. Handle clicking the "CLICK FOR MORE DETAILS" CTA inside the tooltip
+        const cta = e.target.closest('.tooltip-click-cta');
+        if (cta && activeTooltip?.targetNode) {
+            const targetNode = activeTooltip.targetNode;
+            hideTooltip();
+            openDrawerForKeyword(targetNode);
+            return;
+        }
+
+        // 3. Handle clicking a keyword highlight
+        if (highlight) {
+            if (isMobileTouch()) {
+                // Mobile behavior: Tap once to show tooltip, tap again to open drawer
+                if (!activeTooltip || activeTooltip.targetNode !== highlight) {
+                    hideTooltip();
+                    highlight.targetNode = highlight;
+                    showTooltip({ currentTarget: highlight });
+                    return; // Stop here, do not open drawer yet
+                }
+            } else {
+                // Desktop behavior: Only open drawer if click was completed on the same keyword without dragging away
+                if (activePressedHighlight !== highlight) {
+                    return;
+                }
+                activePressedHighlight = null;
+            }
+            
+            // Open drawer
+            hideTooltip();
+            openDrawerForKeyword(highlight);
+        }
     });
+
+    // Auto-hide tooltip on scroll for touch devices to prevent annotations from floating detached
+    window.addEventListener('scroll', () => {
+        if (isMobileTouch()) {
+            hideTooltip();
+        }
+    }, { passive: true });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
