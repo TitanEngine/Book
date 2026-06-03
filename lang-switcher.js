@@ -623,12 +623,18 @@ function openDrawerForKeyword(highlight) {
 
 function initTooltips() {
     const isMobileTouch = () => window.matchMedia('(pointer: coarse)').matches;
+    let hoverTimeout = null;
 
     // We listen to hover events on document body to handle dynamically added elements correctly
     document.addEventListener('mouseover', (e) => {
         if (isMobileTouch()) return; // Disable hover triggers on touch devices
         
         const highlight = e.target.closest('.keyword-highlight');
+        
+        // If mouse moves off the current keyword, cancel any pending show timeout
+        if (!highlight || highlight !== activeTooltip?.targetNode) {
+            clearTimeout(hoverTimeout);
+        }
         
         // Do not show tooltip if we are actively pressing/dragging a keyword
         if (activePressedHighlight !== null) {
@@ -643,9 +649,15 @@ function initTooltips() {
         }
         
         if (highlight && highlight !== activeTooltip?.targetNode) {
-            hideTooltip();
-            highlight.targetNode = highlight; // cache target reference
-            showTooltip({ currentTarget: highlight });
+            // Cancel any pending show timeout first
+            clearTimeout(hoverTimeout);
+            
+            // Wait 300ms before showing the tooltip to prevent accidental flashes
+            hoverTimeout = setTimeout(() => {
+                hideTooltip();
+                highlight.targetNode = highlight; // cache target reference
+                showTooltip({ currentTarget: highlight });
+            }, 300);
         }
     });
 
@@ -654,6 +666,7 @@ function initTooltips() {
         
         const highlight = e.target.closest('.keyword-highlight');
         if (highlight && (!e.relatedTarget || !e.relatedTarget.closest('.keyword-highlight'))) {
+            clearTimeout(hoverTimeout); // Cancel pending show immediately
             hideTooltip();
         }
     });
@@ -668,6 +681,7 @@ function initTooltips() {
             if (document.body.classList.contains('drawer-open') && !highlight.closest('.drawer-container.open')) {
                 return;
             }
+            clearTimeout(hoverTimeout); // Cancel pending show immediately on click intent
             activePressedHighlight = highlight;
             hideTooltip(); // Hide tooltip immediately to prevent visual collision
         }
