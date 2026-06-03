@@ -9,7 +9,6 @@
 <button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-hinglish')">Explore Cliffhanger Analogy</button>
 <button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-hinglish')">Inspect Silicon Telemetry</button>
 
-#### **Aap Kya Seekhne Wale Hain?**
 Kya aapne kabhi socha hai ki jab kisi game me heavy boxes ka stack banaya jata hai ya ragdoll joints high speed me move karte hain, to simulation explode ya jitter kyun karne lagti hai? Traditional engines me use hone wala Projected Gauss-Seidel (PGS) solver aksar massive weight differences aur complex joints par haar maan jata hai—ragdoll limbs rubber-band ki tarah stretch hone lagte hain.
 
 Is problem ko solve karne ke liye modern physics engines (jaise NVIDIA PhysX 5) me **Temporal Gauss-Seidel (TGS)** solver ka use kiya jata hai. Is page me hum seekhenge ki kaise TGS sub-stepping, mid-frame position updates, aur dynamic friction adjustments ke zariye simulation ko ultra-stable aur rock-solid banata hai. Hum iske mathematical model ko visual Cliffhanger Analogy aur direct silicon-level Rust telemetry ke sath deconstruct karenge.
@@ -189,7 +188,6 @@ Yahi mathematical stability aur constraint relaxation ka core principle hai jo m
 <button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-english')">Explore Cliffhanger Analogy</button>
 <button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-english')">Inspect Silicon Telemetry</button>
 
-#### **What Will You Learn?**
 Have you ever wondered why heavy stacks of boxes collapse erratically or ragdoll characters jitter violently in game physics? Older Projected Gauss-Seidel (PGS) solvers fail under high mass ratios or fast joint rotations, causing links to stretch like rubber bands.
 
 To solve this, modern engines (such as NVIDIA PhysX 5) rely on the **Temporal Gauss-Seidel (TGS)** solver. In this guide, you will learn how TGS uses sub-stepping, mid-frame coordinate updates, and per-iteration friction models to deliver rock-solid physical stability. We will deconstruct the math behind TGS using an interactive Cliffhanger Analogy and trace its execution using silicon-level Rust telemetry.
@@ -368,7 +366,6 @@ This fundamental principle of constraint relaxation and mathematical stability i
 <button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-spanish')">Explore Cliffhanger Analogy</button>
 <button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-spanish')">Inspect Silicon Telemetry</button>
 
-#### **¿Qué vas a aprender?**
 ¿Alguna vez te has preguntado por qué las pilas de cajas pesadas colapsan de forma errática o los personajes con física ragdoll vibran violentamente en los videojuegos? Los antiguos resolvedores de Gauss-Seidel Proyectado (PGS) fallan ante grandes diferencias de masa, estirando las articulaciones como bandas elásticas.
 
 Para resolver esto, los motores modernos (como NVIDIA PhysX 5) confían en el resolvedor **Gauss-Seidel Temporal (TGS)**. En esta guía, aprenderás cómo TGS utiliza subpasos, actualizaciones de coordenadas a mitad del fotograma y fricción por iteración para ofrecer una estabilidad física inquebrantable. Desglosaremos las matemáticas de TGS mediante una analogía interactiva del acantilado y rastrearemos su ejecución con telemetría en Rust.
