@@ -483,12 +483,50 @@ function showTooltip(event) {
 
     const ctaText = 'Click for more details';
 
+    // Parse tooltip text to check for Physics / Game Physics sections
+    let formattedText = text;
+    const parts = text.split(/(?:<br\s*\/?>\s*<br\s*\/?>|&lt;br&gt;\s*&lt;br&gt;)/i);
+    if (parts.length === 2) {
+        const part1 = parts[0].trim();
+        const part2 = parts[1].trim();
+        
+        // Match Physics: or Física: (case-insensitive)
+        const p1Match = part1.match(/^(Physics|Física):\s*(.*)/i);
+        // Match Game Physics: or Física de juegos: (case-insensitive)
+        const p2Match = part2.match(/^(Game Physics|Física de juegos):\s*(.*)/i);
+        
+        if (p1Match && p2Match) {
+            const label1 = p1Match[1];
+            const desc1 = p1Match[2];
+            const label2 = p2Match[1];
+            const desc2 = p2Match[2];
+            
+            formattedText = `
+                <div class="tooltip-section physics-section">
+                    <span class="tooltip-label physics-label">${label1}</span>
+                    <span class="tooltip-desc">${desc1}</span>
+                </div>
+                <div class="tooltip-divider"></div>
+                <div class="tooltip-section game-physics-section">
+                    <span class="tooltip-label game-physics-label">${label2}</span>
+                    <span class="tooltip-desc">${desc2}</span>
+                </div>
+            `;
+        } else {
+            formattedText = `
+                <div class="tooltip-section">${part1}</div>
+                <div class="tooltip-divider"></div>
+                <div class="tooltip-section">${part2}</div>
+            `;
+        }
+    }
+
     // Create the tooltip element with explicit tex2jax_process class to force typesetting
     const tooltip = document.createElement('div');
     tooltip.className = 'keyword-tooltip-box global-tooltip tex2jax_process';
     tooltip.id = 'tgs-hover-tooltip';
     tooltip.innerHTML = `
-        <div class="tooltip-body-content">${text}</div>
+        <div class="tooltip-body-content">${formattedText}</div>
         <div class="tooltip-click-cta">${ctaText}</div>
     `;
     
