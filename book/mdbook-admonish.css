@@ -656,9 +656,13 @@ summary.admonition-title::-webkit-details-marker {
 .drawer-body pre, .drawer-body code {
   background: rgba(0, 0, 0, 0.2);
 }
-.light .drawer-body pre, .light .drawer-body code,
+.light .drawer-body pre, .light .drawer-body code {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #1d1d1f !important;
+}
 .rust .drawer-body pre, .rust .drawer-body code {
-  background: rgba(0, 0, 0, 0.05);
+  background: #2b2c2f !important;
+  color: #fafafa !important;
 }
 
 /* Make sure tooltips are visible over all drawers */
