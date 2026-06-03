@@ -75,21 +75,21 @@ Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span cla
 <h5>1. The Anchoring Group (Top Array: T3, T2, T1)</h5>
 <ul>
   <li><strong>T3 (Static Ground Anchor)</strong>: Yeh zameen par firmly anchor hai aur bilkul nahi hilta. Physics engine mein yeh <code>BodyType::Static</code> aur zero inverse mass (<code>inv_mass = 0.0</code>) ko map karta hai. Yeh chain ko base strength deta hai.</li>
-  <li><strong>T2 aur T1 (Intermediate Nodes)</strong>: T3 se jude dynamic links jo B1 ko hold karne ke liye tension support de rahe hain. Kyunki solver matrix sweep mein inko sequence mein pehle execute kar chuka hai, inki states updated frame calculations (\\(k+1\\)) ko carry karti hain.</li>
+  <li><strong>T2 aur T1 (Intermediate Nodes)</strong>: T3 se jude dynamic links jo B1 ko hold karne ke liye tension support de rahe hain. Kyunki solver matrix sweep mein inko sequence mein pehle execute kar chuka hai, inki states updated frame calculations (\(k+1\)) ko carry karti hain.</li>
 </ul>
 
 <h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
 <ul>
-  <li><strong>B1 (The Interface Node)</strong>: Yeh first hanging person (<span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element x_i(k+1) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span>) hai jo edge ke exact contact point par hai. Mathematically, solver is target object coordinates (\\(x_i^{(k+1)}\\)) ko sweep ke waqt isolate karta hai. Pure structure ki stability B1 ke adjustment par depend karti hai.</li>
+  <li><strong>B1 (The Interface Node)</strong>: Yeh first hanging person (<span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element x_i(k+1) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span>) hai jo edge ke exact contact point par hai. Mathematically, solver is target object coordinates (\(x_i^{(k+1)}\)) ko sweep ke waqt isolate karta hai. Pure structure ki stability B1 ke adjustment par depend karti hai.</li>
   <li><strong>B2 (Middle Connector)</strong>: B1 ke pair pakde hue middle link (<span class="keyword-highlight" data-tooltip="Ye equation ka Dusra Sigma (j = i+1 to n) represent karta hai. Ye wo connected rigid bodies hain jo target body ke baad aati hain aur purani state k carry karti hain.">B2</span>) jo tension balance transfer kar raha hai.</li>
-  <li><strong>B3 (Terminal Hanging Node)</strong>: Sabse last link jis par downward gravity pull accumulate ho rahi hai. Ye aur B2 abhi step calculations ke sweep process mein update nahi hue hain, isliye inki state past iteration index (\\(k\\)) se read ki ja rahi hai.</li>
+  <li><strong>B3 (Terminal Hanging Node)</strong>: Sabse last link jis par downward gravity pull accumulate ho rahi hai. Ye aur B2 abhi step calculations ke sweep process mein update nahi hue hain, isliye inki state past iteration index (\(k\)) se read ki ja rahi hai.</li>
 </ul>
 
 <h5>3. Force Balancing and Coordinate Slip</h5>
 <p>B1 ko target coordinate system ke rules ke mutabik local balance (equilibrium) maintain karna hai:</p>
 <ul>
   <li><strong>Residual Tension Calculation</strong>: B1 ko upar se milne wala pull (T-array value 90) aur niche se milne wala total drag force (B-array aur B1 ka physical weight 100) compare kiya jata hai. In dono ke subtraction se balance deviation output 10 nikalta hai, jise mathematical residual (Unbalanced Force) kehte hain.</li>
-  <li><strong>Impulsive Slip Adjustment</strong>: B1 ko is 10 tension difference ko absorb karne ke liye horizontal plane par static coordinates slide karne padenge taaki forces cancel mo sakein. Yahi actual correction calculation is element ka final coordinate coordinates slip kehlata hai, jo updated dynamic position value (\\(x_i^{(k+1)}\\)) banata hai.</li>
+  <li><strong>Impulsive Slip Adjustment</strong>: B1 ko is 10 tension difference ko absorb karne ke liye horizontal plane par static coordinates slide karne padenge taaki forces cancel mo sakein. Yahi actual correction calculation is element ka final coordinate coordinates slip kehlata hai, jo updated dynamic position value (\(x_i^{(k+1)}\)) banata hai.</li>
 </ul>
 
 </div>
@@ -253,21 +253,21 @@ This multiplication determines the precise coordinate shift required to eliminat
 <h5>1. The Anchoring Group (Top Array: T3, T2, T1)</h5>
 <ul>
   <li><strong>T3 (Static Ground Anchor)</strong>: Anchored firmly to the ground, this node cannot move. In a physics engine, this maps to a body of <code>BodyType::Static</code> with an inverse mass of zero (<code>inv_mass = 0.0</code>), providing the ultimate anchor for the chain.</li>
-  <li><strong>T2 and T1 (Intermediate Nodes)</strong>: Dynamic bodies linked to T3, holding the tension supporting B1. Because the solver's matrix sweep processes them first, they carry updated present-state calculations (\\(k+1\\)).</li>
+  <li><strong>T2 and T1 (Intermediate Nodes)</strong>: Dynamic bodies linked to T3, holding the tension supporting B1. Because the solver's matrix sweep processes them first, they carry updated present-state calculations (\(k+1\)).</li>
 </ul>
 
 <h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
 <ul>
-  <li><strong>B1 (The Interface Node)</strong>: The first hanging person (<span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">B1</span>) positioned exactly at the cliff edge. Mathematically, the solver isolates these target coordinates (\\(x_i^{(k+1)}\\)) during its sweep. The stability of the entire chain rests on B1's local adjustment.</li>
+  <li><strong>B1 (The Interface Node)</strong>: The first hanging person (<span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">B1</span>) positioned exactly at the cliff edge. Mathematically, the solver isolates these target coordinates (\(x_i^{(k+1)}\)) during its sweep. The stability of the entire chain rests on B1's local adjustment.</li>
   <li><strong>B2 (Middle Connector)</strong>: The middle link (<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state k.">B2</span>) holding B1's legs, transmitting the tension balance downwards.</li>
-  <li><strong>B3 (Terminal Hanging Node)</strong>: The final link in the chain bearing the fully accumulated gravity pull. B3 and B2 have not yet been updated in the current sweep, so their states are read from the past iteration index (\\(k\\)).</li>
+  <li><strong>B3 (Terminal Hanging Node)</strong>: The final link in the chain bearing the fully accumulated gravity pull. B3 and B2 have not yet been updated in the current sweep, so their states are read from the past iteration index (\(k\)).</li>
 </ul>
 
 <h5>3. Force Balancing and Coordinate Slip</h5>
 <p>B1 must maintain local equilibrium according to the rules of the coordinate system:</p>
 <ul>
   <li><strong>Residual Tension Calculation</strong>: The upward pull from the top array (T-array value of 90) is compared against the downward drag from the bottom array and B1's own weight (accumulating to 100). Subtracting these gives a tension discrepancy of 10, representing the mathematical residual (Unbalanced Force).</li>
-  <li><strong>Impulsive Slip Adjustment</strong>: To absorb this residual tension of 10, B1 must slide his coordinates along the contact plane until the forces cancel. This correction constitutes the coordinate slip, resulting in the updated dynamic velocity and position value (\\(x_i^{(k+1)}\\)).</li>
+  <li><strong>Impulsive Slip Adjustment</strong>: To absorb this residual tension of 10, B1 must slide his coordinates along the contact plane until the forces cancel. This correction constitutes the coordinate slip, resulting in the updated dynamic velocity and position value (\(x_i^{(k+1)}\)).</li>
 </ul>
 
 </div>
@@ -431,21 +431,21 @@ Esta multiplicación determina el desplazamiento de coordenadas preciso requerid
 <h5>1. El grupo de anclaje (Lista superior: T3, T2, T1)</h5>
 <ul>
   <li><strong>T3 (Anclaje estático al suelo)</strong>: Firme en el suelo, este nodo no se mueve. En un motor de física, se asocia a un cuerpo de <code>BodyType::Static</code> con masa inversa cero (<code>inv_mass = 0.0</code>), proporcionando el anclaje base para toda la cadena.</li>
-  <li><strong>T2 y T1 (Nodos intermedios)</strong>: Cuerpos dinámicos vinculados a T3 que proporcionan la tensión de soporte para sostener a B1. Dado que el resolvedor los procesa primero en su barrido, sus estados contienen cálculos actualizados del fotograma presente (\\(k+1\\)).</li>
+  <li><strong>T2 y T1 (Nodos intermedios)</strong>: Cuerpos dinámicos vinculados a T3 que proporcionan la tensión de soporte para sostener a B1. Dado que el resolvedor los procesa primero en su barrido, sus estados contienen cálculos actualizados del fotograma presente (\(k+1\)).</li>
 </ul>
 
 <h5>2. La cadena colgante (Lista inferior: B1, B2, B3)</h5>
 <ul>
-  <li><strong>B1 (El nodo de interfaz)</strong>: La primera persona colgando en el aire (<span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">B1</span>), ubicada justo en el borde del acantilado. Matemáticamente, el resolvedor aísla estas coordenadas de destino (\\(x_i^{(k+1)}\\)) durante su barrido. La estabilidad de toda la cadena depende del ajuste local de B1.</li>
+  <li><strong>B1 (El nodo de interfaz)</strong>: La primera persona colgando en el aire (<span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">B1</span>), ubicada justo en el borde del acantilado. Matemáticamente, el resolvedor aísla estas coordenadas de destino (\(x_i^{(k+1)}\)) durante su barrido. La estabilidad de toda la cadena depende del ajuste local de B1.</li>
   <li><strong>B2 (Conector intermedio)</strong>: El eslabón del medio (<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado k.">B2</span>) que sujeta las piernas de B1, transmitiendo el equilibrio de tensión hacia abajo.</li>
-  <li><strong>B3 (Nodo colgante terminal)</strong>: El último eslabón de la cadena que soporta toda la gravedad acumulada. B3 y B2 aún no se han actualizado en el barrido actual, por lo que sus estados se leen a partir del índice de iteración anterior (\\(k\\)).</li>
+  <li><strong>B3 (Nodo colgante terminal)</strong>: El último eslabón de la cadena que soporta toda la gravedad acumulada. B3 y B2 aún no se han actualizado en el barrido actual, por lo que sus estados se leen a partir del índice de iteración anterior (\(k\)).</li>
 </ul>
 
 <h5>3. Equilibrio de fuerzas y deslizamiento de coordenadas</h5>
 <p>B1 debe mantener el equilibrio local de acuerdo con las reglas de su sistema de coordenadas:</p>
 <ul>
   <li><strong>Cálculo de la tensión residual</strong>: El tirón hacia arriba del grupo superior (valor de la lista T de 90) se compara con el arrastre hacia abajo del grupo inferior y el peso de B1 (que suman 100). Restar estos valores genera una desviación de tensión de 10, que es el residuo matemático (Fuerza Desequilibrada).</li>
-  <li><strong>Ajuste del deslizamiento impulsivo</strong>: Para absorber esta diferencia de tensión de 10, B1 debe deslizar sus coordenadas a lo largo del plano de contacto hasta que las fuerzas se cancelen. Esta corrección constituye el deslizamiento de coordenadas, produciendo el valor actualizado de velocidad y posición dinámica (\\(x_i^{(k+1)}\\)).</li>
+  <li><strong>Ajuste del deslizamiento impulsivo</strong>: Para absorber esta diferencia de tensión de 10, B1 debe deslizar sus coordenadas a lo largo del plano de contacto hasta que las fuerzas se cancelen. Esta corrección constituye el deslizamiento de coordenadas, produciendo el valor actualizado de velocidad y posición dinámica (\(x_i^{(k+1)}\)).</li>
 </ul>
 
 </div>
