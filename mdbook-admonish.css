@@ -919,13 +919,15 @@ summary.admonition-title::-webkit-details-marker {
 
 /* --- Snapped Window / Split-Screen Sidebar Overlap Fix --- */
 /* 1. Ensure the page container dynamically respects the sidebar width when visible */
-#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
-  margin-left: var(--sidebar-width, 300px) !important;
-  padding-left: 0 !important;
-  transform: none !important; /* Prevent double shift with mdbook default translateX */
-}
-#mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
-  transform: translateX(0) !important; /* Force show when checked */
+@media (min-width: 1025px) {
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    margin-left: var(--sidebar-width, 300px) !important;
+    padding-left: 0 !important;
+    transform: none !important; /* Prevent double shift with mdbook default translateX */
+  }
+  #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
+    transform: translateX(0) !important; /* Force show when checked */
+  }
 }
 
 /* 2. Safety Valve: If the window is halved so much that both can't fit side-by-side, 
