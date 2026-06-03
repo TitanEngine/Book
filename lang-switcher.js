@@ -13,6 +13,26 @@ if (!sessionStorage.getItem('theme-forced-rust')) {
 
 // Dynamic Mobile Viewport & Horizontal Overflow Prevention style injection (to bypass stubborn browser caches)
 (function() {
+    // 1. Force reload of mdbook-admonish.css with cache-busting version parameter
+    try {
+        const links = document.getElementsByTagName('link');
+        for (let i = 0; i < links.length; i++) {
+            const link = links[i];
+            if (link.rel === 'stylesheet' && link.getAttribute('href') && link.getAttribute('href').indexOf('mdbook-admonish.css') !== -1) {
+                let href = link.getAttribute('href');
+                const qIdx = href.indexOf('?');
+                if (qIdx !== -1) {
+                    href = href.substring(0, qIdx);
+                }
+                // Append current build timestamp to bypass cache
+                link.setAttribute('href', href + '?v=20260603_2117_v2');
+            }
+        }
+    } catch (e) {
+        console.error("Cache-busting failed:", e);
+    }
+
+    // 2. Inject core layout fixes dynamically to bypass cached CSS immediately
     const style = document.createElement('style');
     style.id = 'tgs-mobile-zoom-fix';
     style.textContent = `
@@ -44,6 +64,26 @@ if (!sessionStorage.getItem('theme-forced-rust')) {
           .MathJax_Display, mjx-container {
             font-size: 0.72em !important;
             padding: 2px 0 !important;
+          }
+        }
+        @media (pointer: coarse) {
+          .keyword-highlight {
+            padding: 2px 8px !important;
+            margin: -2px -8px !important;
+          }
+        }
+        @media (max-width: 1024px) {
+          body {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+          }
+          input, textarea, [contenteditable="true"] {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
           }
         }
     `;
