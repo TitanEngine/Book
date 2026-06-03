@@ -566,7 +566,7 @@ summary.admonition-title::-webkit-details-marker {
   height: 100%;
   background: rgba(0, 0, 0, 0.55);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
 }
@@ -588,7 +588,7 @@ summary.admonition-title::-webkit-details-marker {
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: -15px 0 35px rgba(0, 0, 0, 0.6);
   transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -661,9 +661,9 @@ summary.admonition-title::-webkit-details-marker {
   background: rgba(0, 0, 0, 0.05);
 }
 
-/* Make sure tooltips are visible over the drawer */
+/* Make sure tooltips are visible over all drawers */
 .keyword-tooltip-box.global-tooltip {
-  z-index: 10005 !important;
+  z-index: 10035 !important;
 }
 
 /* Language wrapper smooth transitions */
@@ -752,52 +752,121 @@ summary.admonition-title::-webkit-details-marker {
   }
 }
 
-/* Mobile and Tablet Overlay Layouts (Width <= 768px, or <= 1024px with Touch Pointer) */
-@media (max-width: 768px), (max-width: 1024px) and (pointer: coarse) {
-  /* Mobile Sizing for Language Switcher Buttons */
-  .lang-btn {
-    padding: 10px 18px !important;
-    font-size: 0.96rem !important;
-    font-weight: 600 !important;
+/* Mobile, Tablet, and Desktop Split-Screen Layouts (Width <= 1024px) */
+@media (max-width: 1024px) {
+  /* Tooltip (Sticky Note) Sizing: Compact and responsive max-width */
+  .keyword-tooltip-box.global-tooltip {
+    font-size: 0.9rem !important;
+    padding: 14px 18px !important;
+    border-radius: 12px !important;
+    max-width: min(260px, calc(100vw - 32px)) !important;
+    box-sizing: border-box !important;
+  }
+  .tooltip-click-cta {
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+    font-size: 0.68rem !important;
   }
 
-  /* 1. Sidebar Bottom Sheet Layout Overlay */
+  /* Language Switcher to Flat GitHub Tags on Mobile/Split Screen */
+  .lang-switch-container {
+    justify-content: center !important;
+    margin: 15px 0 25px 0 !important;
+    position: relative !important;
+    top: auto !important;
+  }
+  
+  .lang-btn {
+    background: rgba(120, 120, 120, 0.1) !important;
+    color: var(--fg) !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important; /* GitHub tag rectangular design */
+    padding: 6px 12px !important; /* Touch-friendly size */
+    font-size: 0.88rem !important; /* Readable text size */
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: all 0.15s ease-in-out !important;
+  }
+  
+  /* Active Distinct Colors for GitHub tags (Light Theme values by default) */
+  .lang-btn[onclick*="hinglish"].active {
+    background-color: rgba(240, 140, 0, 0.12) !important;
+    color: #e65100 !important;
+    border: 1px solid rgba(240, 140, 0, 0.25) !important;
+  }
+  .lang-btn[onclick*="english"].active {
+    background-color: rgba(68, 138, 255, 0.12) !important;
+    color: #0d47a1 !important;
+    border: 1px solid rgba(68, 138, 255, 0.25) !important;
+  }
+  .lang-btn[onclick*="spanish"].active {
+    background-color: rgba(76, 175, 80, 0.12) !important;
+    color: #1b5e20 !important;
+    border: 1px solid rgba(76, 175, 80, 0.25) !important;
+  }
+
+  /* Active Distinct Colors for Dark Themes (coal, navy, ayu) */
+  .coal .lang-btn[onclick*="hinglish"].active,
+  .navy .lang-btn[onclick*="hinglish"].active,
+  .ayu .lang-btn[onclick*="hinglish"].active {
+    background-color: rgba(240, 140, 0, 0.2) !important;
+    color: #ffb74d !important;
+    border: 1px solid rgba(240, 140, 0, 0.4) !important;
+  }
+  .coal .lang-btn[onclick*="english"].active,
+  .navy .lang-btn[onclick*="english"].active,
+  .ayu .lang-btn[onclick*="english"].active {
+    background-color: rgba(68, 138, 255, 0.2) !important;
+    color: #90caf9 !important;
+    border: 1px solid rgba(68, 138, 255, 0.4) !important;
+  }
+  .coal .lang-btn[onclick*="spanish"].active,
+  .navy .lang-btn[onclick*="spanish"].active,
+  .ayu .lang-btn[onclick*="spanish"].active {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    color: #a5d6a7 !important;
+    border: 1px solid rgba(76, 175, 80, 0.4) !important;
+  }
+
+  /* 1. Sidebar Left Drawer Overlay (Floating drawer on top, no gap created) */
   .sidebar {
     position: fixed !important;
-    top: auto !important;
+    top: 0 !important;
     bottom: 0 !important;
     left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 70dvh !important;
-    max-height: 70dvh !important;
+    right: auto !important;
+    width: var(--sidebar-width, 300px) !important;
+    max-width: 85vw !important;
+    height: 100% !important;
+    max-height: 100% !important;
     border: none !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-top-left-radius: 24px !important;
-    border-top-right-radius: 24px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
     background: rgba(20, 20, 25, 0.85) !important;
     color: #f5f5f7 !important;
-    box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3) !important;
     backdrop-filter: blur(25px) !important;
     -webkit-backdrop-filter: blur(25px) !important;
     z-index: 10008 !important; /* sit below the deep dive drawer but above page content */
     
-    /* Animation: slide up/down instead of left/right */
-    transform: translateY(100%) !important;
+    /* Animation: slide left/right on mobile/split-screen */
+    transform: translateX(-100%) !important;
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     will-change: transform;
   }
   
   #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
-    transform: translateY(0) !important;
+    transform: translateX(0) !important;
+    display: block !important; /* Force override inline display: none from mdbook JS */
   }
   
   .light .sidebar, .rust .sidebar {
     background: rgba(250, 250, 252, 0.85) !important;
     color: #1d1d1f !important;
-    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.1) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-top: none !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.1) !important;
   }
   
   .sidebar-resize-handle {
@@ -810,23 +879,13 @@ summary.admonition-title::-webkit-details-marker {
     -webkit-overflow-scrolling: touch !important;
   }
 
-  /* Prevent page content from shifting horizontally on open */
+  /* Prevent page content from shifting horizontally or creating any gap when sidebar is open */
   #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
     transform: none !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
-  }
-
-  /* Page Wrapper Glassmorphic Blur when sidebar is active */
-  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
-    filter: blur(5px) !important;
-    opacity: 0.5 !important;
-    pointer-events: none !important; /* Disable all hover/active/click interactions in background */
-    transition: filter 0.3s ease, opacity 0.3s ease !important;
-  }
-  
-  #mdbook-sidebar-toggle-anchor:not(:checked) ~ .page-wrapper {
-    transition: filter 0.3s ease, opacity 0.3s ease !important;
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
   }
 
   /* Make sure the toggle menu button remains interactive to allow closing the sidebar */
@@ -834,7 +893,7 @@ summary.admonition-title::-webkit-details-marker {
     pointer-events: auto !important;
   }
 
-  /* 2. Drawer Bottom Sheet Layout Overlay */
+  /* 2. Deep Dive Drawer: Bottom Sheet Layout Overlay on Mobile/Tablet */
   .drawer-content {
     top: auto !important;
     bottom: 0 !important;
@@ -842,7 +901,7 @@ summary.admonition-title::-webkit-details-marker {
     left: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: 70dvh !important; /* Use dvh instead of vh */
+    height: 70dvh !important;
     max-height: 70dvh !important;
     border-left: none !important;
     border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -850,6 +909,7 @@ summary.admonition-title::-webkit-details-marker {
     border-top-right-radius: 24px !important;
     transform: translateY(100%) !important;
     box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.5) !important;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
   .drawer-container.open .drawer-content {
@@ -861,12 +921,11 @@ summary.admonition-title::-webkit-details-marker {
     box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.1) !important;
   }
 
-  /* 3. Elastic Scroll Lock: Bottom sheet scroll locks */
   .drawer-body {
     padding: 24px 20px !important;
     font-size: 1.05rem !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important; /* Prevents scroll chaining to parent */
+    overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -922,33 +981,74 @@ summary.admonition-title::-webkit-details-marker {
 @media (min-width: 1025px) {
   #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
     margin-left: var(--sidebar-width, 300px) !important;
+    margin-inline-start: var(--sidebar-width, 300px) !important;
     padding-left: 0 !important;
     transform: none !important; /* Prevent double shift with mdbook default translateX */
   }
   #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
     transform: translateX(0) !important; /* Force show when checked */
+    display: block !important; /* Force override inline display: none from mdbook JS */
   }
 }
 
-/* 2. Safety Valve: If the window is halved so much that both can't fit side-by-side, 
-   force the sidebar to behave as a clean toggle overlay instead of crushing the text */
-@media (max-width: 1024px) and (pointer: fine) {
+/* Specific Mobile Portrait / Narrow layout adjustments (Width <= 768px) */
+@media (max-width: 768px) {
+  /* Larger language buttons on mobile screens for touch convenience */
+  .lang-btn {
+    padding: 10px 18px !important;
+    font-size: 0.96rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Page Wrapper Glassmorphic Blur and Dimming only on true mobile/tablet viewports */
   #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
-    margin-left: 0 !important;
-    padding-left: 1.5rem !important; /* Keeps a safe margin from the screen edge */
-    padding-right: 1.5rem !important;
-    transform: none !important; /* Prevent transition shift */
+    filter: blur(5px) !important;
+    opacity: 0.5 !important;
+    pointer-events: auto !important; /* Allow clicks to bubble up to document overlay outside-click handler */
+    transition: filter 0.3s ease, opacity 0.3s ease !important;
   }
   
-  #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
-    position: fixed !important;
-    left: 0 !important;
+  #mdbook-sidebar-toggle-anchor:not(:checked) ~ .page-wrapper {
+    transition: filter 0.3s ease, opacity 0.3s ease !important;
+  }
+
+  /* Full-screen drawer for Analogy and Telemetry on Mobile Viewports */
+  div[id^="cliffhanger-drawer-"].drawer-container,
+  div[id^="silicon-drawer-"].drawer-container {
+    z-index: 10015 !important;
+  }
+  
+  div[id^="cliffhanger-drawer-"].drawer-container .drawer-content,
+  div[id^="silicon-drawer-"].drawer-container .drawer-content {
     top: 0 !important;
     bottom: 0 !important;
-    width: var(--sidebar-width, 300px) !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  div[id^="cliffhanger-drawer-"].drawer-container.open .drawer-content,
+  div[id^="silicon-drawer-"].drawer-container.open .drawer-content {
     transform: translateX(0) !important;
-    z-index: 10010 !important; /* Sits cleanly on top only when manually toggled open */
-    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Hide backdrop blur/dim for Analogy/Telemetry since they cover 100% of the screen */
+  div[id^="cliffhanger-drawer-"].drawer-container .drawer-backdrop,
+  div[id^="silicon-drawer-"].drawer-container .drawer-backdrop {
+    display: none !important;
+  }
+
+  /* Keyword Deep Dive Drawer (Bottom Sheet) sits above the full-screen drawers on mobile */
+  #keyword-deepdive-drawer {
+    z-index: 10025 !important;
   }
 }
 

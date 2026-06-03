@@ -392,6 +392,8 @@ function switchLanguage(lang) {
 
         targetContents.forEach(el => {
             el.style.display = 'block';
+            el.style.transition = 'opacity 0.25s ease-in-out';
+            el.style.opacity = '0';
             // Trigger reflow to ensure display: block is registered before setting opacity
             el.offsetHeight; 
             el.classList.add('active');
@@ -403,12 +405,12 @@ function switchLanguage(lang) {
         // Fade out active content first
         contents.forEach(el => {
             if (el.style.display === 'block' || el.classList.contains('active')) {
-                el.style.transition = 'opacity 0.15s ease-in-out';
+                el.style.transition = 'opacity 0.2s ease-in-out';
                 el.style.opacity = '0';
             }
         });
         // Wait for fade out to finish, then switch and fade in
-        setTimeout(performSwitch, 150);
+        setTimeout(performSwitch, 200);
     } else {
         // Instant switch if no active content (first load)
         performSwitch();
@@ -626,11 +628,20 @@ function initTooltips() {
     document.addEventListener('mouseover', (e) => {
         if (isMobileTouch()) return; // Disable hover triggers on touch devices
         
-        // Do not show tooltip if drawer is open or if we are actively pressing/dragging a keyword
-        if (document.body.classList.contains('drawer-open') || activePressedHighlight !== null) {
+        const highlight = e.target.closest('.keyword-highlight');
+        
+        // Do not show tooltip if we are actively pressing/dragging a keyword
+        if (activePressedHighlight !== null) {
             return;
         }
-        const highlight = e.target.closest('.keyword-highlight');
+        
+        // If drawer is open, only show tooltip if hovered keyword is inside an open drawer
+        if (document.body.classList.contains('drawer-open')) {
+            if (!highlight || !highlight.closest('.drawer-container.open')) {
+                return;
+            }
+        }
+        
         if (highlight && highlight !== activeTooltip?.targetNode) {
             hideTooltip();
             highlight.targetNode = highlight; // cache target reference
@@ -651,12 +662,12 @@ function initTooltips() {
     document.addEventListener('mousedown', (e) => {
         if (isMobileTouch()) return; // Ignore mousedown/mouseup logic on touch devices
         
-        // Do not process mousedown if a drawer is already open
-        if (document.body.classList.contains('drawer-open')) {
-            return;
-        }
         const highlight = e.target.closest('.keyword-highlight');
         if (highlight) {
+            // If drawer is open, only track click if the highlight is inside an open drawer
+            if (document.body.classList.contains('drawer-open') && !highlight.closest('.drawer-container.open')) {
+                return;
+            }
             activePressedHighlight = highlight;
             hideTooltip(); // Hide tooltip immediately to prevent visual collision
         }
