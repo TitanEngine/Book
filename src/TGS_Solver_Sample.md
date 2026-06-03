@@ -34,8 +34,17 @@ Is Unbalanced Force ki wajah se target object apni position badlega. To CPU obje
 
 Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel ho jayein. Yahi nayi position hume \( x_i^{(k+1)} \) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.
 
-<details class="admonition admonish-example">
-  <summary class="admonition-title">Deep Dive: The Cliffhanger Analogy</summary>
+<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-hinglish')">Explore Cliffhanger Analogy</button>
+<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-hinglish')">Inspect Silicon Telemetry</button>
+
+<div id="cliffhanger-drawer-hinglish" class="drawer-container">
+  <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-hinglish')"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3>Deep Dive: The Cliffhanger Analogy</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('cliffhanger-drawer-hinglish')">&times;</button>
+    </div>
+    <div class="drawer-body">
 
 Imagine kijiye ek insaan cliff ke edge se latka hua hai, jise hum <span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element \( x_i^{(k+1)} \) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span> kahenge.
 
@@ -50,10 +59,19 @@ Ab, B1 hamara main focus kyun hai? Agar B1 ne hath choda, to B2 aur B3 turant ni
 To, B1 apne aap ko kaise balance karta hai? Wo apne aas-paas ke forces ko dekhta hai. T1 use upar khinch raha hai. B2 use niche khinch raha hai. B1 ko apne grip ko adjust karne ke liye apne upar lagne wale net force ko calculate karna hoga. Agar T1 ka pull 90 hai aur B1 aur B2 ka weight 100 hai, to B1 ko niche ki taraf 10 ka net force feel hoga. Yahi net force use slide ya slip karne par majboor karta hai. Balance pane ke liye, use apne hath ko aisi nayi jagah slide karna hoga jahan forces barabar ho jayein. Aur solver bilkul yahi kaam karta hai.
 
 Aur isi tarah ye simple human chain solver ke interconnected elements ke logic ko explain karti hai.
-</details>
 
-<details class="admonition admonish-example">
-  <summary class="admonition-title">Deep Dive: Silicon-Level Verification</summary>
+    </div>
+  </div>
+</div>
+
+<div id="silicon-drawer-hinglish" class="drawer-container">
+  <div class="drawer-backdrop" onclick="closeDrawer('silicon-drawer-hinglish')"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3>Deep Dive: Silicon-Level Verification</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('silicon-drawer-hinglish')">&times;</button>
+    </div>
+    <div class="drawer-body">
 
 Hum real math ko Rust code execution se verify kar sakte hain:
 
@@ -109,7 +127,10 @@ B1 Final Velocity Y: 0.003417
 B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
 ------------------------------------------------------------
 </code></pre>
-</details>
+
+    </div>
+  </div>
+</div>
 
 Aur isi tarah ye math poore physical grid ko frame by frame stabilize karta hai.
 
@@ -143,8 +164,17 @@ Since B1 must move because of this force, the CPU takes B1's Mobility and multip
 
 This multiplication represents the exact moment the coordinates slip. This <span class="keyword-highlight" data-tooltip="This slip isn't a bug. It's the physical movement caused by that net force of 10. The math drives B1's hand to slide to a new spot where all forces cancel out. That new, stable position is our final output: x_i(k+1).">Slip</span> isn't a bug, but the physical displacement caused by that remaining force. Driven entirely by the math, the coordinates will physically slide to a brand new position where all forces cancel out. That newly calculated, stable position becomes our final output.
 
-<details class="admonition admonish-example">
-  <summary class="admonition-title">Deep Dive: The Cliffhanger Analogy</summary>
+<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-english')">Explore Cliffhanger Analogy</button>
+<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-english')">Inspect Silicon Telemetry</button>
+
+<div id="cliffhanger-drawer-english" class="drawer-container">
+  <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-english')"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3>Deep Dive: The Cliffhanger Analogy</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('cliffhanger-drawer-english')">&times;</button>
+    </div>
+    <div class="drawer-body">
 
 Imagine a person hanging off the edge of a cliff, and we'll call him B1.
 
@@ -159,10 +189,19 @@ Now, why is B1 our main focus? If B1 lets go, everyone below falls. Also, B1 is 
 So, how does B1 balance himself? He looks at the forces around him. T1 is pulling him up. B2 is pulling him down. B1 has to calculate the net force acting on him to adjust his grip. If the pull from T1 is 90 and the weight from B1 and B2 is 100, B1 is feeling a net downward pull of 10. That net force is what makes him slide or slip. To find balance, he has to slide his hands to a new spot where the forces equal out. And that's exactly what the solver does.
 
 And that's how this simple human chain maps perfectly to how the solver handles interconnected physics elements.
-</details>
 
-<details class="admonition admonish-example">
-  <summary class="admonition-title">Deep Dive: Silicon-Level Verification</summary>
+    </div>
+  </div>
+</div>
+
+<div id="silicon-drawer-english" class="drawer-container">
+  <div class="drawer-backdrop" onclick="closeDrawer('silicon-drawer-english')"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3>Deep Dive: Silicon-Level Verification</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('silicon-drawer-english')">&times;</button>
+    </div>
+    <div class="drawer-body">
 
 We can check the physical math behavior using Rust code:
 
@@ -218,7 +257,9 @@ B1 Final Velocity Y: 0.003417
 B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
 ------------------------------------------------------------
 </code></pre>
-</details>
+    </div>
+  </div>
+</div>
 
 And that is how the math stabilizes the entire physical grid frame by frame.
 
@@ -247,13 +288,22 @@ Dentro del paréntesis, toma el peso (\\(b_i\\)) y resta esas dos Sigmas (los ti
 Como B1 debe moverse por esta fuerza, la CPU toma la Movilidad de B1 y la multiplica por la Fuerza Desequilibrada:
 
 \\[
-\text{Movilidad } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
+\text{Mobility } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
 \\]
 
 Esta multiplicación representa el momento exacto en que la mano de B1 se desliza. Este <span class="keyword-highlight" data-tooltip="Este deslizamiento no es un error. Es el movimiento físico causado por esa fuerza neta de 10. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.">Deslizamiento</span> no es un error, sino el desplazamiento real provocado por la fuerza restante. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.
 
-<details class="admonition admonish-example">
-  <summary class="admonition-title">Deep Dive: La Analogía del Acantilado</summary>
+<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-spanish')">Explore Cliffhanger Analogy</button>
+<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-spanish')">Inspect Silicon Telemetry</button>
+
+<div id="cliffhanger-drawer-spanish" class="drawer-container">
+  <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-spanish')"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3>Deep Dive: La Analogía del Acantilado</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('cliffhanger-drawer-spanish')">&times;</button>
+    </div>
+    <div class="drawer-body">
 
 Imagina a una persona colgando del borde de un acantilado, a la que llamaremos B1.
 
@@ -268,10 +318,19 @@ Ahora, ¿por qué B1 es nuestro punto de atención? Si B1 se suelta, todos los d
 ¿Cómo se equilibra B1? Mira las fuerzas a su alrededor. T1 lo tira hacia arriba. B2 lo tira hacia abajo. B1 tiene que calcular la fuerza neta que actúa sobre él para ajustar su agarre. Si el tirón de T1 es de 90 y el peso de B1 y B2 es de 100, B1 siente un tirón neto hacia abajo de 10. Esa fuerza neta es lo que hace que se deslice o resbale. Para encontrar el equilibrio, tiene que deslizar sus manos a un nuevo punto donde las fuerzas se igualen. Y eso es exactamente lo que hace el resolvedor.
 
 Y así es como esta cadena humana se conecta con la forma en que el resolvedor maneja los elementos físicos acoplados.
-</details>
 
-<details class="admonition admonish-example">
-  <summary class="admonition-title">Deep Dive: Verificación a Nivel de Silicio</summary>
+    </div>
+  </div>
+</div>
+
+<div id="silicon-drawer-spanish" class="drawer-container">
+  <div class="drawer-backdrop" onclick="closeDrawer('silicon-drawer-spanish')"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3>Deep Dive: Verificación a Nivel de Silicio</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('silicon-drawer-spanish')">&times;</button>
+    </div>
+    <div class="drawer-body">
 
 Podemos comprobar el comportamiento matemático real usando código Rust:
 
@@ -327,6 +386,8 @@ B1 Final Velocity Y: 0.003417
 B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
 ------------------------------------------------------------
 </code></pre>
-</details>
+</div>
+</div>
+</div>
 
 Y así es como las matemáticas estabilizan toda la cuadrícula física fotograma a fotograma.

@@ -184,3 +184,29 @@ document.addEventListener('DOMContentLoaded', () => {
     initLanguageToggle();
     initTooltips();
 });
+
+// --- Sliding Drawer Operations ---
+
+function openDrawer(id) {
+    const drawer = document.getElementById(id);
+    if (!drawer) return;
+    drawer.classList.add('open');
+    document.body.style.overflow = 'hidden'; // Disable background scrolling
+}
+
+function closeDrawer(id) {
+    const drawer = document.getElementById(id);
+    if (!drawer) return;
+    drawer.classList.remove('open');
+    document.body.style.overflow = ''; // Restore background scrolling
+}
+
+// Global key down listener for closing drawers on Escape key press
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const openDrawers = document.querySelectorAll('.drawer-container.open');
+        openDrawers.forEach(drawer => {
+            closeDrawer(drawer.id);
+        });
+    }
+});
