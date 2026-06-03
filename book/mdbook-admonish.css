@@ -1135,7 +1135,7 @@ div[id^="silicon-drawer-"].drawer-container .drawer-backdrop {
 
 /* --- Mobile Viewport & Horizontal Overflow Prevention --- */
 /* Prevents wide elements (like code, tables, math formulas) from expanding the page width and zooming out the mobile layout */
-.page-wrapper, .page, .content, main {
+#mdbook-body-container, .page-wrapper, .page, .content, main {
   max-width: 100% !important;
   overflow-x: hidden !important;
 }

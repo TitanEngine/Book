@@ -11,6 +11,34 @@ if (!sessionStorage.getItem('theme-forced-rust')) {
     }
 }
 
+// Dynamic Mobile Viewport & Horizontal Overflow Prevention style injection (to bypass stubborn browser caches)
+(function() {
+    const style = document.createElement('style');
+    style.id = 'tgs-mobile-zoom-fix';
+    style.textContent = `
+        #mdbook-body-container, .page-wrapper, .page, .content, main {
+          max-width: 100% !important;
+          overflow-x: hidden !important;
+        }
+        pre, code, .MathJax_Display, .MathJax, mjx-container {
+          max-width: 100% !important;
+          overflow-x: auto !important;
+          overflow-y: hidden !important;
+        }
+        img, iframe {
+          max-width: 100% !important;
+          height: auto !important;
+        }
+    `;
+    if (document.head) {
+        document.head.appendChild(style);
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.head.appendChild(style);
+        });
+    }
+})();
+
 // Pre-configure MathJax to hide loading/processing messages and setup delimiters
 window.MathJax = window.MathJax || {};
 window.MathJax.messageStyle = "none";
