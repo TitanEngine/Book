@@ -6,7 +6,10 @@
 
 <div class="lang-marker" data-lang="hinglish"></div>
 
-Temporal Gauss-Seidel (TGS) ek bare-metal matrix solver hai jo physical constraints ke interconnected web ko balance karta hai.
+<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-hinglish')">Explore Cliffhanger Analogy</button>
+<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-hinglish')">Inspect Silicon Telemetry</button>
+
+Jab hum kisi real-time game physics simulation me objects ko <span class="keyword-highlight" data-tooltip="Physics: Do bodies ka aapas me takrana jahan momentum conserve hota hai. Game Physics: Jab do objects ke colliders intersect karte hain, to engine unke overlap ko detect karke realistic bounce and impulses calculate karta hai.">collide</span> hote hue ya stacked layers me interact karte hue dekhte hain, to background me engine ko physics constraints (jaise collision <span class="keyword-highlight" data-tooltip="Physics: Asli duniya me solid objects ek dusre ke andar nahi ja sakte. Game Physics: Time-steps ke gap ki wajah se objects ek dusre ke andar 'sink' (penetrate) ho jaate hain. Engine is error ko correction impulses se solve karta hai taaki objects boundary cross na karein.">penetration</span>, <span class="keyword-highlight" data-tooltip="Physics: Do surfaces ke beech relative sliding motion ko oppose karne wala force. Game Physics: Contact point ke tangent plane par lagne wala constraint jo Coulomb's Law ke base par sliding ko rokta hai, taaki objects baraf (ice) ki tarah slide na karein.">friction</span>, aur <span class="keyword-highlight" data-tooltip="Physics: Do ya zyada rigid bodies ke beech ka connection jo unki degrees of freedom ko restrict karta hai. Game Physics: Joint constraints jo translation aur rotation ko limit karte hain (jaise ragdoll limbs), jise solver aapas me stretch hone se bachata hai.">articulated joints</span>) resolve karne padte hain. Agar ye solver mathematically unstable ho, to high-speed movement ya heavy mass difference ke waqt simulations crash ho jayengi, objects wall ke paar 'leak' (penetrate) ho jayenge, aur joints jitter karne lagenge. Temporal Gauss-Seidel (TGS) wahi advance velocity-level iterative solver hai jo in constraints ko sub-stepping ke sath stabilise karta hai, aur dynamic forces ko smooth out karke poore simulation frame ko stability deta hai.
 
 TGS solver modern physics engines ka backbone hai. Jab hum ek massive web of constraints (jaise stacked boxes ya character joints) ko balance karte hain, to pure system ko simultaneous equations ke system ki tarah solve karna hota hai. TGS is system ko step-by-step resolve karta hai. Iska mathematical basis is iterative equation par dependent hai:
 
@@ -34,9 +37,6 @@ Is Unbalanced Force ki wajah se target object apni position badlega. To CPU obje
 
 Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel ho jayein. Yahi nayi position hume \( x_i^{(k+1)} \) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.
 
-<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-hinglish')">Explore Cliffhanger Analogy</button>
-<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-hinglish')">Inspect Silicon Telemetry</button>
-
 <div id="cliffhanger-drawer-hinglish" class="drawer-container">
   <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-hinglish')"></div>
   <div class="drawer-content">
@@ -60,8 +60,8 @@ To, B1 apne aap ko kaise balance karta hai? Wo apne aas-paas ke forces ko dekhta
 
 Aur isi tarah ye simple human chain solver ke interconnected elements ke logic ko explain karti hai.
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <div id="silicon-drawer-hinglish" class="drawer-container">
@@ -128,15 +128,31 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
 ------------------------------------------------------------
 </code></pre>
 
-    </div>
-  </div>
+<br>
+<h3>How TGS is Actually Implemented in Game Engines</h3>
+
+To modern engines older Projected Gauss-Seidel (PGS) ke bajaye Temporal Gauss-Seidel (TGS) kyu use karte hain?<br><br>
+
+Agar aap kisi purane engine me physics joints ki ek lambi chain banayein—jaise koi rope bridge ya 10-segment ragdoll—to wo ek saste rubber band ki tarah behave karti hai. Wo stretch aur bounce hone lagti hai. Aisa isliye hota hai kyuki purana PGS solver bas math equations ko baar-baar loop karta hai, par frame ke bilkul end tak objects ki physical positions ko actually update nahi karta. Isse errors jama (stack up) hote jate hain.<br><br>
+
+TGS is hardware execution flow ko poori tarah badal deta hai. Nvidia PhysX 4.1 (jo Unity me use hota hai) aur Erin Catto ke recent Box2D updates jaise engines iteration se zyada <i>sub-stepping</i> ko priority dekar TGS implement karte hain.<br><br>
+
+Poore 16-millisecond ke frame ko ek sath solve karne ke bajaye, engine frame ko chote micro-steps me tod deta hai. Wo B1 ke forces ko solve karta hai, aur usi waqt game world me B1 ki position ko physically move kar deta hai. Chunki B1 physically move ho chuka hai, engine B2 ko calculate karne se pehle B1 ki <code>effectiveMass</code> aur Jacobians ko fauran recalculate karta hai. Wo mid-frame me hi system ko dynamically update kar deta hai. Isse rubber-band effect bilkul khatam ho jata hai. Ye game developers ko real-time me massive, heavy robotic arms ya lambi chains simulate karne ki permission deta hai bina kisi physics glitch ya explosion ke.<br><br>
+
+Aur isi tarah chalkboard par likhe variables CPU architecture ke andar strict physical laws ban jate hain.
+
+</div>
+</div>
 </div>
 
-Aur isi tarah ye math poore physical grid ko frame by frame stabilize karta hai.
+Yahi mathematical stability aur constraint relaxation ka core principle hai jo modern physics pipelines ko support karta hai. Har frame me mathematical calculations silently execute hoti hain, computational errors ko smooth out karti hain aur physics simulator ko dynamic environments me stability aur integrity deti hain.
 
 <div class="lang-marker" data-lang="english"></div>
 
-Here is how the Temporal Gauss-Seidel solver brings physical systems into balance at the hardware level.
+<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-english')">Explore Cliffhanger Analogy</button>
+<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-english')">Inspect Silicon Telemetry</button>
+
+In a real-time game physics simulation, when bodies <span class="keyword-highlight" data-tooltip="Physics: Two bodies exerting forces on each other in a short time, conserving momentum. Game Physics: The event when two shape colliders overlap. The engine detects this and applies normal impulses to make them bounce off realistically.">collide</span> or interact in complex stacks, the engine must resolve a dense network of physical constraints—such as collision <span class="keyword-highlight" data-tooltip="Physics: In reality, solid bodies cannot occupy the same physical space. Game Physics: Due to discrete time-steps, objects can sink into each other between frames. The engine pushes them apart using positional corrections (e.g., Baumgarte stabilization) to prevent clipping.">penetration</span>, <span class="keyword-highlight" data-tooltip="Physics: The tangential force resisting relative lateral motion between two contact surfaces. Game Physics: A constraint solved along the contact plane that limits tangential impulses using Coulomb's Law, preventing objects from sliding indefinitely as if on ice.">friction</span>, and <span class="keyword-highlight" data-tooltip="Physics: Connections between rigid bodies restricting degrees of freedom (hinges, ball joints) while permitting rotation. Game Physics: Coupled constraint networks representing joints (like ragdoll limbs) solved iteratively to prevent stretching or tearing under stress.">articulated joints</span>. If the solver is mathematically unstable, high-velocity impacts or massive weight disparities will cause the simulation to jitter, objects to clip through boundaries, or the system to explode. The Temporal Gauss-Seidel (TGS) solver is a velocity-level iterative engine that employs sub-stepping and temporal history to resolve these constraint equations smoothly, preventing numerical drift and preserving structural stability in dynamic environments.
 
 The Temporal Gauss-Seidel (TGS) solver is a fundamental algorithm in rigid body physics simulation. When solving large systems of physical constraints, the engine formulates a global system of equations representing the impulses required to prevent interpenetration. TGS approximates the solution by sweeping through constraints iteratively. The mathematical foundation of this relaxation method is governed by:
 
@@ -164,9 +180,6 @@ Since B1 must move because of this force, the CPU takes B1's Mobility and multip
 
 This multiplication represents the exact moment the coordinates slip. This <span class="keyword-highlight" data-tooltip="This slip isn't a bug. It's the physical movement caused by that net force of 10. The math drives B1's hand to slide to a new spot where all forces cancel out. That new, stable position is our final output: x_i(k+1).">Slip</span> isn't a bug, but the physical displacement caused by that remaining force. Driven entirely by the math, the coordinates will physically slide to a brand new position where all forces cancel out. That newly calculated, stable position becomes our final output.
 
-<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-english')">Explore Cliffhanger Analogy</button>
-<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-english')">Inspect Silicon Telemetry</button>
-
 <div id="cliffhanger-drawer-english" class="drawer-container">
   <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-english')"></div>
   <div class="drawer-content">
@@ -190,8 +203,8 @@ So, how does B1 balance himself? He looks at the forces around him. T1 is pullin
 
 And that's how this simple human chain maps perfectly to how the solver handles interconnected physics elements.
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <div id="silicon-drawer-english" class="drawer-container">
@@ -257,15 +270,32 @@ B1 Final Velocity Y: 0.003417
 B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
 ------------------------------------------------------------
 </code></pre>
-    </div>
-  </div>
+
+<br>
+<h3>How TGS is Actually Implemented in Game Engines</h3>
+
+So, why do modern engines use Temporal Gauss-Seidel (TGS) instead of the older Projected Gauss-Seidel (PGS)?<br><br>
+
+If you build a long chain of physics joints—like a rope bridge or a 10-segment ragdoll—in an older engine, it acts like a cheap rubber band. It stretches and bounces unnaturally. That happens because the older PGS solver just loops the math equations over and over, but it doesn't actually update the physical positions of the objects until the very end of the frame. The errors stack up.<br><br>
+
+TGS completely rewrites this hardware execution flow. Engines like Nvidia PhysX 4.1 (used heavily in modern Unity) and Erin Catto's recent Box2D updates implement TGS by prioritizing <i>sub-stepping</i> over iteration.<br><br>
+
+Instead of trying to solve the whole 16-millisecond frame at once, the engine chops the frame into tiny micro-steps. It solves the forces for B1, and then it physically moves B1's position in the game world right then and there. Because B1 physically moved, the engine immediately re-calculates his <code>effectiveMass</code> and Jacobians before moving on to calculate B2. It dynamically updates the entire system mid-frame. This completely eliminates the rubber-band effect. It allows game developers to simulate massive, heavy robotic arms or long chains in real-time without the physics glitching out and exploding across the screen.<br><br>
+
+And that is exactly how variables on a chalkboard become strict physical laws inside a CPU architecture.
+
+</div>
+</div>
 </div>
 
-And that is how the math stabilizes the entire physical grid frame by frame.
+This fundamental principle of constraint relaxation and mathematical stability is what anchors modern physics pipelines. Behind the scenes, these mathematical equations execute silently in every frame, smoothing out numerical errors and ensuring the structural integrity of the simulation in highly dynamic environments.
 
 <div class="lang-marker" data-lang="spanish"></div>
 
-Así es como el resolvedor Temporal Gauss-Seidel equilibra los sistemas físicos a nivel de hardware.
+<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-spanish')">Explore Cliffhanger Analogy</button>
+<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-spanish')">Inspect Silicon Telemetry</button>
+
+Cuando vemos interactuar cuerpos en <span class="keyword-highlight" data-tooltip="Física: Dos cuerpos que ejercen fuerzas entre sí en un corto intervalo de tiempo, conservando el momento. Física de juegos: El evento cuando dos formas de colisión se superponen. El motor lo detecta y aplica impulsos normales para que reboten de forma realista.">colisión</span> o en pilas complejas en una simulación de física de juego en tiempo real, el motor debe resolver una red densa de restricciones físicas, como la <span class="keyword-highlight" data-tooltip="Física: En la realidad, dos cuerpos sólidos no pueden ocupar el mismo espacio físico. Física de juegos: Debido a pasos de tiempo discretos, los objetos pueden hundirse entre sí. El motor los empuja para separarlos usando correcciones posicionales para evitar que se atraviesen.">penetración</span> de colisiones, la <span class="keyword-highlight" data-tooltip="Física: La fuerza tangencial que resiste el movimiento lateral relativo entre dos superficies en contacto. Física de juegos: Una restricción que limita los impulsos tangenciales usando la Ley de Coulomb, evitando que los objetos se deslicen infinitamente como si estuvieran sobre hielo.">fricción</span> y las <span class="keyword-highlight" data-tooltip="Física: Conexiones entre cuerpos rígidos que restringen los grados de libertad (bisagras, rótulas) mientras permiten la rotación. Física de juegos: Redes de restricciones acopladas (como extremidades de ragdoll) resueltas de forma de iterativa para evitar estiramientos o desgarros.">articulaciones articuladas</span>. Si el resolvedor es matemáticamente inestable, los impactos de alta velocidad o las disparidades de masa extremas harán que la simulación vibre, que los objetos atraviesen los límites o que el sistema explote. El resolvedor Temporal Gauss-Seidel (TGS) es un motor iterativo a nivel de velocidad que emplea subpasos y coherencia temporal para resolver estas ecuaciones de restricción de manera uniforme, lo que evita la deriva numérica y preserva la estabilidad estructural en entornos dinámicos.
 
 El resolvedor Temporal Gauss-Seidel (TGS) es un algoritmo fundamental en la simulación física de cuerpos rígidos. Al resolver grandes sistemas de restricciones físicas, el motor formula un sistema global de ecuaciones que representa los impulsos necesarios para evitar la interpenetración. TGS aproxima la solución recorriendo las restricciones de forma iterativa. La base matemática de este método de relajación se define mediante:
 
@@ -293,9 +323,6 @@ Como B1 debe moverse por esta fuerza, la CPU toma la Movilidad de B1 y la multip
 
 Esta multiplicación representa el momento exacto en que la mano de B1 se desliza. Este <span class="keyword-highlight" data-tooltip="Este deslizamiento no es un error. Es el movimiento físico causado por esa fuerza neta de 10. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.">Deslizamiento</span> no es un error, sino el desplazamiento real provocado por la fuerza restante. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.
 
-<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-spanish')">Explore Cliffhanger Analogy</button>
-<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-spanish')">Inspect Silicon Telemetry</button>
-
 <div id="cliffhanger-drawer-spanish" class="drawer-container">
   <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-spanish')"></div>
   <div class="drawer-content">
@@ -319,8 +346,8 @@ Ahora, ¿por qué B1 es nuestro punto de atención? Si B1 se suelta, todos los d
 
 Y así es como esta cadena humana se conecta con la forma en que el resolvedor maneja los elementos físicos acoplados.
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <div id="silicon-drawer-spanish" class="drawer-container">
@@ -386,8 +413,22 @@ B1 Final Velocity Y: 0.003417
 B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
 ------------------------------------------------------------
 </code></pre>
+
+<br>
+<h3>Cómo se Implementa TGS Realmente en los Motores de Juego</h3>
+
+Entonces, ¿por qué los motores modernos usan Temporal Gauss-Seidel (TGS) en lugar del antiguo Projected Gauss-Seidel (PGS)?<br><br>
+
+Si construyes una cadena larga de articulaciones físicas—como un puente colgante o un ragdoll de 10 segmentos—en un motor antiguo, se comporta como una banda elástica barata. Se estira y rebota de forma poco natural. Esto ocurre porque el resolvedor PGS antiguo solo repite las ecuaciones matemáticas una y otra vez, pero no actualiza las posiciones físicas de los objetos hasta el final del fotograma. Los errores se acumulan.<br><br>
+
+TGS rediseña por completo este flujo de ejecución en el hardware. Motores como Nvidia PhysX 4.1 (muy utilizado en Unity moderno) y las recientes actualizaciones de Box2D de Erin Catto implementan TGS priorizando los <i>subpasos</i> sobre la iteración.<br><br>
+
+En lugar de intentar resolver todo el fotograma de 16 milisegundos a la vez, el motor divide el fotograma en pequeños micro-pasos. Resuelve las fuerzas de B1 y luego mueve físicamente la posición de B1 en el mundo del juego en ese mismo instante. Como B1 se movió físicamente, el motor recalcula de inmediato su <code>effectiveMass</code> y sus jacobianos antes de pasar a calcular B2. Actualiza dinámicamente todo el sistema a mitad del fotograma. Esto elimina por completo el efecto de banda elástica. Permite a los desarrolladores simular brazos robóticos enormes y pesados o cadenas largas en tiempo real sin que la física falle y explote en la pantalla.<br><br>
+
+Y así es exactamente como las variables de una pizarra se convierten en leyes físicas estrictas dentro de la arquitectura de una CPU.
+
 </div>
 </div>
 </div>
 
-Y así es como las matemáticas estabilizan toda la cuadrícula física fotograma a fotograma.
+Este principio fundamental de relajación de restricciones y estabilidad matemática es lo que sustenta los pipelines de física modernos. Detrás de escena, estas ecuaciones matemáticas se ejecutan silenciosamente en cada fotograma, suavizando los errores numéricos y garantizando la integridad estructural de la simulación en entornos altamente dinámicos.

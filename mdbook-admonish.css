@@ -1,4 +1,8 @@
 @charset "UTF-8";
+
+html {
+  scrollbar-gutter: stable;
+}
 :is(.admonition) {
   display: flow-root;
   margin: 1.5625em 0;
@@ -407,8 +411,7 @@ summary.admonition-title::-webkit-details-marker {
   color: #448aff;
   font-weight: 700;
   border-bottom: 2px dashed #448aff;
-  position: relative;
-  cursor: help;
+  cursor: pointer;
   display: inline;
 }
 .keyword-tooltip-box.global-tooltip {
@@ -606,7 +609,7 @@ summary.admonition-title::-webkit-details-marker {
   padding: 28px;
   overflow-y: auto;
   flex: 1;
-  font-size: 0.98rem;
+  font-size: 1.15rem;
   line-height: 1.6;
 }
 .drawer-body pre, .drawer-body code {
@@ -620,4 +623,13 @@ summary.admonition-title::-webkit-details-marker {
 /* Make sure tooltips are visible over the drawer */
 .keyword-tooltip-box.global-tooltip {
   z-index: 10005 !important;
+}
+
+/* Language wrapper smooth transitions */
+.lang-content {
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+.lang-content.active {
+  opacity: 1;
 }
