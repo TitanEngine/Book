@@ -1003,8 +1003,8 @@ summary.admonition-title::-webkit-details-marker {
 
   /* Expanded hover highlights without layout shifts */
   .keyword-highlight {
-    padding: 4px 8px !important;
-    margin: -4px -8px !important;
+    padding: 2px 8px !important;
+    margin: -2px -8px !important;
   }
 
   /* Spacious spacing to prevent adjacent tap triggers */

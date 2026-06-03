@@ -28,22 +28,23 @@ x_i^{(k+1)} = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)} 
 
 Is mathematical formula ke variables ko break down karke samajhte hain:
 
-* **<span class="keyword-highlight" data-tooltip="Yeh target coordinate element hai jise solver resolve kar raha hai. Humare cliffhanger scenario me, ye wo suspended insaan \\( B1 \\) hai jo edge par latka hai. Iske balance hone par hi baqi logon ka latakna depend karta hai.">\\(x_i^{(k+1)}\\)</span>**: Target object ki updated state (velocity/position correction) jo current frame \\(k+1\\) me calculate ho rahi hai.
-* **<span class="keyword-highlight" data-tooltip="Ye effective mass ya inertia tensor value hai, jo movement ke khilaf resistance (stubbornness) dikhata hai. Cliffhanger me ye B1 ka apna weight aur edge ke sath grip friction resistance hai.">\\(a_{ii}\\)</span>**: Effective mass ya diagonal elements of the system matrix jo object ke dynamic resistance ko define karte hain.
-* **<span class="keyword-highlight" data-tooltip="Ye target object par lagne wala pure external force hai. Cliffhanger me ye B1 ka apna isolated weight hai (mass multiplied by gravity) jo use niche khinch raha hai.">\\(b_i\\)</span>**: External biases vector (gravity, collision impulses, external damping, and penetration error parameters).
-* **<span class="keyword-highlight" data-tooltip="Ye T-array hai, yaani cliff ke upar khade log \\( [T3, T2, T1] \\) jo B1 ko upar khinch rahe hain. Kyunki CPU inko pehle hi process kar chuka hai, inki states updated \\( k+1 \\) hain.">\\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\\)</span>**: Un neighbor components ka collective pulling force jo current iteration cycle me already process ho chuke hain, isliye inke paas updated present state \\(k+1\\) hai.
-* **<span class="keyword-highlight" data-tooltip="Ye B-array hai, yaani B1 ke niche latakte hue log \\( [B2, B3] \\) jo use niche drag kar rahe hain. CPU abhi tak in tak nahi pahuncha, isliye ye pichli state \\( k  \\) carry karte hain.">\\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\\)</span>**: Un neighbor constraints ka pull jahan current sweep abhi tak nahi pahuncha hai, isliye ye pichli state \\(k\\) carry karte hain.
-* **<span class="keyword-highlight" data-tooltip="Ye coupling coefficients hain jo stiffness represent karte hain. Cliffhanger me ye haath ki pakad (grip stiffness) hai jo force transfer karti hai.">\\(a_{ij}\\)</span>**: Coupling coefficients jo adjacent elements ke beech structural stiffness represent karte hain.
+* **<span class="keyword-highlight" data-tooltip="Yeh target coordinate element hai jise solver resolve kar raha hai. Humare cliffhanger scenario me, ye wo suspended insaan B1 hai jo edge par latka hai. Iske balance hone par hi baqi logon ka latakna depend karta hai.">\\(x_i^{(k+1)}\\)</span>**: Target object ki updated state (velocity/position correction) jo current frame \\(k+1\\) me calculate ho rahi hai.
+* **<span class="keyword-highlight" data-tooltip="Yeh target coordinate element hai jise solver resolve kar raha hai. Humare cliffhanger scenario me, ye wo suspended insaan B1 hai jo edge par latka hai. Iske balance hone par hi baqi logon ka latakna depend karta hai.">x_i(k+1)</span>**: Target object ki updated state (velocity/position correction) jo current frame k+1 me calculate ho rahi hai.
+* **<span class="keyword-highlight" data-tooltip="Ye effective mass ya inertia tensor value hai, jo movement ke khilaf resistance (stubbornness) dikhata hai. Cliffhanger me ye B1 ka apna weight aur edge ke sath grip friction resistance hai.">a_ii</span>**: Effective mass ya diagonal elements of the system matrix jo object ke dynamic resistance ko define karte hain.
+* **<span class="keyword-highlight" data-tooltip="Ye target object par lagne wala pure external force hai. Cliffhanger me ye B1 ka apna isolated weight hai (mass multiplied by gravity) jo use niche khinch raha hai.">b_i</span>**: External biases vector (gravity, collision impulses, external damping, and penetration error parameters).
+* **<span class="keyword-highlight" data-tooltip="Ye T-array hai, yaani cliff ke upar khade log [T3, T2, T1] jo B1 ko upar khinch rahe hain. Kyunki CPU inko pehle hi process kar chuka hai, inki states updated k+1 hain.">Sum of (a_ij * x_j(k+1))</span>**: Un neighbor components ka collective pulling force jo current iteration cycle me already process ho chuke hain, isliye inke paas updated present state k+1 hai.
+* **<span class="keyword-highlight" data-tooltip="Ye B-array hai, yaani B1 ke niche latakte hue log [B2, B3] jo use niche drag kar rahe hain. CPU abhi tak in tak nahi pahuncha, isliye ye pichli state k carry karte hain.">Sum of (a_ij * x_j(k))</span>**: Un neighbor constraints ka pull jahan current sweep abhi tak nahi pahuncha hai, isliye ye pichli state k carry karte hain.
+* **<span class="keyword-highlight" data-tooltip="Ye coupling coefficients hain jo stiffness represent karte hain. Cliffhanger me ye haath ki pakad (grip stiffness) hai jo force transfer karti hai.">a_ij</span>**: Coupling coefficients jo adjacent elements ke beech structural stiffness represent karte hain.
 
 ### 3. The Role of Temporal Coherence
 
-Lekin is heavy, sequential chain-reaction ko CPU cycles exhaust karne se bachane ke liye, yeh 'Time' (Temporal) ka element inject karta hai. Kaise? Pichle frame ke final physics state ko recycle karke aur use naye frame ke liye initial guess ki tarah use karke. Chunki objects 1/60th of a second me na ke barabar move karte hain, toh ye <span class="keyword-highlight" data-tooltip="Yeh kya hai? Har frame me scratch se calculation shuru karne ke bajaye, solver pichle frame ki final state ko naye frame ke starting point ki tarah reuse karta hai. Chunki ek second ke 60th part me objects bohot kam move hote hain, ye shortcut CPU ke dozens of loops bacha leta hai aur system ko stability deta hai.">Temporal Coherence</span> shortcut dozens of calculation loops ko bacha leta hai aur complex physical webs ko stabilize kar deta hai.
+Lekin is heavy, sequential chain-reaction ko CPU cycles exhaust karne se bachane ke liye, yeh 'Time' (Temporal) ka element inject karta hai. Kaise? Pichle frame ke final physics state ko recycle karke aur use naye frame ke liye initial guess ki tarah use karke. Chunki objects 1/60th of a second me na ke barabar move karte hain, toh ye <span class="keyword-highlight" data-tooltip="Solver pichle frame ki final state ko naye frame ke starting point ki tarah reuse karta hai. Chunki ek second ke 60th part me objects bohot kam move hote hain, ye shortcut CPU ke dozens of loops bacha leta hai aur system ko stability deta hai.">Temporal Coherence</span> shortcut dozens of calculation loops ko bacha leta hai aur complex physical webs ko stabilize kar deta hai.
 
 Agar hum TGS formula ko dhyan se dekhein, toh solver basically array me se ek single object ko isolate kar raha hota hai. Saare surrounding forces ko hata kar, ye sirf us specific object ke inertia (mass) aur external gravity par focus karta hai.
 
-Isliye, formula is inertia ko reverse kar deta hai, yaani use ulta kar deta hai: \\(1 / a_{ii}\\). Aur inertia ke is inverse ko hum <span class="keyword-highlight" data-tooltip="Mass aur inertia stubbornness hai—yaani movement ke khilaf resistance. Par physics constraint ko resolve karne ke liye hume movement chahiye. Isliye, formula is resistance ko invert (ulta) kar deta hai: \\( 1/a_{ii} \\). Isi value ko hum Mobility kehte hain jo constraint slip ko calculate karne ke kaam aati hai.">Mobility</span> kehte hain.
+Isliye, formula is inertia ko reverse kar deta hai, yaani use ulta kar deta hai: 1/a_ii. Aur inertia ke is inverse ko hum <span class="keyword-highlight" data-tooltip="Mass aur inertia stubbornness hai—yaani movement ke khilaf resistance. Par physics constraint ko resolve karne ke liye hume movement chahiye. Isliye, formula is resistance ko invert (ulta) kar deta hai: 1/a_ii. Isi value ko hum Mobility kehte hain jo constraint slip ko calculate karne ke kaam aati hai.">Mobility</span> kehte hain.
 
-Main bracket ke andar jo sabse pehla term hai, wo hai \\(b_i\\). Ye strictly target object ka apna isolated weight hai (uska mass multiplied by gravity) jo use niche khinch raha hai. To CPU karta kya hai? Wo bracket ke andar \\(b_i\\) (target object ki gravity) me se un dono Sigmas (upar aur niche wale elements ke pull) ko subtract karta hai. Subtraction ke baad jo bachta hai, jise hum <span class="keyword-highlight" data-tooltip="Maniye target object ki apni gravity aur niche wale elements ka pull milkar total 100 force niche lagate hain. Aur upar khinchne wala element sirf 90 force se upar khinch raha hai. Jab hum subtract karenge (100 minus 90), to hamare paas 10 downward force bachega. Yahi bacha hua force hamara Unbalanced Force hai jo dikhata hai ki object balance me nahi hai.">Unbalanced Force</span> yaani Residual kehte hain.
+Main bracket ke andar jo sabse pehla term hai, wo hai b_i. Ye strictly target object ka apna isolated weight hai (uska mass multiplied by gravity) jo use niche khinch raha hai. To CPU karta kya hai? Wo bracket ke andar b_i (target object ki gravity) me se un dono Sigmas (upar aur niche wale elements ke pull) ko subtract karta hai. Subtraction ke baad jo bachta hai, jise hum <span class="keyword-highlight" data-tooltip="Maniye target object ki apni gravity aur niche wale elements ka pull milkar total 100 force niche lagate hain. Aur upar khinchne wala element sirf 90 force se upar khinch raha hai. Jab hum subtract karenge (100 minus 90), to hamare paas 10 downward force bachega. Yahi bacha hua force hamara Unbalanced Force hai jo dikhata hai ki object balance me nahi hai.">Unbalanced Force</span> yaani Residual kehte hain.
 
 Is Unbalanced Force ki wajah se target object apni position badlega. To CPU object ki Mobility ko is Unbalanced Force se multiply karta hai:
 
@@ -51,7 +52,7 @@ Is Unbalanced Force ki wajah se target object apni position badlega. To CPU obje
 \text{Mobility } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
 \\]
 
-Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel ho jayein. Yahi nayi position hume \\( x_i^{(k+1)} \\) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.
+Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel ho jayein. Yahi nayi position hume x_i(k+1) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.
 
 <div id="cliffhanger-drawer-hinglish" class="drawer-container">
   <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-hinglish')"></div>
@@ -74,8 +75,8 @@ Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span cla
 
 <h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
 <ul>
-  <li><strong>B1 (The Interface Node)</strong>: Yeh first hanging person (<span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element \\( x_i^{(k+1)} \\) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span>) hai jo edge ke exact contact point par hai. Mathematically, solver is target object coordinates (\\(x_i^{(k+1)}\\)) ko sweep ke waqt isolate karta hai. Pure structure ki stability B1 ke adjustment par depend karti hai.</li>
-  <li><strong>B2 (Middle Connector)</strong>: B1 ke pair pakde hue middle link (<span class="keyword-highlight" data-tooltip="Ye equation ka Dusra Sigma (j = i+1 to n) represent karta hai. Ye wo connected rigid bodies hain jo target body ke baad aati hain aur purani state \\( k \\) carry karti hain.">B2</span>) jo tension balance transfer kar raha hai.</li>
+  <li><strong>B1 (The Interface Node)</strong>: Yeh first hanging person (<span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element x_i(k+1) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span>) hai jo edge ke exact contact point par hai. Mathematically, solver is target object coordinates (\\(x_i^{(k+1)}\\)) ko sweep ke waqt isolate karta hai. Pure structure ki stability B1 ke adjustment par depend karti hai.</li>
+  <li><strong>B2 (Middle Connector)</strong>: B1 ke pair pakde hue middle link (<span class="keyword-highlight" data-tooltip="Ye equation ka Dusra Sigma (j = i+1 to n) represent karta hai. Ye wo connected rigid bodies hain jo target body ke baad aati hain aur purani state k carry karti hain.">B2</span>) jo tension balance transfer kar raha hai.</li>
   <li><strong>B3 (Terminal Hanging Node)</strong>: Sabse last link jis par downward gravity pull accumulate ho rahi hai. Ye aur B2 abhi step calculations ke sweep process mein update nahi hue hain, isliye inki state past iteration index (\\(k\\)) se read ki ja rahi hai.</li>
 </ul>
 
@@ -86,8 +87,8 @@ Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span cla
   <li><strong>Impulsive Slip Adjustment</strong>: B1 ko is 10 tension difference ko absorb karne ke liye horizontal plane par static coordinates slide karne padenge taaki forces cancel mo sakein. Yahi actual correction calculation is element ka final coordinate coordinates slip kehlata hai, jo updated dynamic position value (\\(x_i^{(k+1)}\\)) banata hai.</li>
 </ul>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <div id="silicon-drawer-hinglish" class="drawer-container">
@@ -171,8 +172,8 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
   </li>
 </ul>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 Yahi mathematical stability aur constraint relaxation ka core principle hai jo modern physics pipelines ko support karta hai. Har frame me mathematical calculations silently execute hoti hain, computational errors ko smooth out karti hain aur physics simulator ko dynamic environments me stability aur integrity deti hain.
@@ -205,8 +206,8 @@ Let us break down the variables in this equation to understand its mechanical im
 * **<span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">\\(x_i^{(k+1)}\\)</span>**: The target coordinate element (velocity/position correction) being updated for the active constraint at the current iteration step \\(k+1\\).
 * **<span class="keyword-highlight" data-tooltip="This is the effective mass or inertia tensor value, showing resistance to movement. In the cliffhanger analogy, this maps to B1's weight and grip friction.">\\(a_{ii}\\)</span>**: The diagonal element of the system matrix representing the effective mass of the joint or contact, defining the inertial resistance to constraint corrections.
 * **<span class="keyword-highlight" data-tooltip="This is the pure external force acting on the target object. In the analogy, it represents B1's own isolated gravity pulling him down.">\\(b_i\\)</span>**: The external bias vector containing accumulated gravity, initial velocities, compliance terms, and penetration error correction parameters (Baumgarte stabilization).
-* **<span class="keyword-highlight" data-tooltip="This is the T-array—the people standing on top of the cliff pulling up. Since the CPU already solved these upper elements, they have the updated present state \( k+1 \).">\\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\\)</span>**: The cumulative forces from neighboring constraints that have already been processed in the current sweep, utilizing their updated present state \\(k+1\\).
-* **<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state \( k \).">\\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\\)</span>**: The forces from neighboring constraints that have not yet been reached in this sweep, relying on their historical state \\(k\\) from the previous iteration.
+* **<span class="keyword-highlight" data-tooltip="This is the T-array—the people standing on top of the cliff pulling up. Since the CPU already solved these upper elements, they have the updated present state k+1.">\\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\\)</span>**: The cumulative forces from neighboring constraints that have already been processed in the current sweep, utilizing their updated present state \\(k+1\\).
+* **<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state k.">\\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\\)</span>**: The forces from neighboring constraints that have not yet been reached in this sweep, relying on their historical state \\(k\\) from the previous iteration.
 * **<span class="keyword-highlight" data-tooltip="This is the coupling coefficient representing grid stiffness. In the analogy, it maps to the grip strength between characters.">\\(a_{ij}\\)</span>**: The coupling coefficients that define the structural stiffness and transmission of forces between adjacent coordinates.
 
 ### 3. The Role of Temporal Coherence
@@ -249,7 +250,7 @@ This multiplication determines the precise coordinate shift required to eliminat
 <h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
 <ul>
   <li><strong>B1 (The Interface Node)</strong>: The first hanging person (<span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">B1</span>) positioned exactly at the cliff edge. Mathematically, the solver isolates these target coordinates (\\(x_i^{(k+1)}\\)) during its sweep. The stability of the entire chain rests on B1's local adjustment.</li>
-  <li><strong>B2 (Middle Connector)</strong>: The middle link (<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state \( k \).">B2</span>) holding B1's legs, transmitting the tension balance downwards.</li>
+  <li><strong>B2 (Middle Connector)</strong>: The middle link (<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state k.">B2</span>) holding B1's legs, transmitting the tension balance downwards.</li>
   <li><strong>B3 (Terminal Hanging Node)</strong>: The final link in the chain bearing the fully accumulated gravity pull. B3 and B2 have not yet been updated in the current sweep, so their states are read from the past iteration index (\\(k\\)).</li>
 </ul>
 
@@ -260,8 +261,8 @@ This multiplication determines the precise coordinate shift required to eliminat
   <li><strong>Impulsive Slip Adjustment</strong>: To absorb this residual tension of 10, B1 must slide his coordinates along the contact plane until the forces cancel. This correction constitutes the coordinate slip, resulting in the updated dynamic velocity and position value (\\(x_i^{(k+1)}\\)).</li>
 </ul>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <div id="silicon-drawer-english" class="drawer-container">
@@ -345,8 +346,8 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
   </li>
 </ul>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 This fundamental principle of constraint relaxation and mathematical stability is what anchors modern physics pipelines. Behind the scenes, these mathematical equations execute silently in every frame, smoothing out numerical errors and ensuring the structural integrity of the simulation in highly dynamic environments.
@@ -379,8 +380,8 @@ Desglosemos las variables de esta ecuación para comprender su implementación m
 * **<span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">\\(x_i^{(k+1)}\\)</span>**: Las coordenadas del elemento objetivo (corrección de velocidad/posición) que se actualizan para la restricción activa en el paso de iteración actual \\(k+1\\).
 * **<span class="keyword-highlight" data-tooltip="Esta es la masa efectiva o valor del tensor de inercia, que muestra resistencia al movimiento. En la analogía, esto se mapea con el peso y agarre de B1.">\\(a_{ii}\\)</span>**: El elemento diagonal de la matriz del sistema que representa la masa efectiva de la articulación o contacto, definiendo la resistencia inercial a las correcciones.
 * **<span class="keyword-highlight" data-tooltip="Esta es la fuerza externa pura sobre el objeto. En la analogía, representa el propio peso de B1 tirando de él hacia abajo.">\\(b_i\\)</span>**: El vector de sesgo externo que contiene la gravedad acumulada, velocidades iniciales, términos de compliancia y parámetros de corrección de errores de penetración (estabilización de Baumgarte).
-* **<span class="keyword-highlight" data-tooltip="Esta es la lista T: las personas en la cima del acantilado tirando hacia arriba. Como la CPU ya resolvió estos elementos, tienen el estado actualizado \( k+1 \).">\\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\\)</span>**: Las fuerzas acumuladas de las restricciones vecinas que ya han sido procesadas en el barrido actual, utilizando su estado presente actualizado \\(k+1\\).
-* **<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado \( k \).">\\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\\)</span>**: Las fuerzas de las restricciones vecinas que aún no se han alcanzado en el barrido actual, basándose en su estado histórico \\(k\\) de la iteración anterior.
+* **<span class="keyword-highlight" data-tooltip="Esta es la lista T: las personas en la cima del acantilado tirando hacia arriba. Como la CPU ya resolvió estos elementos, tienen el estado actualizado k+1.">\\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\\)</span>**: Las fuerzas acumuladas de las restricciones vecinas que ya han sido procesadas en el barrido actual, utilizando su estado presente actualizado \\(k+1\\).
+* **<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado k.">\\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\\)</span>**: Las fuerzas de las restricciones vecinas que aún no se han alcanzado en el barrido actual, basándose en su estado histórico \\(k\\) de la iteración anterior.
 * **<span class="keyword-highlight" data-tooltip="Este es el coeficiente de acoplamiento que representa la rigidez de la red. En la analogía, se asocia con la fuerza de agarre.">\\(a_{ij}\\)</span>**: Los coeficientes de acoplamiento que definen la rigidez estructural y la transmisión de fuerzas entre coordenadas adyacentes.
 
 ### 3. El papel de la coherencia temporal
@@ -423,7 +424,7 @@ Esta multiplicación determina el desplazamiento de coordenadas preciso requerid
 <h5>2. La cadena colgante (Lista inferior: B1, B2, B3)</h5>
 <ul>
   <li><strong>B1 (El nodo de interfaz)</strong>: La primera persona colgando en el aire (<span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">B1</span>), ubicada justo en el borde del acantilado. Matemáticamente, el resolvedor aísla estas coordenadas de destino (\\(x_i^{(k+1)}\\)) durante su barrido. La estabilidad de toda la cadena depende del ajuste local de B1.</li>
-  <li><strong>B2 (Conector intermedio)</strong>: El eslabón del medio (<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado \( k \).">B2</span>) que sujeta las piernas de B1, transmitiendo el equilibrio de tensión hacia abajo.</li>
+  <li><strong>B2 (Conector intermedio)</strong>: El eslabón del medio (<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado k.">B2</span>) que sujeta las piernas de B1, transmitiendo el equilibrio de tensión hacia abajo.</li>
   <li><strong>B3 (Nodo colgante terminal)</strong>: El último eslabón de la cadena que soporta toda la gravedad acumulada. B3 y B2 aún no se han actualizado en el barrido actual, por lo que sus estados se leen a partir del índice de iteración anterior (\\(k\\)).</li>
 </ul>
 
@@ -434,8 +435,8 @@ Esta multiplicación determina el desplazamiento de coordenadas preciso requerid
   <li><strong>Ajuste del deslizamiento impulsivo</strong>: Para absorber esta diferencia de tensión de 10, B1 debe deslizar sus coordenadas a lo largo del plano de contacto hasta que las fuerzas se cancelen. Esta corrección constituye el deslizamiento de coordenadas, produciendo el valor actualizado de velocidad y posición dinámica (\\(x_i^{(k+1)}\\)).</li>
 </ul>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 <div id="silicon-drawer-spanish" class="drawer-container">
@@ -519,8 +520,8 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
   </li>
 </ul>
 
-    </div>
-  </div>
+</div>
+</div>
 </div>
 
 Este principio fundamental de relajación de restricciones y estabilidad matemática es lo que sustenta los pipelines de física modernos. Detrás de escena, estas ecuaciones matemáticas se ejecutan silenciosamente en cada fotograma, suavizando los errores numéricos y garantizando la integridad estructural de la simulación en entornos altamente dinámicos.
