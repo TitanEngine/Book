@@ -1,0 +1,80 @@
+{
+  "sub_steps": {
+    "title": "Sub-Steps (Temporal Divisions)",
+    "hover": "Dividing the frame time delta into smaller steps to prevent high-velocity objects from clipping/tunnelling through boundaries."
+  },
+  "iterations": {
+    "title": "Iterations (Gauss-Seidel Loops)",
+    "hover": "The number of solver loop passes executed per sub-step, ensuring connected joints converge to a rigid, steel-like behavior."
+  },
+  "collision": {
+    "title": "Collision (Interaction)",
+    "hover": "Physical contact between body colliders, triggering normal bounce impulses to resolve intersections."
+  },
+  "penetration": {
+    "title": "Collision Penetration (Clipping)",
+    "hover": "Intersecting or clipping between colliders due to discrete steps, resolved by rewriting coordinates via Baumgarte correction."
+  },
+  "friction": {
+    "title": "Friction (Lateral Resistance)",
+    "hover": "Resistive force acting tangentially to oppose sliding motion, capped via Coulomb's law (ft <= mu * fn)."
+  },
+  "joints": {
+    "title": "Articulated Joints (Linkages)",
+    "hover": "Restricting relative translation and rotation parameters (DOF) between rigid bodies using strict constraint rules."
+  },
+  "x_i": {
+    "title": "Target State x_i",
+    "hover": "The current converged value of the active constraint coordinate (velocity or position correction).",
+    "deep_dive": "The target state variable x_i represents the final converged position or velocity of a dynamic body. Inside C++ engines, the accumulated impulses are dynamically updated and clamped in RAM across solver loops to prevent violent coordinate explosions."
+  },
+  "a_ii": {
+    "title": "Diagonal Element a_ii",
+    "hover": "The matrix diagonal representation of active constraint effective mass or rotational inertia.",
+    "deep_dive": "The diagonal matrix element a_ii represents the active body's effective mass or rotational inertia. It is computed in C++ engines using coordinate-specific cross-product matrices. Its inverse (1/a_ii) is precalculated to avoid slow division math at the silicon level."
+  },
+  "b_i": {
+    "title": "Bias Element b_i",
+    "hover": "Accumulated external forces (gravity, compliance terms, and penetration error parameters).",
+    "deep_dive": "The bias vector element b_i represents raw external forces (gravity) or positional errors like joint stretch separation. The engine measures this visual error, multiplies it by a stiffness coefficient, and pushes the solver to pull the bodies back into place."
+  },
+  "sum_t": {
+    "title": "Resolved Summation sum_t",
+    "hover": "Cumulative force feedback from neighboring constraints already resolved in the current sweep (present state k+1).",
+    "deep_dive": "The resolved summation represents feedback forces from constraints sitting earlier in the sweep sequence (such as the top anchors T-array). Their math is already solved for this frame, allowing the CPU to read linear velocities directly from L1 cache in a warm-started state."
+  },
+  "sum_b": {
+    "title": "Unresolved Summation sum_b",
+    "hover": "Cumulative force feedback from neighboring constraints pending calculations in the current loop (historical state k).",
+    "deep_dive": "The unresolved summation represents feedback forces from connected constraints sitting later in the execution sweep (such as the bottom hanging array). The engine recycles historical data from the previous sub-step pass to compute their temporary influence."
+  },
+  "a_ij": {
+    "title": "Coupling Coefficient a_ij",
+    "hover": "Force transmission transmission efficiency and stiffness mapping between adjacent constraint coordinates.",
+    "deep_dive": "The coupling coefficient mapping defines the interaction stiffness and damping parameters between adjacent bodies. It dictates force transmission efficiency across articulation registers config parameters in Unity/Unreal inspectors."
+  },
+  "temporal": {
+    "title": "Temporal Coherence (Time History)",
+    "hover": "Recycling final constraint forces from the previous frame as the warm-starting initial guess for the current step."
+  },
+  "mobility": {
+    "title": "Mobility (Inverse Inertia)",
+    "hover": "The mathematical reciprocal of mass (1/mass) used to replace division latency with fast multipliers."
+  },
+  "unbalanced": {
+    "title": "Unbalanced Force (Residual)",
+    "hover": "Residual mathematical error representing the net force imbalance acting on a body before convergence."
+  },
+  "slip": {
+    "title": "Slip (Correction Displacement)",
+    "hover": "The specific coordinate shift applied to bodies to eliminate force residual imbalances."
+  },
+  "static": {
+    "title": "BodyType::Static",
+    "hover": "Immovable anchors representing infinite physical mass values in code."
+  },
+  "inv_mass": {
+    "title": "Inverse Mass (1/M)",
+    "hover": "Inverted mass value hardcoded to 0.0 to bypass branch prediction condition checks inside CPU execution lanes."
+  }
+}

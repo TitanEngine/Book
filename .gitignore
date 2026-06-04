@@ -1,5 +1,5 @@
 # mdBook build output
-book/
+# book/
 
 # OS generated files
 .DS_Store

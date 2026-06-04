@@ -1,0 +1,80 @@
+{
+  "sub_steps": {
+    "title": "Sub-Steps (Temporal Divisions)",
+    "hover": "Time-step delta ko small chunks me divide karna taaki high-speed objects boundaries ke paar clip/leak na karein."
+  },
+  "iterations": {
+    "title": "Iterations (Gauss-Seidel Loops)",
+    "hover": "Gauss-Seidel iterative loops ka counts per sub-step, jo joints ko stretch hone se rok kar solid steel ki tarah rigid banata hai."
+  },
+  "collision": {
+    "title": "Collision (Takraar)",
+    "hover": "Do bodies ke colliders ka physical contact, jiske normal bounce impulses overlap ko resolve karte hain."
+  },
+  "penetration": {
+    "title": "Penetration (Overlap/Sinking)",
+    "hover": "Time-steps gap ke wajah se dynamic bodies ka boundary ke andar sink hona, jise Baumgarte correction coordinates rewrite karke solve karta hai."
+  },
+  "friction": {
+    "title": "Friction (Ragar)",
+    "hover": "Surfaces ke tangent plane par lagne wala resistive force jo sliding ko oppose karta hai, jise Coulomb's Law (ft <= mu*fn) cap karta hai."
+  },
+  "joints": {
+    "title": "Articulated Joints (Jod)",
+    "hover": "Hinges ya custom limits ke zariye rigid bodies ke rotation aur translation parameters (DOF) ko strict constraint rules se coordinate karna."
+  },
+  "x_i": {
+    "title": "Target State x_i",
+    "hover": "Active constraint coordinate (velocity ya position update) ka present converged value.",
+    "deep_dive": "Equation me x_i target state ko represent karta hai, jo ki final converged position ya velocity hoti hai jahan Climber B1 ko move hona hai. Game engine RAM me accumulated impulses ko loop passes me dynamically update aur clamp karta hai taaki bodies violently explode na karein."
+  },
+  "a_ii": {
+    "title": "Diagonal Element a_ii",
+    "hover": "Active joint ya contact point ka effective mass/inertia coordinate representation.",
+    "deep_dive": "Diagonal matrix element a_ii physical body ke mass aur rotational inertia ko represent karta hai. C++ engines me ise coordinate-specific cross-product matrices ke zariye calculate kiya jata hai, aur execution cycle me CPU division delays se bachne ke liye iske inverse (1/a_ii) ko precalculate kiya jata hai."
+  },
+  "b_i": {
+    "title": "Bias Element b_i",
+    "hover": "External bias force accumulation (gravity, compliance parameters, and penetration correction factors).",
+    "deep_dive": "Bias vector element b_i external bias parameters aur errors (jaise joint stretch separation) ko represent karta hai. Engine constraint error measure karta hai aur coordinate stabilization pull apply karne ke liye velocity adjustment generate karta hai."
+  },
+  "sum_t": {
+    "title": "Resolved Summation sum_t",
+    "hover": "Un sibling elements ka force feedback jinka update current sweep pass me already done hai (updated state k+1).",
+    "deep_dive": "Resolved summation un constraints ko represent karta hai jo iteration cycle me sequence me pehle exist karte hain (jaise top-anchors T-array). Unka calculations current frame loop me update ho chuka hota hai, isliye CPU direct linear velocity values L1 cache se warm-start state me fetch karta hai."
+  },
+  "sum_b": {
+    "title": "Unresolved Summation sum_b",
+    "hover": "Un connected body elements ka drag calculations jo sweep loops me abhi pending hain (past state k).",
+    "deep_dive": "Unresolved summation un constraints ko represent karta hai jo loop execution sequence me target body ke baad sequence me aate hain (niche wale climbers B-array). Engine inka force feedback calculate karne ke liye pichle sub-step pass data recycle karta hai."
+  },
+  "a_ij": {
+    "title": "Coupling Coefficient a_ij",
+    "hover": "Force propagation transfer efficiency aur stiffness factors adjacent bodies ke joints ke beech.",
+    "deep_dive": "Coupling coefficient adjacent bodies ke joints ke stiffness aur damping ratios ko represent karta hai. Unity/Unreal inspector configurations ke structural properties matrix registers me force propagation transfers ko control karta hai."
+  },
+  "temporal": {
+    "title": "Temporal Coherence (Samay Coherence)",
+    "hover": "Pichle frame ke final forces state ko next step ke liye warm-starting initial guess ki tarah recycle karna."
+  },
+  "mobility": {
+    "title": "Mobility (Inverse Inertia)",
+    "hover": "Mass representation ka inverse (1/mass) jo division instructions latency bypass karne me help karta hai."
+  },
+  "unbalanced": {
+    "title": "Unbalanced Force (Residual)",
+    "hover": "Opposition forces subtraction ke baad leftover error delta (residual) jo local equilibrium check fail hone par generate hota."
+  },
+  "slip": {
+    "title": "Slip (Visthapan)",
+    "hover": "Residual error error resolve karne ke liye displacement delta correction applied to bodies coordinates."
+  },
+  "static": {
+    "title": "BodyType::Static",
+    "hover": "Immovable anchors representing infinite physical mass values in code."
+  },
+  "inv_mass": {
+    "title": "Inverse Mass (1/M)",
+    "hover": "Inverse mass parameters hardcoded to 0.0 to prevent CPU branch prediction instruction execution stalls."
+  }
+}
