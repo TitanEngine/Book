@@ -3,6 +3,16 @@
 html {
   scrollbar-gutter: stable;
 }
+:root {
+  --keyword-color: #a24322;
+  --keyword-hover-bg: rgba(162, 67, 34, 0.08);
+  --keyword-shadow: rgba(162, 67, 34, 0.25);
+}
+.coal, .navy, .ayu {
+  --keyword-color: #e07a48;
+  --keyword-hover-bg: rgba(224, 122, 72, 0.08);
+  --keyword-shadow: rgba(224, 122, 72, 0.25);
+}
 :is(.admonition) {
   display: flow-root;
   margin: 1.5625em 0;
@@ -388,10 +398,10 @@ summary.admonition-title::-webkit-details-marker {
   transform: translateY(-1px);
 }
 .lang-btn.active {
-  background: #448aff;
+  background: #3B2E2A;
   color: #fff;
-  border-color: #448aff;
-  box-shadow: 0 0 12px rgba(68, 138, 255, 0.5);
+  border-color: #3B2E2A;
+  box-shadow: 0 4px 10px rgba(59, 46, 42, 0.25);
 }
 .coal .lang-btn, .navy .lang-btn, .ayu .lang-btn {
   background: rgba(0, 0, 0, 0.4);
@@ -401,28 +411,36 @@ summary.admonition-title::-webkit-details-marker {
   background: rgba(255, 255, 255, 0.1);
 }
 .coal .lang-btn.active, .navy .lang-btn.active, .ayu .lang-btn.active {
-  background: #448aff;
+  background: #3B2E2A;
   color: #fff;
-  border-color: #448aff;
+  border-color: #3B2E2A;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* Dynamic Keyword Hover Tooltip Styling */
 .keyword-highlight {
-  color: #448aff;
+  color: var(--keyword-color);
   font-weight: 700;
-  border-bottom: 2px dashed #448aff;
+  border-bottom: none !important;
   cursor: pointer;
   display: inline;
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin: -2px -6px;
+  border-radius: 3px;
+  padding: 2px 3px;
+  margin: -2px -3px;
   background-color: transparent;
-  transition: background-color 0.2s, border-bottom-style 0.2s, text-shadow 0.2s;
+  transition: background-color 0.2s, text-shadow 0.2s;
 }
 .keyword-highlight:hover {
-  background-color: rgba(68, 138, 255, 0.08);
-  border-bottom-style: solid;
-  text-shadow: 0 0 10px rgba(68, 138, 255, 0.25);
+  background-color: var(--keyword-hover-bg);
+  text-shadow: 0 0 10px var(--keyword-shadow);
+}
+.keyword-highlight.tooltip-only {
+  border-bottom: none !important;
+  cursor: help !important;
+}
+.keyword-highlight.tooltip-only:hover {
+  background-color: var(--keyword-hover-bg) !important;
+  text-shadow: none !important;
 }
 .tooltip-click-cta {
   margin-top: 10px;
@@ -541,36 +559,45 @@ summary.admonition-title::-webkit-details-marker {
 
 /* --- Sliding Drawer / Side-Sheet UI --- */
 
+/* Trigger Container (Vertical Stack Globally) */
+.drawer-triggers-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Shifted to left side */
+  gap: 10px;
+  margin: 25px 0 15px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* Trigger Button */
 .drawer-trigger-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 10px 12px 20px 0;
-  padding: 12px 24px;
-  min-width: 260px; /* Mathematically symmetric */
-  font-size: 0.95rem;
+  padding: 6px 12px;
+  width: 200px; /* Symmetrical, extra compact width */
+  max-width: 90%;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #fff !important;
   background: #3b2e2a !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
+  border-radius: 6px !important;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(59, 46, 42, 0.25) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 3px 8px rgba(59, 46, 42, 0.15) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   text-decoration: none;
   font-family: inherit;
   box-sizing: border-box;
 }
 .drawer-trigger-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(59, 46, 42, 0.4) !important;
   background: #4a3a35 !important;
+  box-shadow: 0 4px 10px rgba(59, 46, 42, 0.25) !important;
 }
 .drawer-trigger-btn:active {
-  transform: translateY(1px) !important;
-  box-shadow: 0 2px 10px rgba(59, 46, 42, 0.2) !important;
   background: #2c221f !important;
+  box-shadow: 0 2px 6px rgba(59, 46, 42, 0.10) !important;
 }
 
 /* Drawer Container */
@@ -748,44 +775,12 @@ summary.admonition-title::-webkit-details-marker {
     transition: all 0.15s ease-in-out !important;
   }
   
-  /* Active Distinct Colors for GitHub tags (Light Theme values by default) */
-  .lang-btn[onclick*="hinglish"].active {
-    background-color: rgba(240, 140, 0, 0.12) !important;
-    color: #e65100 !important;
-    border: 1px solid rgba(240, 140, 0, 0.25) !important;
-  }
-  .lang-btn[onclick*="english"].active {
-    background-color: rgba(68, 138, 255, 0.12) !important;
-    color: #0d47a1 !important;
-    border: 1px solid rgba(68, 138, 255, 0.25) !important;
-  }
-  .lang-btn[onclick*="spanish"].active {
-    background-color: rgba(76, 175, 80, 0.12) !important;
-    color: #1b5e20 !important;
-    border: 1px solid rgba(76, 175, 80, 0.25) !important;
-  }
-
-  /* Active Distinct Colors for Dark Themes (coal, navy, ayu) */
-  .coal .lang-btn[onclick*="hinglish"].active,
-  .navy .lang-btn[onclick*="hinglish"].active,
-  .ayu .lang-btn[onclick*="hinglish"].active {
-    background-color: rgba(240, 140, 0, 0.2) !important;
-    color: #ffb74d !important;
-    border: 1px solid rgba(240, 140, 0, 0.4) !important;
-  }
-  .coal .lang-btn[onclick*="english"].active,
-  .navy .lang-btn[onclick*="english"].active,
-  .ayu .lang-btn[onclick*="english"].active {
-    background-color: rgba(68, 138, 255, 0.2) !important;
-    color: #90caf9 !important;
-    border: 1px solid rgba(68, 138, 255, 0.4) !important;
-  }
-  .coal .lang-btn[onclick*="spanish"].active,
-  .navy .lang-btn[onclick*="spanish"].active,
-  .ayu .lang-btn[onclick*="spanish"].active {
-    background-color: rgba(76, 175, 80, 0.2) !important;
-    color: #a5d6a7 !important;
-    border: 1px solid rgba(76, 175, 80, 0.4) !important;
+  /* Active Cohesive Color for GitHub tags */
+  .lang-btn.active {
+    background-color: #3B2E2A !important;
+    color: #ffffff !important;
+    border: 1px solid #3B2E2A !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
   }
 }
 
@@ -971,27 +966,7 @@ summary.admonition-title::-webkit-details-marker {
   }
 }
 
-/* Screen widths under 600px (Mobile Portrait / Narrow snapping): Stack Trigger Buttons */
-@media (max-width: 600px) {
-  .drawer-trigger-btn {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 85% !important;
-    max-width: 320px !important;
-    min-width: 0 !important;
-    margin: 12px auto !important;
-  }
-  
-  p:has(.drawer-trigger-btn) {
-    text-align: center !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 12px !important;
-    width: 100% !important;
-  }
-}
+
 
 /* Touch Device Sizing Adjustments (Fat Finger support) */
 @media (pointer: coarse) {
@@ -1003,8 +978,8 @@ summary.admonition-title::-webkit-details-marker {
 
   /* Expanded hover highlights without layout shifts */
   .keyword-highlight {
-    padding: 2px 8px !important;
-    margin: -2px -8px !important;
+    padding: 2px 4px !important;
+    margin: -2px -4px !important;
   }
 
   /* Spacious spacing to prevent adjacent tap triggers */

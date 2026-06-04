@@ -1,0 +1,80 @@
+{
+  "sub_steps": {
+    "title": "Subpasos (División del Tiempo)",
+    "hover": "Dividir el delta de tiempo en fragmentos más pequeños para evitar que los objetos rápidos atraviesen límites."
+  },
+  "iterations": {
+    "title": "Iteraciones (Bucles de Relajación)",
+    "hover": "Número de pasadas del resolvedor por subpaso, asegurando que las articulaciones converjan a un comportamiento rígido."
+  },
+  "collision": {
+    "title": "Colisión (Interacción)",
+    "hover": "Contacto físico entre colisionadores de cuerpos, aplicando impulsos de rebote para resolver intersecciones."
+  },
+  "penetration": {
+    "title": "Penetración de Colisiones (Solapamiento)",
+    "hover": "Solapamiento entre colisionadores debido a pasos discretos, resuelto reescribiendo coordenadas por corrección Baumgarte."
+  },
+  "friction": {
+    "title": "Fricción (Resistencia Lateral)",
+    "hover": "Fuerza resistiva tangencial que se opone al deslizamiento, limitada por la ley de Coulomb (ft <= mu * fn)."
+  },
+  "joints": {
+    "title": "Articulaciones Articuladas (Enlaces)",
+    "hover": "Restricción de parámetros de traslación y rotación (DOF) entre cuerpos rígidos mediante reglas de restricción."
+  },
+  "x_i": {
+    "title": "Estado Objetivo x_i",
+    "hover": "El valor convergente actual de la coordenada de restricción activa (corrección de velocidad o posición).",
+    "deep_dive": "La variable de estado objetivo x_i representa la posición o velocidad final convergente de un cuerpo dinámico. En los motores C++, los impulsos acumulados se actualizan y limitan dinámicamente en RAM para evitar explosiones de coordenadas."
+  },
+  "a_ii": {
+    "title": "Diagonal Element a_ii",
+    "hover": "Representación diagonal de la masa efectiva o inercia rotacional de la restricción activa.",
+    "deep_dive": "El elemento de diagonal a_ii representa la masa efectiva o inercia de la restricción activa. Se calcula mediante matrices de producto cruzado específicas. Su inversa (1/a_ii) se precalcula para evitar divisiones lentas a nivel de silicio."
+  },
+  "b_i": {
+    "title": "Bias Element b_i",
+    "hover": "Fuerzas externas acumuladas (gravedad, términos de cumplimiento y estabilización de Baumgarte).",
+    "deep_dive": "El elemento vectorial b_i representa fuerzas externas directas (gravedad) o errores posicionales. El motor mide el error visual, lo multiplica por un coeficiente de rigidez y fuerza al resolvedor a corregir la posición de los cuerpos."
+  },
+  "sum_t": {
+    "title": "Suma Resuelta sum_t",
+    "hover": "Retroalimentación de fuerza acumulada de restricciones vecinas ya resueltas en el barrido actual (estado k+1).",
+    "deep_dive": "La suma resuelta representa las fuerzas de restricciones previas en la secuencia (como el grupo de anclaje superior). Su cálculo ya está resuelto en este fotograma, permitiendo leer velocidades directamente de la caché L1."
+  },
+  "sum_b": {
+    "title": "Suma No Resuelta sum_b",
+    "hover": "Retroalimentación de fuerza acumulada de restricciones vecinas pendientes de cálculo (estado k anterior).",
+    "deep_dive": "La suma no resuelta representa las fuerzas de restricciones que vienen después en el barrido (escaladores inferiores). El motor recicla datos históricos del subpaso anterior para calcular su influencia temporal."
+  },
+  "a_ij": {
+    "title": "Coeficiente de Acoplamiento a_ij",
+    "hover": "Eficiencia de transmisión de fuerza y rigidez entre coordenadas de restricciones adyacentes.",
+    "deep_dive": "El coeficiente de acoplamiento define la rigidez y amortiguación entre cuerpos adyacentes. Dicta la transferencia de fuerzas a través de registros de articulación en el panel del Inspector de Unity/Unreal."
+  },
+  "temporal": {
+    "title": "Coherencia Temporal (Historial)",
+    "hover": "Reciclar las fuerzas de restricción del fotograma anterior como punto de partida inicial para el fotograma actual."
+  },
+  "mobility": {
+    "title": "Movilidad (Inversión de Inercia)",
+    "hover": "El recíproco matemático de la masa (1/masa) utilizado para reemplazar divisiones por multiplicaciones rápidas."
+  },
+  "unbalanced": {
+    "title": "Fuerza Desequilibrada (Residuo)",
+    "hover": "Error matemático residual que representa el desequilibrio de fuerzas neto que actúa antes de la convergencia."
+  },
+  "slip": {
+    "title": "Deslizamiento (Desplazamiento)",
+    "hover": "El desplazamiento o ajuste de velocidad específico aplicado para eliminar desequilibrios residuales de fuerza."
+  },
+  "static": {
+    "title": "BodyType::Static",
+    "hover": "Anclajes inamovibles que representan masa física infinita en el resolvedor."
+  },
+  "inv_mass": {
+    "title": "Masa Inversa (1/M)",
+    "hover": "Masa invertida hardcodeada a 0.0 para evitar comprobaciones condicionales 'if' dentro de la CPU."
+  }
+}

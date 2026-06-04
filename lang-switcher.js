@@ -68,8 +68,8 @@ if (!sessionStorage.getItem('theme-forced-rust')) {
         }
         @media (pointer: coarse) {
           .keyword-highlight {
-            padding: 2px 8px !important;
-            margin: -2px -8px !important;
+            padding: 2px 4px !important;
+            margin: -2px -4px !important;
           }
         }
         @media (max-width: 1024px) {
@@ -455,6 +455,57 @@ function initKeywordDrawer() {
     document.body.appendChild(drawer);
 }
 
+function initDynamicTriggers() {
+    const triggers = document.querySelectorAll('.drawer-trigger');
+    triggers.forEach(trigger => {
+        const target = trigger.getAttribute('data-target');
+        const textHinglish = trigger.getAttribute('data-text-hinglish') || 'Explore';
+        const textEnglish = trigger.getAttribute('data-text-english') || 'Explore';
+        const textSpanish = trigger.getAttribute('data-text-spanish') || 'Explore';
+        
+        const button = document.createElement('button');
+        button.className = 'drawer-trigger-btn';
+        button.setAttribute('onclick', `openDrawer('${target}')`);
+        button.innerHTML = `
+            <span class="lang-content lang-hinglish">${textHinglish}</span>
+            <span class="lang-content lang-english">${textEnglish}</span>
+            <span class="lang-content lang-spanish">${textSpanish}</span>
+        `;
+        
+        trigger.replaceWith(button);
+    });
+}
+
+function initDynamicDrawers() {
+    const drawers = document.querySelectorAll('.custom-drawer');
+    drawers.forEach(drawer => {
+        const id = drawer.id;
+        
+        const titleHinglish = drawer.getAttribute('data-title-hinglish') || drawer.getAttribute('data-title') || 'Deep Dive';
+        const titleEnglish = drawer.getAttribute('data-title-english') || drawer.getAttribute('data-title') || 'Deep Dive';
+        const titleSpanish = drawer.getAttribute('data-title-spanish') || drawer.getAttribute('data-title') || 'Deep Dive';
+        
+        const originalContent = drawer.innerHTML;
+        
+        drawer.className = 'drawer-container';
+        drawer.innerHTML = `
+            <div class="drawer-backdrop" onclick="closeDrawer('${id}')"></div>
+            <div class="drawer-content">
+                <div class="drawer-header">
+                    <h3 class="lang-content lang-hinglish">${titleHinglish}</h3>
+                    <h3 class="lang-content lang-english">${titleEnglish}</h3>
+                    <h3 class="lang-content lang-spanish">${titleSpanish}</h3>
+                    <button class="drawer-close-btn" onclick="closeDrawer('${id}')">&times;</button>
+                </div>
+                <div class="drawer-body">
+                    ${originalContent}
+                </div>
+            </div>
+        `;
+    });
+}
+
+
 
 function updateSidebarToC() {
     try {
@@ -544,6 +595,9 @@ function switchLanguage(lang) {
 }
 
 function initLanguageToggle() {
+    initDynamicTriggers();
+    initDynamicDrawers();
+
     const main = document.querySelector('main');
     if (!main) return;
 
@@ -600,6 +654,7 @@ function showTooltip(event) {
     const text = target.getAttribute('data-tooltip');
     if (!text) return;
 
+    const isTooltipOnly = target.classList.contains('tooltip-only');
     const ctaText = 'Click for more details';
 
     // Parse tooltip text to check for Physics / Game Physics sections
@@ -646,7 +701,7 @@ function showTooltip(event) {
     tooltip.id = 'tgs-hover-tooltip';
     tooltip.innerHTML = `
         <div class="tooltip-body-content">${formattedText}</div>
-        <div class="tooltip-click-cta">${ctaText}</div>
+        ${isTooltipOnly ? '' : `<div class="tooltip-click-cta">${ctaText}</div>`}
     `;
     
     // Add to body to measure size
@@ -834,6 +889,9 @@ function initTooltips() {
         
         const highlight = e.target.closest('.keyword-highlight');
         if (highlight) {
+            if (highlight.classList.contains('tooltip-only')) {
+                return; // Ignore click tracking logic for tooltip-only annotations
+            }
             // If drawer is open, only track click if the highlight is inside an open drawer
             if (document.body.classList.contains('drawer-open') && !highlight.closest('.drawer-container.open')) {
                 return;
@@ -897,6 +955,20 @@ function initTooltips() {
 
         // 3. Handle clicking a keyword highlight
         if (highlight) {
+            if (highlight.classList.contains('tooltip-only')) {
+                if (isMobileTouch()) {
+                    // Mobile: toggle tooltip on click, but never open deep dive drawer
+                    if (!activeTooltip || activeTooltip.targetNode !== highlight) {
+                        hideTooltip();
+                        highlight.targetNode = highlight;
+                        showTooltip({ currentTarget: highlight });
+                    } else {
+                        hideTooltip();
+                    }
+                }
+                return;
+            }
+
             if (isMobileTouch()) {
                 // Mobile behavior: Tap once to show tooltip, tap again to open drawer
                 if (!activeTooltip || activeTooltip.targetNode !== highlight) {

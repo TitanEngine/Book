@@ -6,9 +6,6 @@
 
 <div class="lang-marker" data-lang="hinglish"></div>
 
-<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-hinglish')">Explore Cliffhanger Analogy</button>
-<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-hinglish')">Inspect Silicon Telemetry</button>
-
 Kya aapne kabhi socha hai ki jab kisi game me heavy boxes ka stack banaya jata hai ya ragdoll joints high speed me move karte hain, to simulation explode ya jitter kyun karne lagti hai? Traditional engines me use hone wala Projected Gauss-Seidel (PGS) solver aksar massive weight differences aur complex joints par haar maan jata hai—ragdoll limbs rubber-band ki tarah stretch hone lagte hain.
 
 Is problem ko solve karne ke liye modern physics engines (jaise NVIDIA PhysX 5) me **Temporal Gauss-Seidel (TGS)** solver ka use kiya jata hai. Is page me hum seekhenge ki kaise TGS sub-stepping, mid-frame position updates, aur dynamic friction adjustments ke zariye simulation ko ultra-stable aur rock-solid banata hai. Hum iske mathematical model ko visual Cliffhanger Analogy aur direct silicon-level Rust telemetry ke sath deconstruct karenge.
@@ -34,12 +31,11 @@ x_i^{(k+1)} = \frac{1}{a_{ii}} \left( b_i - \sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)} 
 Is mathematical formula ke variables ko break down karke samajhte hain:
 
 * **<span class="keyword-highlight" data-tooltip="Yeh target coordinate element hai jise solver resolve kar raha hai. Humare cliffhanger scenario me, ye wo suspended insaan B1 hai jo edge par latka hai. Iske balance hone par hi baqi logon ka latakna depend karta hai.">\\(x_i^{(k+1)}\\)</span>**: Target object ki updated state (velocity/position correction) jo current frame \\(k+1\\) me calculate ho rahi hai.
-* **<span class="keyword-highlight" data-tooltip="Yeh target coordinate element hai jise solver resolve kar raha hai. Humare cliffhanger scenario me, ye wo suspended insaan B1 hai jo edge par latka hai. Iske balance hone par hi baqi logon ka latakna depend karta hai.">x_i(k+1)</span>**: Target object ki updated state (velocity/position correction) jo current frame k+1 me calculate ho rahi hai.
-* **<span class="keyword-highlight" data-tooltip="Ye effective mass ya inertia tensor value hai, jo movement ke khilaf resistance (stubbornness) dikhata hai. Cliffhanger me ye B1 ka apna weight aur edge ke sath grip friction resistance hai.">a_ii</span>**: Effective mass ya diagonal elements of the system matrix jo object ke dynamic resistance ko define karte hain.
-* **<span class="keyword-highlight" data-tooltip="Ye target object par lagne wala pure external force hai. Cliffhanger me ye B1 ka apna isolated weight hai (mass multiplied by gravity) jo use niche khinch raha hai.">b_i</span>**: External biases vector (gravity, collision impulses, external damping, and penetration error parameters).
-* **<span class="keyword-highlight" data-tooltip="Ye T-array hai, yaani cliff ke upar khade log [T3, T2, T1] jo B1 ko upar khinch rahe hain. Kyunki CPU inko pehle hi process kar chuka hai, inki states updated k+1 hain.">Sum of (a_ij * x_j(k+1))</span>**: Un neighbor components ka collective pulling force jo current iteration cycle me already process ho chuke hain, isliye inke paas updated present state k+1 hai.
-* **<span class="keyword-highlight" data-tooltip="Ye B-array hai, yaani B1 ke niche latakte hue log [B2, B3] jo use niche drag kar rahe hain. CPU abhi tak in tak nahi pahuncha, isliye ye pichli state k carry karte hain.">Sum of (a_ij * x_j(k))</span>**: Un neighbor constraints ka pull jahan current sweep abhi tak nahi pahuncha hai, isliye ye pichli state k carry karte hain.
-* **<span class="keyword-highlight" data-tooltip="Ye coupling coefficients hain jo stiffness represent karte hain. Cliffhanger me ye haath ki pakad (grip stiffness) hai jo force transfer karti hai.">a_ij</span>**: Coupling coefficients jo adjacent elements ke beech structural stiffness represent karte hain.
+* **<span class="keyword-highlight" data-tooltip="Ye effective mass ya inertia tensor value hai, jo movement ke khilaf resistance (stubbornness) dikhata hai. Cliffhanger me ye B1 ka apna weight aur edge ke sath grip friction resistance hai.">\\(a_{ii}\\)</span>**: Effective mass ya diagonal elements of the system matrix jo object ke dynamic resistance ko define karte hain.
+* **<span class="keyword-highlight" data-tooltip="Ye target object par lagne wala pure external force hai. Cliffhanger me ye B1 ka apna isolated weight hai (mass multiplied by gravity) jo use niche khinch raha hai.">\\(b_i\\)</span>**: External biases vector (gravity, collision impulses, external damping, and penetration error parameters).
+* **<span class="keyword-highlight" data-tooltip="Ye T-array hai, yaani cliff ke upar khade log [T3, T2, T1] jo B1 ko upar khinch rahe hain. Kyunki CPU inko pehle hi process kar chuka hai, inki states updated k+1 hain.">\\(\sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}\\)</span>**: Un neighbor components ka collective pulling force jo current iteration cycle me already process ho chuke hain, isliye inke paas updated present state k+1 hai.
+* **<span class="keyword-highlight" data-tooltip="Ye B-array hai, yaani B1 ke niche latakte hue log [B2, B3] jo use niche drag kar rahe hain. CPU abhi tak in tak nahi pahuncha, isliye ye pichli state k carry karte hain.">\\(\sum_{j=i+1}^{n} a_{ij} x_j^{(k)}\\)</span>**: Un neighbor constraints ka pull jahan current sweep abhi tak nahi pahuncha hai, isliye ye pichli state k carry karte hain.
+* **<span class="keyword-highlight" data-tooltip="Ye coupling coefficients hain jo stiffness represent karte hain. Cliffhanger me ye haath ki pakad (grip stiffness) hai jo force transfer karti hai.">\\(a_{ij}\\)</span>**: Coupling coefficients jo adjacent elements ke beech structural stiffness represent karte hain.
 
 ### 3. The Role of Temporal Coherence
 
@@ -47,9 +43,9 @@ Lekin is heavy, sequential chain-reaction ko CPU cycles exhaust karne se bachane
 
 Agar hum TGS formula ko dhyan se dekhein, toh solver basically array me se ek single object ko isolate kar raha hota hai. Saare surrounding forces ko hata kar, ye sirf us specific object ke inertia (mass) aur external gravity par focus karta hai.
 
-Isliye, formula is inertia ko reverse kar deta hai, yaani use ulta kar deta hai: 1/a_ii. Aur inertia ke is inverse ko hum <span class="keyword-highlight" data-tooltip="Mass aur inertia stubbornness hai—yaani movement ke khilaf resistance. Par physics constraint ko resolve karne ke liye hume movement chahiye. Isliye, formula is resistance ko invert (ulta) kar deta hai: 1/a_ii. Isi value ko hum Mobility kehte hain jo constraint slip ko calculate karne ke kaam aati hai.">Mobility</span> kehte hain.
+Isliye, formula is inertia ko reverse kar deta hai, yaani use ulta kar deta hai: \\(1/a_{ii}\\). Aur inertia ke is inverse ko hum <span class="keyword-highlight" data-tooltip="Mass aur inertia stubbornness hai—yaani movement ke khilaf resistance. Par physics constraint ko resolve karne ke liye hume movement chahiye. Isliye, formula is resistance ko invert (ulta) kar deta hai: \\\\(1/a_{ii}\\\\). Isi value ko hum Mobility kehte hain jo constraint slip ko calculate karne ke kaam aati hai.">Mobility</span> kehte hain.
 
-Main bracket ke andar jo sabse pehla term hai, wo hai b_i. Ye strictly target object ka apna isolated weight hai (uska mass multiplied by gravity) jo use niche khinch raha hai. To CPU karta kya hai? Wo bracket ke andar b_i (target object ki gravity) me se un dono Sigmas (upar aur niche wale elements ke pull) ko subtract karta hai. Subtraction ke baad jo bachta hai, jise hum <span class="keyword-highlight" data-tooltip="Maniye target object ki apni gravity aur niche wale elements ka pull milkar total 100 force niche lagate hain. Aur upar khinchne wala element sirf 90 force se upar khinch raha hai. Jab hum subtract karenge (100 minus 90), to hamare paas 10 downward force bachega. Yahi bacha hua force hamara Unbalanced Force hai jo dikhata hai ki object balance me nahi hai.">Unbalanced Force</span> yaani Residual kehte hain.
+Main bracket ke andar jo sabse pehla term hai, wo hai \\(b_i\\). Ye strictly target object ka apna isolated weight hai (uska mass multiplied by gravity) jo use niche khinch raha hai. To CPU karta kya hai? Wo bracket ke andar \\(b_i\\) (target object ki gravity) me se un dono Sigmas (upar aur niche wale elements ke pull) ko subtract karta hai. Subtraction ke baad jo bachta hai, jise hum <span class="keyword-highlight" data-tooltip="Maniye target object ki apni gravity aur niche wale elements ka pull milkar total 100 force niche lagate hain. Aur upar khinchne wala element sirf 90 force se upar khinch raha hai. Jab hum subtract karenge (100 minus 90), to hamare paas 10 downward force bachega. Yahi bacha hua force hamara Unbalanced Force hai jo dikhata hai ki object balance me nahi hai.">Unbalanced Force</span> yaani Residual kehte hain.
 
 Is Unbalanced Force ki wajah se target object apni position badlega. To CPU object ki Mobility ko is Unbalanced Force se multiply karta hai:
 
@@ -57,136 +53,11 @@ Is Unbalanced Force ki wajah se target object apni position badlega. To CPU obje
 \text{Mobility } \left(\frac{1}{a_{ii}}\right) \times \text{Unbalanced Force}
 \\]
 
-Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel ho jayein. Yahi nayi position hume x_i(k+1) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.
-
-<div id="cliffhanger-drawer-hinglish" class="drawer-container">
-  <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-hinglish')"></div>
-  <div class="drawer-content">
-    <div class="drawer-header">
-      <h3>Deep Dive: The Cliffhanger Analogy</h3>
-      <button class="drawer-close-btn" onclick="closeDrawer('cliffhanger-drawer-hinglish')">&times;</button>
-    </div>
-    <div class="drawer-body">
-
-<h4>Hanging Chain Analogy and Solver Mapping</h4>
-
-<p>Gauss-Seidel relaxation ke sequential calculations ko visual terms mein samajhne ke liye, aaiye ek cliffhanger situation ko deconstruct karte hain jahan chhe (6) log ek chain bana kar latak rahe hain:</p>
-
-<h5>1. The Anchoring Group (Top Array: T3, T2, T1)</h5>
-<ul>
-  <li><strong>T3 (Static Ground Anchor)</strong>: Yeh zameen par firmly anchor hai aur bilkul nahi hilta. Physics engine mein yeh <code>BodyType::Static</code> aur zero inverse mass (<code>inv_mass = 0.0</code>) ko map karta hai. Yeh chain ko base strength deta hai.</li>
-  <li><strong>T2 aur T1 (Intermediate Nodes)</strong>: T3 se jude dynamic links jo B1 ko hold karne ke liye tension support de rahe hain. Kyunki solver matrix sweep mein inko sequence mein pehle execute kar chuka hai, inki states updated frame calculations (\(k+1\)) ko carry karti hain.</li>
-</ul>
-
-<h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
-<ul>
-  <li><strong>B1 (The Interface Node)</strong>: Yeh first hanging person (<span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element x_i(k+1) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span>) hai jo edge ke exact contact point par hai. Mathematically, solver is target object coordinates (\(x_i^{(k+1)}\)) ko sweep ke waqt isolate karta hai. Pure structure ki stability B1 ke adjustment par depend karti hai.</li>
-  <li><strong>B2 (Middle Connector)</strong>: B1 ke pair pakde hue middle link (<span class="keyword-highlight" data-tooltip="Ye equation ka Dusra Sigma (j = i+1 to n) represent karta hai. Ye wo connected rigid bodies hain jo target body ke baad aati hain aur purani state k carry karti hain.">B2</span>) jo tension balance transfer kar raha hai.</li>
-  <li><strong>B3 (Terminal Hanging Node)</strong>: Sabse last link jis par downward gravity pull accumulate ho rahi hai. Ye aur B2 abhi step calculations ke sweep process mein update nahi hue hain, isliye inki state past iteration index (\(k\)) se read ki ja rahi hai.</li>
-</ul>
-
-<h5>3. Force Balancing and Coordinate Slip</h5>
-<p>B1 ko target coordinate system ke rules ke mutabik local balance (equilibrium) maintain karna hai:</p>
-<ul>
-  <li><strong>Residual Tension Calculation</strong>: B1 ko upar se milne wala pull (T-array value 90) aur niche se milne wala total drag force (B-array aur B1 ka physical weight 100) compare kiya jata hai. In dono ke subtraction se balance deviation output 10 nikalta hai, jise mathematical residual (Unbalanced Force) kehte hain.</li>
-  <li><strong>Impulsive Slip Adjustment</strong>: B1 ko is 10 tension difference ko absorb karne ke liye horizontal plane par static coordinates slide karne padenge taaki forces cancel mo sakein. Yahi actual correction calculation is element ka final coordinate coordinates slip kehlata hai, jo updated dynamic position value (\(x_i^{(k+1)}\)) banata hai.</li>
-</ul>
-
-</div>
-</div>
-</div>
-
-<div id="silicon-drawer-hinglish" class="drawer-container">
-  <div class="drawer-backdrop" onclick="closeDrawer('silicon-drawer-hinglish')"></div>
-  <div class="drawer-content">
-    <div class="drawer-header">
-      <h3>Deep Dive: Silicon-Level Verification</h3>
-      <button class="drawer-close-btn" onclick="closeDrawer('silicon-drawer-hinglish')">&times;</button>
-    </div>
-    <div class="drawer-body">
-
-<h4>Silicon-Level Telemetry and Execution Logic</h4>
-
-<p>Hum mathematical coordinates aur physics variables ki verification directly Rust physics code aur silicon-level logic outputs ke zariye kar sakte hain:</p>
-
-<pre class="language-rust"><code class="language-rust">
-let mut config = PhysicsConfig::default();
-config.<span class="keyword-highlight" data-tooltip="The number of sub-intervals we split a single 1/60s frame into (the temporal aspect of the solver).">sub_steps</span> = 4;
-config.<span class="keyword-highlight" data-tooltip="The number of Gauss-Seidel relaxation passes we run per sub-step.">iterations</span> = 12;
-
-let mut world = PhysicsWorld::new(config);
-let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
-
-let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
-t3.body_type = <span class="keyword-highlight" data-tooltip="A rigid body that never moves, representing an infinite mass anchor (like the cliff/ground).">BodyType::Static</span>;
-t3.mass_props.<span class="keyword-highlight" data-tooltip="Setting inverse mass to zero mathematically means infinite mass. It cannot move.">inv_mass</span> = 0.0;
-world.add_body(t3); // T3 Anchor
-
-let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
-t2.body_type = <span class="keyword-highlight" data-tooltip="A rigid body affected by gravity and impulses (like the hanging people).">BodyType::Dynamic</span>;
-world.add_body(t2); // T2
-
-let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
-t1.body_type = BodyType::Dynamic;
-world.add_body(t1); // T1
-
-let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
-b1.body_type = BodyType::Dynamic;
-let b1_handle = world.add_body(b1); // B1 Focus
-
-let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
-b2.body_type = BodyType::Dynamic;
-world.add_body(b2); // B2
-
-let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
-b3.body_type = BodyType::Dynamic;
-world.add_body(b3); // B3
-
-world.<span class="keyword-highlight" data-tooltip="The main entry point that runs collision detection and calls the TGS solver to update positions.">update</span>(1.0 / 60.0, None, None);
-</code></pre>
-
-<h5>Execution Telemetry Log</h5>
-<p>Niche setup runtime code se generated terminal outputs display kiye gaye hain jo update cycle trace karte hain:</p>
-
-<pre><code class="language-text">
---- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
-Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
-B1 Initial Position Y: 3.0000
-B1 Initial Velocity Y: 0.0000
-
-Executing 1 Frame (dt = 0.0166)...
-[SOLVE_TGS] Entry: <span class="keyword-highlight" data-tooltip="The 5 joints connecting the 6 bodies in our cliffhanger chain.">constraints=5</span>, <span class="keyword-highlight" data-tooltip="Parallel execution batches to resolve independent constraints.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight" data-tooltip="Constraints resolved using SIMD lane vectorization for hardware speed.">total_simd_constraints=2</span>
-
-B1 Final Position Y: 3.000041
-B1 Final Velocity Y: 0.003417
-B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
-------------------------------------------------------------
-</code></pre>
-
-<h5>Why TGS is Standard in Modern Real-Time Physics Engines</h5>
-<p>Modern physics engines old Projected Gauss-Seidel (PGS) architecture ke bajaye TGS pipeline use karte hain. Is structural shift ke details niche breakdown kiye gaye hain:</p>
-
-<ul>
-  <li><strong>The Stretching Problem (PGS Limitations)</strong>: Traditional PGS engine iterations ko poore 16ms frame timestep ke flat scale par resolve karta hai. Jab constraints ki segment chain badi ho (jaise ragdoll limbs ya rope bridges), to errors dynamically stack up hote hain aur joints stretch hokar unstable visual vibration (rubber-band jitter) dikhate hain.</li>
-  <li><strong>The Substepping Solution (TGS Approach)</strong>: TGS execution flow pure timestep cycle ko multiple discrete sub-steps mein split karta hai. Har iteration loop ko internal mini sub-step ki tarah perform kiya jata hai:
-    <ul>
-      <li>Calculated impulses delta values ko global delta velocity buffer mein accumulate kiya jata hai.</li>
-      <li>Joint coordinate positions ko mid-frame update kiya jata hai aur Jacobian coefficients recalculate hote hain.</li>
-      <li>Friction model ko normal forces ke overlap correction ke saath dynamically compile kiya jata hai (sliding like ice check prevent karne ke liye).</li>
-    </ul>
-  </li>
-</ul>
-
-</div>
-</div>
-</div>
+Is multiplication ke waqt hi constraint coordinates slip hote hain. Ye <span class="keyword-highlight" data-tooltip="Ye slip koi random error nahi hai. Ye us bache hue force ki wajah se hone wala actual physical displacement hai. Driven entirely by math, object grid par slide karke aisi nayi position par jata hai jahan saare forces cancel mo jayein. Yahi nayi position hume x_i(k+1) deti hai.">Slip</span> koi error nahi hai, balki us bache hue force ki wajah se hone wala displacement hai. Math ke hisab se coordinates slide karke aisi nayi position par jayenge jahan saare forces cancel ho jayein. Yahi nayi position hamara final output hoti hai.
 
 Yahi mathematical stability aur constraint relaxation ka core principle hai jo modern physics pipelines ko support karta hai. Har frame me mathematical calculations silently execute hoti hain, computational errors ko smooth out karti hain aur physics simulator ko dynamic environments me stability aur integrity deti hain.
 
 <div class="lang-marker" data-lang="english"></div>
-
-<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-english')">Explore Cliffhanger Analogy</button>
-<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-english')">Inspect Silicon Telemetry</button>
 
 Have you ever wondered why heavy stacks of boxes collapse erratically or ragdoll characters jitter violently in game physics? Older Projected Gauss-Seidel (PGS) solvers fail under high mass ratios or fast joint rotations, causing links to stretch like rubber bands.
 
@@ -237,134 +108,9 @@ The solver then multiplies the target object's Mobility by this Unbalanced Force
 
 This multiplication determines the precise coordinate shift required to eliminate the force imbalance. This <span class="keyword-highlight" data-tooltip="This slip isn't a bug. It's the physical movement caused by that net force of 10. The math drives B1's hand to slide to a new spot where all forces cancel out. That new, stable position is our final output: x_i(k+1).">Slip</span> is not a numerical error, but the deliberate physical displacement that brings the system into local equilibrium. Through this math, coordinates slide to a stable position where all forces cancel out, yielding \\(x_i^{(k+1)}\\).
 
-<div id="cliffhanger-drawer-english" class="drawer-container">
-  <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-english')"></div>
-  <div class="drawer-content">
-    <div class="drawer-header">
-      <h3>Deep Dive: The Cliffhanger Analogy</h3>
-      <button class="drawer-close-btn" onclick="closeDrawer('cliffhanger-drawer-english')">&times;</button>
-    </div>
-    <div class="drawer-body">
-
-<h4>Hanging Chain Analogy and Solver Mapping</h4>
-
-<p>To understand the sequential calculations of Gauss-Seidel relaxation in visual terms, let us deconstruct a cliffhanger scenario where six people hang in a chain off a cliff edge:</p>
-
-<h5>1. The Anchoring Group (Top Array: T3, T2, T1)</h5>
-<ul>
-  <li><strong>T3 (Static Ground Anchor)</strong>: Anchored firmly to the ground, this node cannot move. In a physics engine, this maps to a body of <code>BodyType::Static</code> with an inverse mass of zero (<code>inv_mass = 0.0</code>), providing the ultimate anchor for the chain.</li>
-  <li><strong>T2 and T1 (Intermediate Nodes)</strong>: Dynamic bodies linked to T3, holding the tension supporting B1. Because the solver's matrix sweep processes them first, they carry updated present-state calculations (\(k+1\)).</li>
-</ul>
-
-<h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
-<ul>
-  <li><strong>B1 (The Interface Node)</strong>: The first hanging person (<span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">B1</span>) positioned exactly at the cliff edge. Mathematically, the solver isolates these target coordinates (\(x_i^{(k+1)}\)) during its sweep. The stability of the entire chain rests on B1's local adjustment.</li>
-  <li><strong>B2 (Middle Connector)</strong>: The middle link (<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state k.">B2</span>) holding B1's legs, transmitting the tension balance downwards.</li>
-  <li><strong>B3 (Terminal Hanging Node)</strong>: The final link in the chain bearing the fully accumulated gravity pull. B3 and B2 have not yet been updated in the current sweep, so their states are read from the past iteration index (\(k\)).</li>
-</ul>
-
-<h5>3. Force Balancing and Coordinate Slip</h5>
-<p>B1 must maintain local equilibrium according to the rules of the coordinate system:</p>
-<ul>
-  <li><strong>Residual Tension Calculation</strong>: The upward pull from the top array (T-array value of 90) is compared against the downward drag from the bottom array and B1's own weight (accumulating to 100). Subtracting these gives a tension discrepancy of 10, representing the mathematical residual (Unbalanced Force).</li>
-  <li><strong>Impulsive Slip Adjustment</strong>: To absorb this residual tension of 10, B1 must slide his coordinates along the contact plane until the forces cancel. This correction constitutes the coordinate slip, resulting in the updated dynamic velocity and position value (\(x_i^{(k+1)}\)).</li>
-</ul>
-
-</div>
-</div>
-</div>
-
-<div id="silicon-drawer-english" class="drawer-container">
-  <div class="drawer-backdrop" onclick="closeDrawer('silicon-drawer-english')"></div>
-  <div class="drawer-content">
-    <div class="drawer-header">
-      <h3>Deep Dive: Silicon-Level Verification</h3>
-      <button class="drawer-close-btn" onclick="closeDrawer('silicon-drawer-english')">&times;</button>
-    </div>
-    <div class="drawer-body">
-
-<h4>Silicon-Level Telemetry and Execution Logic</h4>
-
-<p>We can verify mathematical coordinates and physics variables directly using Rust physics implementation and silicon-level execution trace logs:</p>
-
-<pre class="language-rust"><code class="language-rust">
-let mut config = PhysicsConfig::default();
-config.<span class="keyword-highlight" data-tooltip="The number of sub-intervals we split a single 1/60s frame into (the temporal aspect of the solver).">sub_steps</span> = 4;
-config.<span class="keyword-highlight" data-tooltip="The number of Gauss-Seidel relaxation passes we run per sub-step.">iterations</span> = 12;
-
-let mut world = PhysicsWorld::new(config);
-let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
-
-let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
-t3.body_type = <span class="keyword-highlight" data-tooltip="A rigid body that never moves, representing an infinite mass anchor (like the cliff/ground).">BodyType::Static</span>;
-t3.mass_props.<span class="keyword-highlight" data-tooltip="Setting inverse mass to zero mathematically means infinite mass. It cannot move.">inv_mass</span> = 0.0;
-world.add_body(t3); // T3 Anchor
-
-let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
-t2.body_type = <span class="keyword-highlight" data-tooltip="A rigid body affected by gravity and impulses (like the hanging people).">BodyType::Dynamic</span>;
-world.add_body(t2); // T2
-
-let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
-t1.body_type = BodyType::Dynamic;
-world.add_body(t1); // T1
-
-let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
-b1.body_type = BodyType::Dynamic;
-let b1_handle = world.add_body(b1); // B1 Focus
-
-let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
-b2.body_type = BodyType::Dynamic;
-world.add_body(b2); // B2
-
-let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
-b3.body_type = BodyType::Dynamic;
-world.add_body(b3); // B3
-
-world.<span class="keyword-highlight" data-tooltip="The main entry point that runs collision detection and calls the TGS solver to update positions.">update</span>(1.0 / 60.0, None, None);
-</code></pre>
-
-<h5>Execution Telemetry Log</h5>
-<p>Below is the runtime terminal output showing the progress of a simulation update frame:</p>
-
-<pre><code class="language-text">
---- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
-Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
-B1 Initial Position Y: 3.0000
-B1 Initial Velocity Y: 0.0000
-
-Executing 1 Frame (dt = 0.0166)...
-[SOLVE_TGS] Entry: <span class="keyword-highlight" data-tooltip="The 5 joints connecting the 6 bodies in our cliffhanger chain.">constraints=5</span>, <span class="keyword-highlight" data-tooltip="Parallel execution batches to resolve independent constraints.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight" data-tooltip="Constraints resolved using SIMD lane vectorization for hardware speed.">total_simd_constraints=2</span>
-
-B1 Final Position Y: 3.000041
-B1 Final Velocity Y: 0.003417
-B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
-------------------------------------------------------------
-</code></pre>
-
-<h5>Why TGS is Standard in Modern Real-Time Physics Engines</h5>
-<p>Modern game physics engines rely on the Temporal Gauss-Seidel (TGS) pipeline rather than the traditional Projected Gauss-Seidel (PGS) architecture. Let us look at the technical reasons behind this architectural transition:</p>
-
-<ul>
-  <li><strong>The Stretching Problem (PGS Limitations)</strong>: Traditional PGS resolves constraints at the scale of the full 16ms frame timestep. When handling deep chain structures (such as ragdoll joints or rope bridges), errors accumulate globally, causing joints to stretch unnaturally and jitter visually (rubber-band effect).</li>
-  <li><strong>The Substepping Solution (TGS Approach)</strong>: TGS divides the full timestep into multiple discrete sub-steps. Each relaxation pass operates as an internal mini sub-step:
-    <ul>
-      <li>Calculated constraint impulses are accumulated in a global delta velocity buffer.</li>
-      <li>Joint coordinate positions are updated mid-frame, causing the engine to recalculate Jacobians and effective masses before the next step.</li>
-      <li>Friction forces are solved interactively within each sub-step alongside penetration corrections, ensuring stable limits.</li>
-    </ul>
-  </li>
-</ul>
-
-</div>
-</div>
-</div>
-
 This fundamental principle of constraint relaxation and mathematical stability is what anchors modern physics pipelines. Behind the scenes, these mathematical equations execute silently in every frame, smoothing out numerical errors and ensuring the structural integrity of the simulation in highly dynamic environments.
 
 <div class="lang-marker" data-lang="spanish"></div>
-
-<button class="drawer-trigger-btn" onclick="openDrawer('cliffhanger-drawer-spanish')">Explore Cliffhanger Analogy</button>
-<button class="drawer-trigger-btn" onclick="openDrawer('silicon-drawer-spanish')">Inspect Silicon Telemetry</button>
 
 ¿Alguna vez te has preguntado por qué las pilas de cajas pesadas colapsan de forma errática o los personajes con física ragdoll vibran violentamente en los videojuegos? Los antiguos resolvedores de Gauss-Seidel Proyectado (PGS) fallan ante grandes diferencias de masa, estirando las articulaciones como bandas elásticas.
 
@@ -415,71 +161,118 @@ Luego, el resolvedor multiplica la Movilidad del objeto objetivo por esta Fuerza
 
 Esta multiplicación determina el desplazamiento de coordenadas preciso requerido para eliminar el desequilibrio de fuerzas. Este <span class="keyword-highlight" data-tooltip="Este deslizamiento no es un error. Es el movimiento físico causado por esa fuerza neta de 10. Las matemáticas hacen que la mano de B1 se deslice a un nuevo punto donde todas las fuerzas se cancelan. Esa nueva posición de equilibrio local es nuestro resultado final.">Deslizamiento</span> no es un error numérico, sino el desplazamiento físico deliberado que lleva al sistema a un equilibrio local. A través de este cálculo matemático, las coordenadas se deslizan hacia una posición estable donde todas las fuerzas se cancelan, produciendo \\(x_i^{(k+1)}\\).
 
-<div id="cliffhanger-drawer-spanish" class="drawer-container">
-  <div class="drawer-backdrop" onclick="closeDrawer('cliffhanger-drawer-spanish')"></div>
-  <div class="drawer-content">
-    <div class="drawer-header">
-      <h3>Deep Dive: La Analogía del Acantilado</h3>
-      <button class="drawer-close-btn" onclick="closeDrawer('cliffhanger-drawer-spanish')">&times;</button>
-    </div>
-    <div class="drawer-body">
+Este principio fundamental de relajación de restricciones y estabilidad matemática es lo que sustenta los pipelines de física modernos. Detrás de escena, estas ecuaciones matemáticas se ejecutan silenciosamente en cada fotograma, suavizando los errores numéricos y garantizando la integridad estructural de la simulación en entornos altamente dinámicos.
 
+<!-- Consolidated Drawers and Shared Zone -->
+<div class="lang-marker" data-lang="shared"></div>
+
+<div class="drawer-triggers-container">
+  <div class="drawer-trigger" data-target="cliffhanger-drawer"
+       data-text-hinglish="Explore Cliffhanger Analogy"
+       data-text-english="Explore Cliffhanger Analogy"
+       data-text-spanish="Explorar la analogía del acantilado"></div>
+  <div class="drawer-trigger" data-target="silicon-drawer"
+       data-text-hinglish="Inspect Silicon Telemetry"
+       data-text-english="Inspect Silicon Telemetry"
+       data-text-spanish="Inspeccionar telemetría de silicio"></div>
+</div>
+
+<div id="cliffhanger-drawer" class="custom-drawer"
+data-title-hinglish="The Cliffhanger Analogy"
+data-title-english="The Cliffhanger Analogy"
+data-title-spanish="La Analogía del Acantilado">
+
+<div class="lang-content lang-hinglish">
+<h4>Hanging Chain Analogy and Solver Mapping</h4>
+<p>Gauss-Seidel relaxation ke sequential calculations ko visual terms mein samajhne ke liye, aaiye ek cliffhanger situation ko deconstruct karte hain jahan chhe (6) log ek chain bana kar latak rahe hain:</p>
+<h5>1. The Anchoring Group (Top Array: T3, T2, T1)</h5>
+<ul>
+<li><strong>T3 (Static Ground Anchor)</strong>: Yeh zameen par firmly anchor hai aur bilkul nahi hilta. Physics engine mein yeh <code>BodyType::Static</code> aur zero inverse mass (<code>inv_mass = 0.0</code>) ko map karta hai. Yeh chain ko base strength deta hai.</li>
+<li><strong>T2 aur T1 (Intermediate Nodes)</strong>: T3 se jude dynamic links jo B1 ko hold karne ke liye tension support de rahe hain. Kyunki solver matrix sweep mein inko sequence mein pehle execute kar chuka hai, inki states updated frame calculations (\(k+1\)) ko carry karti hain.</li>
+</ul>
+<h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
+<ul>
+<li><strong>B1 (The Interface Node)</strong>: Yeh first hanging person (<span class="keyword-highlight" data-tooltip="Yeh mathematical equation ka focus element x_i(k+1) hai. CPU is target body ko matrix sweep ke waqt isolate karta hai taake local balance find kiya ja sake.">B1</span>) hai jo edge ke exact contact point par hai. Mathematically, solver is target object coordinates (\(x_i^{(k+1)}\)) ko sweep ke waqt isolate karta hai. Pure structure ki stability B1 ke adjustment par depend karti hai.</li>
+<li><strong>B2 (Middle Connector)</strong>: B1 ke pair pakde hue middle link (<span class="keyword-highlight" data-tooltip="Ye equation ka Dusra Sigma (j = i+1 to n) represent karta hai. Ye wo connected rigid bodies hain jo target body ke baad aati hain aur purani state k carry karti hain.">B2</span>) jo tension balance transfer kar raha hai.</li>
+<li><strong>B3 (Terminal Hanging Node)</strong>: Sabse last link jis par downward gravity pull accumulate ho rahi hai. Ye aur B2 abhi step calculations ke sweep process mein update nahi hue hain, isliye inki state past iteration index (\(k\)) se read ki ja rahi hai.</li>
+</ul>
+<h5>3. Force Balancing and Coordinate Slip</h5>
+<p>B1 ko target coordinate system ke rules ke mutabik local balance (equilibrium) maintain karna hai:</p>
+<ul>
+<li><strong>Residual Tension Calculation</strong>: B1 ko upar se milne wala pull (T-array value 90) aur niche se milne wala total drag force (B-array aur B1 ka physical weight 100) compare kiya jata hai. In dono ke subtraction se balance deviation output 10 nikalta hai, jise mathematical residual (Unbalanced Force) kehte hain.</li>
+<li><strong>Impulsive Slip Adjustment</strong>: B1 ko is 10 tension difference ko absorb karne ke liye horizontal plane par static coordinates slide karne padenge taaki forces cancel mo sakein. Yahi actual correction calculation is element ka final coordinate coordinates slip kehlata hai, jo updated dynamic position value (\(x_i^{(k+1)}\)) banata hai.</li>
+</ul>
+</div>
+
+<div class="lang-content lang-english">
+<h4>Hanging Chain Analogy and Solver Mapping</h4>
+<p>To understand the sequential calculations of Gauss-Seidel relaxation in visual terms, let us deconstruct a cliffhanger scenario where six people hang in a chain off a cliff edge:</p>
+<h5>1. The Anchoring Group (Top Array: T3, T2, T1)</h5>
+<ul>
+<li><strong>T3 (Static Ground Anchor)</strong>: Anchored firmly to the ground, this node cannot move. In a physics engine, this maps to a body of <code>BodyType::Static</code> with an inverse mass of zero (<code>inv_mass = 0.0</code>), providing the ultimate anchor for the chain.</li>
+<li><strong>T2 and T1 (Intermediate Nodes)</strong>: Dynamic bodies linked to T3, holding the tension supporting B1. Because the solver's matrix sweep processes them first, they carry updated present-state calculations (\(k+1\)).</li>
+</ul>
+<h5>2. The Hanging Chain (Bottom Array: B1, B2, B3)</h5>
+<ul>
+<li><strong>B1 (The Interface Node)</strong>: The first hanging person (<span class="keyword-highlight" data-tooltip="This is the target element being resolved by the solver. In our cliffhanger analogy, it represents B1, who is suspended in the air. The balance of the entire chain below depends on B1.">B1</span>) positioned exactly at the cliff edge. Mathematically, the solver isolates these target coordinates (\(x_i^{(k+1)}\)) during its sweep. The stability of the entire chain rests on B1's local adjustment.</li>
+<li><strong>B2 (Middle Connector)</strong>: The middle link (<span class="keyword-highlight" data-tooltip="This is the B-array—the people hanging below dragging down. Since the CPU hasn't reached them yet in this loop, they carry the past state k.">B2</span>) holding B1's legs, transmitting the tension balance downwards.</li>
+<li><strong>B3 (Terminal Hanging Node)</strong>: The final link in the chain bearing the fully accumulated gravity pull. B3 and B2 have not yet been updated in the current sweep, so their states are read from the past iteration index (\(k\)).</li>
+</ul>
+<h5>3. Force Balancing and Coordinate Slip</h5>
+<p>B1 must maintain local equilibrium according to the rules of the coordinate system:</p>
+<ul>
+<li><strong>Residual Tension Calculation</strong>: The upward pull from the top array (T-array value of 90) is compared against the downward drag from the bottom array and B1's own weight (accumulating to 100). Subtracting these gives a tension discrepancy of 10, representing the mathematical residual (Unbalanced Force).</li>
+<li><strong>Impulsive Slip Adjustment</strong>: To absorb this residual tension of 10, B1 must slide his coordinates along the contact plane until the forces cancel. This correction constitutes the coordinate slip, resulting in the updated dynamic velocity and position value (\(x_i^{(k+1)}\)).</li>
+</ul>
+</div>
+
+<div class="lang-content lang-spanish">
 <h4>Analogía de la cadena colgante y mapeo con el resolvedor</h4>
-
 <p>Para comprender los cálculos secuenciales de la relajación de Gauss-Seidel en términos visuales, analicemos un escenario extremo donde seis personas cuelgan en cadena desde el borde de un acantilado:</p>
-
 <h5>1. El grupo de anclaje (Lista superior: T3, T2, T1)</h5>
 <ul>
-  <li><strong>T3 (Anclaje estático al suelo)</strong>: Firme en el suelo, este nodo no se mueve. En un motor de física, se asocia a un cuerpo de <code>BodyType::Static</code> con masa inversa cero (<code>inv_mass = 0.0</code>), proporcionando el anclaje base para toda la cadena.</li>
-  <li><strong>T2 y T1 (Nodos intermedios)</strong>: Cuerpos dinámicos vinculados a T3 que proporcionan la tensión de soporte para sostener a B1. Dado que el resolvedor los procesa primero en su barrido, sus estados contienen cálculos actualizados del fotograma presente (\(k+1\)).</li>
+<li><strong>T3 (Anclaje estático al suelo)</strong>: Firme en el suelo, este nodo no se mueve. En un motor de física, se asocia a un cuerpo de <code>BodyType::Static</code> con masa inversa cero (<code>inv_mass = 0.0</code>), proporcionando el anclaje base para toda la cadena.</li>
+<li><strong>T2 y T1 (Nodos intermedios)</strong>: Cuerpos dinámicos vinculados a T3 que proporcionan la tensión de soporte para sostener a B1. Dado que el resolvedor los procesa primero en su barrido, sus estados contienen cálculos actualizados del fotograma presente (\(k+1\)).</li>
 </ul>
-
 <h5>2. La cadena colgante (Lista inferior: B1, B2, B3)</h5>
 <ul>
-  <li><strong>B1 (El nodo de interfaz)</strong>: La primera persona colgando en el aire (<span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">B1</span>), ubicada justo en el borde del acantilado. Matemáticamente, el resolvedor aísla estas coordenadas de destino (\(x_i^{(k+1)}\)) durante su barrido. La estabilidad de toda la cadena depende del ajuste local de B1.</li>
-  <li><strong>B2 (Conector intermedio)</strong>: El eslabón del medio (<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado k.">B2</span>) que sujeta las piernas de B1, transmitiendo el equilibrio de tensión hacia abajo.</li>
-  <li><strong>B3 (Nodo colgante terminal)</strong>: El último eslabón de la cadena que soporta toda la gravedad acumulada. B3 y B2 aún no se han actualizado en el barrido actual, por lo que sus estados se leen a partir del índice de iteración anterior (\(k\)).</li>
+<li><strong>B1 (El nodo de interfaz)</strong>: La primera persona colgando en el aire (<span class="keyword-highlight" data-tooltip="Este es el elemento objetivo siendo resuelto por el resolvedor. En la analogía del acantilado, representa a B1, quien está suspendido en el aire. El equilibrio de la cadena depende de B1.">B1</span>), ubicada justo en el borde del acantilado. Matemáticamente, el resolvedor aísla estas coordenadas de destino (\(x_i^{(k+1)}\)) durante su barrido. La estabilidad de toda la cadena depende del ajuste local de B1.</li>
+<li><strong>B2 (Conector intermedio)</strong>: El eslabón del medio (<span class="keyword-highlight" data-tooltip="Esta es la lista B: las personas colgando abajo tirando hacia abajo. Como la CPU no ha llegado a ellas en este ciclo, llevan el estado pasado k.">B2</span>) que sujeta las piernas de B1, transmitiendo el equilibrio de tensión hacia abajo.</li>
+<li><strong>B3 (Nodo colgante terminal)</strong>: El último eslabón de la cadena que soporta toda la gravedad acumulada. B3 y B2 aún no se han actualizado en el barrido actual, por lo que sus estados se leen a partir del índice de iteración anterior (\(k\)).</li>
 </ul>
-
 <h5>3. Equilibrio de fuerzas y deslizamiento de coordenadas</h5>
 <p>B1 debe mantener el equilibrio local de acuerdo con las reglas de su sistema de coordenadas:</p>
 <ul>
-  <li><strong>Cálculo de la tensión residual</strong>: El tirón hacia arriba del grupo superior (valor de la lista T de 90) se compara con el arrastre hacia abajo del grupo inferior y el peso de B1 (que suman 100). Restar estos valores genera una desviación de tensión de 10, que es el residuo matemático (Fuerza Desequilibrada).</li>
-  <li><strong>Ajuste del deslizamiento impulsivo</strong>: Para absorber esta diferencia de tensión de 10, B1 debe deslizar sus coordenadas a lo largo del plano de contacto hasta que las fuerzas se cancelen. Esta corrección constituye el deslizamiento de coordenadas, produciendo el valor actualizado de velocidad y posición dinámica (\(x_i^{(k+1)}\)).</li>
+<li><strong>Cálculo de la tensión residual</strong>: El tirón hacia arriba del grupo superior (valor de la lista T de 90) se compara con el arrastre hacia abajo del grupo inferior y el peso de B1 (que suman 100). Restar estos valores genera una desviación de tensión de 10, que es el residuo matemático (Fuerza Desequilibrada).</li>
+<li><strong>Ajuste del deslizamiento impulsivo</strong>: Para absorber esta diferencia de tensión de 10, B1 debe deslizar sus coordenadas a lo largo del plano de contacto hasta que las fuerzas se cancelen. Esta corrección constituye el deslizamiento de coordenadas, produciendo el valor actualizado de velocidad y posición dinámica (\(x_i^{(k+1)}\)).</li>
 </ul>
-
 </div>
 </div>
-</div>
 
-<div id="silicon-drawer-spanish" class="drawer-container">
-  <div class="drawer-backdrop" onclick="closeDrawer('silicon-drawer-spanish')"></div>
-  <div class="drawer-content">
-    <div class="drawer-header">
-      <h3>Deep Dive: Verificación a Nivel de Silicio</h3>
-      <button class="drawer-close-btn" onclick="closeDrawer('silicon-drawer-spanish')">&times;</button>
-    </div>
-    <div class="drawer-body">
+<div id="silicon-drawer" class="custom-drawer"
+     data-title-hinglish="Silicon-Level Verification"
+     data-title-english="Silicon-Level Verification"
+     data-title-spanish="Verificación a Nivel de Silicio">
 
-<h4>Telemetría a nivel de silicio y lógica de ejecución</h4>
-
-<p>Podemos verificar el comportamiento de las coordenadas matemáticas y las variables físicas directamente mediante el código de física en Rust y los registros de telemetría a nivel de hardware:</p>
+<div class="lang-content lang-hinglish">
+<h4>Silicon-Level Telemetry and Execution Logic</h4>
+<p>Hum mathematical coordinates aur physics variables ki verification directly Rust physics code aur silicon-level logic outputs ke zariye kar sakte hain:</p>
 
 <pre class="language-rust"><code class="language-rust">
 let mut config = PhysicsConfig::default();
-config.<span class="keyword-highlight" data-tooltip="El número de subintervalos en los que dividimos un solo fotograma de 1/60s (el aspecto temporal del resolvedor).">sub_steps</span> = 4;
-config.<span class="keyword-highlight" data-tooltip="El número de pasadas de relajación de Gauss-Seidel que ejecutamos por subpaso.">iterations</span> = 12;
+config.<span class="keyword-highlight tooltip-only" data-tooltip="The number of sub-intervals we split a single 1/60s frame into (the temporal aspect of the solver).">sub_steps</span> = 4;
+config.<span class="keyword-highlight tooltip-only" data-tooltip="The number of Gauss-Seidel relaxation passes we run per sub-step.">iterations</span> = 12;
 
 let mut world = PhysicsWorld::new(config);
 let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
 
 let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
-t3.body_type = <span class="keyword-highlight" data-tooltip="Un cuerpo rígido que nunca se mueve, que representa un anclaje de masa infinita (como el acantilado).">BodyType::Static</span>;
-t3.mass_props.<span class="keyword-highlight" data-tooltip="Establecer la masa inversa a cero matemáticamente significa masa infinita. No se puede mover.">inv_mass</span> = 0.0;
+t3.body_type = <span class="keyword-highlight tooltip-only" data-tooltip="Un cuerpo rígido que nunca se mueve, que representa un anclaje de masa infinita (como el acantilado).">BodyType::Static</span>;
+t3.mass_props.<span class="keyword-highlight tooltip-only" data-tooltip="Establecer la masa inversa a cero matemáticamente significa masa infinita. No se puede mover.">inv_mass</span> = 0.0;
 world.add_body(t3); // T3 Anchor
 
 let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
-t2.body_type = <span class="keyword-highlight" data-tooltip="Un cuerpo rígido afectado por la gravedad y los impulsos (como las personas colgadas).">BodyType::Dynamic</span>;
+t2.body_type = <span class="keyword-highlight tooltip-only" data-tooltip="Un cuerpo rígido afectado por la gravedad y los impulsos (como las personas colgadas).">BodyType::Dynamic</span>;
 world.add_body(t2); // T2
 
 let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
@@ -498,7 +291,151 @@ let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
 b3.body_type = BodyType::Dynamic;
 world.add_body(b3); // B3
 
-world.<span class="keyword-highlight" data-tooltip="El punto de entrada principal que ejecuta la detección de colisiones y llama al resolvedor TGS para actualizar las posiciones.">update</span>(1.0 / 60.0, None, None);
+world.<span class="keyword-highlight tooltip-only" data-tooltip="El punto de entrada principal que ejecuta la detección de colisiones y llama al resolvedor TGS para actualizar las posiciones.">update</span>(1.0 / 60.0, None, None);
+</code></pre>
+
+<h5>Execution Telemetry Log</h5>
+<p>Niche setup runtime code se generated terminal outputs display kiye gaye hain jo update cycle trace karte hain:</p>
+
+<pre><code class="language-text">
+--- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
+Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
+B1 Initial Position Y: 3.0000
+B1 Initial Velocity Y: 0.0000
+
+Executing 1 Frame (dt = 0.0166)...
+[SOLVE_TGS] Entry: <span class="keyword-highlight tooltip-only" data-tooltip="Las 5 articulaciones que conctan los 6 cuerpos en nuestra cadena del acantilado.">constraints=5</span>, <span class="keyword-highlight tooltip-only" data-tooltip="Lotes de ejecución paralela para resolver restricciones independientes.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight tooltip-only" data-tooltip="Restricciones resueltas usando la vectorización de carriles SIMD para mayor velocidad del hardware.">total_simd_constraints=2</span>
+
+B1 Final Position Y: 3.000041
+B1 Final Velocity Y: 0.003417
+B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
+------------------------------------------------------------
+</code></pre>
+
+<h5>Why TGS is Standard in Modern Real-Time Physics Engines</h5>
+<p>Modern physics engines old Projected Gauss-Seidel (PGS) architecture ke bajaye TGS pipeline use karte hain. Is structural shift ke details niche breakdown kiye gaye hain:</p>
+<ul>
+<li><strong>The Stretching Problem (PGS Limitations)</strong>: Traditional PGS engine iterations ko poore 16ms frame timestep ke flat scale par resolve karta hai. Jab constraints ki segment chain badi ho (jaise ragdoll limbs ya rope bridges), to errors dynamically stack up hote hain aur joints stretch hokar unstable visual vibration (rubber-band jitter) dikhate hain.</li>
+<li><strong>The Substepping Solution (TGS Approach)</strong>: TGS execution flow pure timestep cycle ko multiple discrete sub-steps mein split karta hai. Har iteration loop ko internal mini sub-step ki tarah perform kiya jata hai:
+<ul>
+<li>Calculated impulses delta values ko global delta velocity buffer mein accumulate kiya jata hai.</li>
+<li>Joint coordinate positions ko mid-frame update kiya jata hai aur Jacobian coefficients recalculate hote hain.</li>
+<li>Friction model ko normal forces ke overlap correction ke saath dynamically compile kiya jata (sliding like ice check prevent karne ke liye).</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<div class="lang-content lang-english">
+<h4>Silicon-Level Telemetry and Execution Logic</h4>
+<p>We can verify mathematical coordinates and physics variables directly using Rust physics implementation and silicon-level execution trace logs:</p>
+
+<pre class="language-rust"><code class="language-rust">
+let mut config = PhysicsConfig::default();
+config.<span class="keyword-highlight tooltip-only" data-tooltip="The number of sub-intervals we split a single 1/60s frame into (the temporal aspect of the solver).">sub_steps</span> = 4;
+config.<span class="keyword-highlight tooltip-only" data-tooltip="The number of Gauss-Seidel relaxation passes we run per sub-step.">iterations</span> = 12;
+
+let mut world = PhysicsWorld::new(config);
+let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
+
+let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
+t3.body_type = <span class="keyword-highlight tooltip-only" data-tooltip="A rigid body that never moves, representing an infinite mass anchor (like the cliff/ground).">BodyType::Static</span>;
+t3.mass_props.<span class="keyword-highlight tooltip-only" data-tooltip="Setting inverse mass to zero mathematically means infinite mass. It cannot move.">inv_mass</span> = 0.0;
+world.add_body(t3); // T3 Anchor
+
+let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
+t2.body_type = <span class="keyword-highlight tooltip-only" data-tooltip="A rigid body affected by gravity and impulses (like the hanging people).">BodyType::Dynamic</span>;
+world.add_body(t2); // T2
+
+let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
+t1.body_type = BodyType::Dynamic;
+world.add_body(t1); // T1
+
+let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
+b1.body_type = BodyType::Dynamic;
+let b1_handle = world.add_body(b1); // B1 Focus
+
+let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
+b2.body_type = BodyType::Dynamic;
+world.add_body(b2); // B2
+
+let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
+b3.body_type = BodyType::Dynamic;
+world.add_body(b3); // B3
+
+world.<span class="keyword-highlight tooltip-only" data-tooltip="The main entry point that runs collision detection and calls the TGS solver to update positions.">update</span>(1.0 / 60.0, None, None);
+</code></pre>
+
+<h5>Execution Telemetry Log</h5>
+<p>Below is the runtime terminal output showing the progress of a simulation update frame:</p>
+
+<pre><code class="language-text">
+--- TITAN ENGINE: SILICON-LEVEL TGS SOLVER DEMONSTRATION ---
+Initial Setup Complete. B1 is sandwiched between T1 (Below) and B2 (Above).
+B1 Initial Position Y: 3.0000
+B1 Initial Velocity Y: 0.0000
+
+Executing 1 Frame (dt = 0.0166)...
+[SOLVE_TGS] Entry: <span class="keyword-highlight tooltip-only" data-tooltip="The 5 joints connecting the 6 bodies in our cliffhanger chain.">constraints=5</span>, <span class="keyword-highlight tooltip-only" data-tooltip="Parallel execution batches to resolve independent constraints.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight tooltip-only" data-tooltip="Constraints resolved using SIMD lane vectorization for hardware speed.">total_simd_constraints=2</span>
+
+B1 Final Position Y: 3.000041
+B1 Final Velocity Y: 0.003417
+B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.000041
+------------------------------------------------------------
+</code></pre>
+
+<h5>Why TGS is Standard in Modern Real-Time Physics Engines</h5>
+<p>Modern game physics engines rely on the Temporal Gauss-Seidel (TGS) pipeline rather than the traditional Projected Gauss-Seidel (PGS) architecture. Let us look at the technical reasons behind this architectural transition:</p>
+<ul>
+<li><strong>The Stretching Problem (PGS Limitations)</strong>: Traditional PGS resolves constraints at the scale of the full 16ms frame timestep. When handling deep chain structures (such as ragdoll joints or rope bridges), errors accumulate globally, causing joints to stretch unnaturally and jitter visually (rubber-band effect).</li>
+<li><strong>The Substepping Solution (TGS Approach)</strong>: TGS divides the full timestep into multiple discrete sub-steps. Each relaxation pass operates as an internal mini sub-step:
+<ul>
+<li>Calculated constraint impulses are accumulated in a global delta velocity buffer.</li>
+<li>Joint coordinate positions are updated mid-frame, causing the engine to recalculate Jacobians and effective masses before the next step.</li>
+<li>Friction forces are solved interactively within each sub-step alongside penetration corrections, ensuring stable limits.</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<div class="lang-content lang-spanish">
+<h4>Silicon-Level Telemetry and Execution Logic</h4>
+<p>Podemos verificar el comportamiento de las coordenadas matemáticas y las variables físicas directamente mediante el código de física en Rust y los registros de telemetría a nivel de hardware:</p>
+
+<pre class="language-rust"><code class="language-rust">
+let mut config = PhysicsConfig::default();
+config.<span class="keyword-highlight tooltip-only" data-tooltip="El número de subintervalos en los que dividimos un solo fotograma de 1/60s (el aspecto temporal del resolvedor).">sub_steps</span> = 4;
+config.<span class="keyword-highlight tooltip-only" data-tooltip="El número de pasadas de relajación de Gauss-Seidel que ejecutamos por subpaso.">iterations</span> = 12;
+
+let mut world = PhysicsWorld::new(config);
+let shape = Collider::Box(BoxShape::new(0.5, 0.5, 0.5));
+
+let mut t3 = RigidBody::new(Vector3::new(0.0, 0.0, 0.0), shape);
+t3.body_type = <span class="keyword-highlight tooltip-only" data-tooltip="Un cuerpo rígido que nunca se mueve, que representa un anclaje de masa infinita (como el acantilado).">BodyType::Static</span>;
+t3.mass_props.<span class="keyword-highlight tooltip-only" data-tooltip="Establecer la masa inversa a cero matemáticamente significa masa infinita. No se puede mover.">inv_mass</span> = 0.0;
+world.add_body(t3); // T3 Anchor
+
+let mut t2 = RigidBody::new(Vector3::new(0.0, 1.0, 0.0), shape);
+t2.body_type = <span class="keyword-highlight tooltip-only" data-tooltip="Un cuerpo rígido afectado por la gravedad y los impulsos (como las personas colgadas).">BodyType::Dynamic</span>;
+world.add_body(t2); // T2
+
+let mut t1 = RigidBody::new(Vector3::new(0.0, 2.0, 0.0), shape);
+t1.body_type = BodyType::Dynamic;
+world.add_body(t1); // T1
+
+let mut b1 = RigidBody::new(Vector3::new(0.0, 3.0, 0.0), shape);
+b1.body_type = BodyType::Dynamic;
+let b1_handle = world.add_body(b1); // B1 Focus
+
+let mut b2 = RigidBody::new(Vector3::new(0.0, 4.0, 0.0), shape);
+b2.body_type = BodyType::Dynamic;
+world.add_body(b2); // B2
+
+let mut b3 = RigidBody::new(Vector3::new(0.0, 5.0, 0.0), shape);
+b3.body_type = BodyType::Dynamic;
+world.add_body(b3); // B3
+
+world.<span class="keyword-highlight tooltip-only" data-tooltip="El punto de entrada principal que ejecuta la detección de colisiones y llama al resolvedor TGS para actualizar las posiciones.">update</span>(1.0 / 60.0, None, None);
 </code></pre>
 
 <h5>Registro de telemetría de ejecución</h5>
@@ -511,7 +448,7 @@ B1 Initial Position Y: 3.0000
 B1 Initial Velocity Y: 0.0000
 
 Executing 1 Frame (dt = 0.0166)...
-[SOLVE_TGS] Entry: <span class="keyword-highlight" data-tooltip="Las 5 articulaciones que conctan los 6 cuerpos en nuestra cadena del acantilado.">constraints=5</span>, <span class="keyword-highlight" data-tooltip="Lotes de ejecución paralela para resolver restricciones independientes.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight" data-tooltip="Restricciones resueltas usando la vectorización de carriles SIMD para mayor velocidad del hardware.">total_simd_constraints=2</span>
+[SOLVE_TGS] Entry: <span class="keyword-highlight tooltip-only" data-tooltip="Las 5 articulaciones que conctan los 6 cuerpos en nuestra cadena del acantilado.">constraints=5</span>, <span class="keyword-highlight tooltip-only" data-tooltip="Lotes de ejecución paralela para resolver restricciones independientes.">batches=2</span>, bodies=5, iterations=12, <span class="keyword-highlight tooltip-only" data-tooltip="Restricciones resueltas usando la vectorización de carriles SIMD para mayor velocidad del hardware.">total_simd_constraints=2</span>
 
 B1 Final Position Y: 3.000041
 B1 Final Velocity Y: 0.003417
@@ -521,20 +458,15 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
 
 <h5>Por qué TGS es el estándar en los motores de física en tiempo real modernos</h5>
 <p>Los motores de física modernos utilizan la arquitectura del pipeline de Temporal Gauss-Seidel (TGS) en lugar del resolvedor tradicional Projected Gauss-Seidel (PGS). Desglosemos las razones técnicas que impulsan esta transición estructural:</p>
-
 <ul>
-  <li><strong>El problema del estiramiento (Limitaciones de PGS)</strong>: El método tradicional PGS resuelve las restricciones aplicando bucles de relajación sobre la duración completa del paso de tiempo del fotograma (16 ms). En cadenas articuladas largas (como ragdolls o puentes de cuerda), los errores se acumulan de forma global, provocando que las articulaciones se estiren de forma poco natural y generen una vibración visual inestable (efecto banda elástica).</li>
-  <li><strong>La solución por subpasos (Enfoque TGS)</strong>: El flujo de ejecución de TGS divide el paso de tiempo completo del fotograma en múltiples subpasos discretos. Cada pasada de relajación funciona como un minisubpaso interno:
-    <ul>
-      <li>Los impulsos calculados se acumulan en un búfer global de velocidades delta.</li>
-      <li>Las posiciones de coordenadas de las articulaciones se actualizan a mitad del fotograma, lo que permite recalcular las masas efectivas y los coeficientes jacobianos antes del siguiente bucle.</li>
-      <li>El modelo de fricción se compila dinámicamente junto con la corrección de penetración dentro de todos los subpasos, evitando deslizamientos excesivos.</li>
-    </ul>
-  </li>
+<li><strong>El problema del estiramiento (Limitaciones de PGS)</strong>: El método tradicional PGS resuelve las restricciones aplicando bucles de relajación sobre la duración completa del paso de tiempo del fotograma (16 ms). En cadenas articuladas largas (como ragdolls o puentes de cuerda), los errores se acumulan de forma global, provocando que las articulaciones se estiren de forma poco natural y generen una vibración visual inestable (efecto banda elástica).</li>
+<li><strong>La solución por subpasos (Enfoque TGS)</strong>: El flujo de ejecución de TGS divide el paso de tiempo completo del fotograma en múltiples subpasos discretos. Cada pasada de relajación funciona como un minisubpaso interno:
+<ul>
+<li>Los impulsos calculados se acumulan en un búfer global de velocidades delta.</li>
+<li>Las posiciones de coordenadas de las articulaciones se actualizan a mitad del fotograma, lo que permite recalcular las masas efectivas y los coeficientes jacobianos antes del siguiente bucle.</li>
+<li>El modelo de fricción se compila dinámicamente junto con la corrección de penetración dentro de todos los subpasos, evitando deslizamientos excesivos.</li>
 </ul>
-
+</li>
+</ul>
 </div>
 </div>
-</div>
-
-Este principio fundamental de relajación de restricciones y estabilidad matemática es lo que sustenta los pipelines de física modernos. Detrás de escena, estas ecuaciones matemáticas se ejecutan silenciosamente en cada fotograma, suavizando los errores numéricos y garantizando la integridad estructural de la simulación en entornos altamente dinámicos.
