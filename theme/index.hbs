@@ -74,21 +74,17 @@
                         const now = Date.now();
                         if (!lastReload || (now - lastReload > 10000)) {
                             sessionStorage.setItem('last-error-reload', now);
-                            window.location.replace(window.location.origin + window.location.pathname + '?v=' + now);
+                            window.location.reload(true); // Force clear-cache reload from server
                         }
                     }
                 };
 
-                let lastChecked = 0;
-                function checkVersion() {
-                    if (!navigator.onLine) return;
-                    const now = Date.now();
-                    // Throttle checks to at most once every 5 seconds to avoid spamming requests
-                    if (now - lastChecked < 5000) return;
-                    lastChecked = now;
-
-                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
-                    fetch(checkUrl, { cache: 'no-store' })
+                // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
+                // and compare the compiled script hash to detect if our local cached HTML is outdated.
+                if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
+                    sessionStorage.setItem('did-version-check', 'true');
+                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + Date.now();
+                    fetch(checkUrl)
                         .then(response => response.text())
                         .then(htmlText => {
                             // Find the lang-switcher script filename in the server's HTML response
@@ -100,54 +96,14 @@
                                 const isLoaded = currentScripts.some(s => s.src && s.src.indexOf(serverJsFile) !== -1);
                                 if (!isLoaded) {
                                     // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
-                                    window.location.replace(window.location.origin + window.location.pathname + '?v=' + now);
+                                    window.location.reload(true);
                                 }
                             }
                         })
                         .catch(err => console.warn("Cache check skipped:", err));
                 }
-
-                // Rewrite URL to include version parameter for sharing
-                function updateUrlVersion() {
-                    const scripts = Array.from(document.getElementsByTagName('script'));
-                    for (const s of scripts) {
-                        if (s.src) {
-                            const match = s.src.match(/lang-switcher-([a-f0-9]+)\.js/);
-                            if (match) {
-                                const currentHash = match[1];
-                                const url = new URL(window.location.href);
-                                if (url.searchParams.get('v') !== currentHash) {
-                                    url.searchParams.set('v', currentHash);
-                                    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Check version on initial load
-                checkVersion();
-
-                // Check version when tab is brought to the foreground or restored
-                document.addEventListener('visibilitychange', function() {
-                    if (document.visibilityState === 'visible') {
-                        checkVersion();
-                    }
-                });
-                window.addEventListener('pageshow', function(event) {
-                    checkVersion();
-                });
-
-                // Run URL version rewriting
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', updateUrlVersion);
-                } else {
-                    updateUrlVersion();
-                }
             })();
         </script>
-
 
         <!-- Start loading toc.js asap -->
         <script src="{{ resource "toc.js" }}"></script>
