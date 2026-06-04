@@ -1183,3 +1183,22 @@ img, iframe {
     line-height: 1.68;
   }
 }
+
+/* Make the header menu title adaptive across all screens */
+.menu-title {
+  font-size: clamp(1.1rem, 4.5vw, 2.0rem) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  padding: 0 4px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .menu-title {
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+  }
+}
+
