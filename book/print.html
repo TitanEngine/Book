@@ -56,7 +56,7 @@
                         const now = Date.now();
                         if (!lastReload || (now - lastReload > 10000)) {
                             sessionStorage.setItem('last-error-reload', now);
-                            window.location.reload(true); // Force clear-cache reload from server
+                            window.location.replace(window.location.origin + window.location.pathname + '?v=' + now);
                         }
                     }
                 };
@@ -82,11 +82,30 @@
                                 const isLoaded = currentScripts.some(s => s.src && s.src.indexOf(serverJsFile) !== -1);
                                 if (!isLoaded) {
                                     // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
-                                    window.location.reload(true);
+                                    window.location.replace(window.location.origin + window.location.pathname + '?v=' + now);
                                 }
                             }
                         })
                         .catch(err => console.warn("Cache check skipped:", err));
+                }
+
+                // Rewrite URL to include version parameter for sharing
+                function updateUrlVersion() {
+                    const scripts = Array.from(document.getElementsByTagName('script'));
+                    for (const s of scripts) {
+                        if (s.src) {
+                            const match = s.src.match(/lang-switcher-([a-f0-9]+)\.js/);
+                            if (match) {
+                                const currentHash = match[1];
+                                const url = new URL(window.location.href);
+                                if (url.searchParams.get('v') !== currentHash) {
+                                    url.searchParams.set('v', currentHash);
+                                    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+                                }
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 // Check version on initial load
@@ -101,6 +120,13 @@
                 window.addEventListener('pageshow', function(event) {
                     checkVersion();
                 });
+
+                // Run URL version rewriting
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', updateUrlVersion);
+                } else {
+                    updateUrlVersion();
+                }
             })();
         </script>
 
