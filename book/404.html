@@ -44,6 +44,49 @@
             const default_dark_theme = "navy";
             window.path_to_searchindex_js = "searchindex-cdc83db6.js";
         </script>
+
+        <!-- Automatic client-side cache buster & version auto-updater -->
+        <script>
+            (function() {
+                // Global error handler for compiled scripts. If they fail to load due to a changed hash (404),
+                // it indicates that the browser is running a cached HTML page pointing to an outdated script hash.
+                window.handleScriptError = function() {
+                    if (navigator.onLine) {
+                        const lastReload = sessionStorage.getItem('last-error-reload');
+                        const now = Date.now();
+                        if (!lastReload || (now - lastReload > 10000)) {
+                            sessionStorage.setItem('last-error-reload', now);
+                            window.location.reload(true); // Force clear-cache reload from server
+                        }
+                    }
+                };
+
+                // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
+                // and compare the compiled script hash to detect if our local cached HTML is outdated.
+                if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
+                    sessionStorage.setItem('did-version-check', 'true');
+                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + Date.now();
+                    fetch(checkUrl)
+                        .then(response => response.text())
+                        .then(htmlText => {
+                            // Find the lang-switcher script filename in the server's HTML response
+                            const match = htmlText.match(/lang-switcher-[a-f0-9]+\.js/);
+                            if (match) {
+                                const serverJsFile = match[0];
+                                // Check if this new script is already loaded in the document
+                                const currentScripts = Array.from(document.getElementsByTagName('script'));
+                                const isLoaded = currentScripts.some(s => s.src && s.src.indexOf(serverJsFile) !== -1);
+                                if (!isLoaded) {
+                                    // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
+                                    window.location.reload(true);
+                                }
+                            }
+                        })
+                        .catch(err => console.warn("Cache check skipped:", err));
+                }
+            })();
+        </script>
+
         <!-- Start loading toc.js asap -->
         <script src="toc-ce6044a5.js"></script>
     </head>
@@ -223,9 +266,9 @@
         <script src="book-c22b7243.js"></script>
 
         <!-- Custom JS scripts -->
-        <script src="mermaid-eefea253.min.js"></script>
-        <script src="mermaid-init-ccf746f1.js"></script>
-        <script src="lang-switcher-a1162480.js"></script>
+        <script src="mermaid-eefea253.min.js" onerror="handleScriptError()"></script>
+        <script src="mermaid-init-ccf746f1.js" onerror="handleScriptError()"></script>
+        <script src="lang-switcher-a1162480.js" onerror="handleScriptError()"></script>
 
 
 
