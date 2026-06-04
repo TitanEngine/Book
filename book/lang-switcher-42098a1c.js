@@ -13,26 +13,7 @@ if (!sessionStorage.getItem('theme-forced-rust')) {
 
 // Dynamic Mobile Viewport & Horizontal Overflow Prevention style injection (to bypass stubborn browser caches)
 (function() {
-    // 1. Force reload of mdbook-admonish.css with cache-busting version parameter
-    try {
-        const links = document.getElementsByTagName('link');
-        for (let i = 0; i < links.length; i++) {
-            const link = links[i];
-            if (link.rel === 'stylesheet' && link.getAttribute('href') && link.getAttribute('href').indexOf('mdbook-admonish.css') !== -1) {
-                let href = link.getAttribute('href');
-                const qIdx = href.indexOf('?');
-                if (qIdx !== -1) {
-                    href = href.substring(0, qIdx);
-                }
-                // Append current build timestamp to bypass cache
-                link.setAttribute('href', href + '?v=20260603_2117_v2');
-            }
-        }
-    } catch (e) {
-        console.error("Cache-busting failed:", e);
-    }
-
-    // 2. Inject core layout fixes dynamically to bypass cached CSS immediately
+    // Inject core layout fixes dynamically to bypass cached CSS immediately
     const style = document.createElement('style');
     style.id = 'tgs-mobile-zoom-fix';
     style.textContent = `

@@ -6,8 +6,11 @@ language = "en"
 [output.html]
 default-theme = "rust"
 mathjax-support = true
-additional-css = ["./mdbook-admonish.css"]
+additional-css = ["mdbook-admonish.css"]
 additional-js = ["mermaid.min.js", "mermaid-init.js", "lang-switcher.js"]
+hash-files = true
 
 [preprocessor.mermaid]
 command = "mdbook-mermaid"
+
+
