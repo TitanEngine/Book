@@ -61,12 +61,16 @@
                     }
                 };
 
-                // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
-                // and compare the compiled script hash to detect if our local cached HTML is outdated.
-                if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
-                    sessionStorage.setItem('did-version-check', 'true');
-                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + Date.now();
-                    fetch(checkUrl)
+                let lastChecked = 0;
+                function checkVersion() {
+                    if (!navigator.onLine) return;
+                    const now = Date.now();
+                    // Throttle checks to at most once every 5 seconds to avoid spamming requests
+                    if (now - lastChecked < 5000) return;
+                    lastChecked = now;
+
+                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
+                    fetch(checkUrl, { cache: 'no-store' })
                         .then(response => response.text())
                         .then(htmlText => {
                             // Find the lang-switcher script filename in the server's HTML response
@@ -84,8 +88,22 @@
                         })
                         .catch(err => console.warn("Cache check skipped:", err));
                 }
+
+                // Check version on initial load
+                checkVersion();
+
+                // Check version when tab is brought to the foreground or restored
+                document.addEventListener('visibilitychange', function() {
+                    if (document.visibilityState === 'visible') {
+                        checkVersion();
+                    }
+                });
+                window.addEventListener('pageshow', function(event) {
+                    checkVersion();
+                });
             })();
         </script>
+
 
         <!-- Start loading toc.js asap -->
         <script src="toc-ce6044a5.js"></script>
