@@ -1111,8 +1111,7 @@ div[id^="silicon-drawer-"].drawer-container .drawer-backdrop {
 /* --- Mobile Viewport & Horizontal Overflow Prevention --- */
 /* Prevents wide elements (like code, tables, math formulas) from expanding the page width and zooming out the mobile layout */
 #mdbook-body-container, .page-wrapper, .page, .content, main {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
+  max-width: 100vw !important;
 }
 
 /* Allow horizontal scrolling locally for code blocks, preformatted text, and MathJax block equations */
