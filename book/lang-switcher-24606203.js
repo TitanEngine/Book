@@ -983,34 +983,100 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    // Trigger continuous slide-in animation on load if navigated via swipe
-    const htmlEl = document.documentElement;
-    const isSwipeNext = htmlEl.classList.contains('swipe-navigating-next');
-    const isSwipePrev = htmlEl.classList.contains('swipe-navigating-prev');
-    
-    if (isSwipeNext || isSwipePrev) {
-        try {
-            sessionStorage.removeItem('swipe-navigating');
-        } catch (e) {}
-        
-        const activePageEl = document.querySelector('.page');
-        if (activePageEl) {
-            // Force layout reflow
-            void activePageEl.offsetHeight;
+    // Helper to prepare parsed HTML preview panel structure (language wrapping and buttons)
+    function preparePreviewPanel(panel, savedLang) {
+        // 1. Initialize dynamic components (triggers, drawers) inside the preview panel
+        const triggers = panel.querySelectorAll('.drawer-trigger');
+        triggers.forEach(trigger => {
+            const target = trigger.getAttribute('data-target');
+            const textHinglish = trigger.getAttribute('data-text-hinglish') || 'Explore';
+            const textEnglish = trigger.getAttribute('data-text-english') || 'Explore';
+            const textSpanish = trigger.getAttribute('data-text-spanish') || 'Explore';
             
-            // Remove the block class to trigger transition
-            htmlEl.classList.remove('swipe-navigating-next', 'swipe-navigating-prev');
+            const button = document.createElement('button');
+            button.className = 'drawer-trigger-btn';
+            button.setAttribute('onclick', `openDrawer('${target}')`);
+            button.innerHTML = `
+                <span class="lang-content lang-hinglish">${textHinglish}</span>
+                <span class="lang-content lang-english">${textEnglish}</span>
+                <span class="lang-content lang-spanish">${textSpanish}</span>
+            `;
+            trigger.replaceWith(button);
+        });
+
+        const drawers = panel.querySelectorAll('.custom-drawer');
+        drawers.forEach(drawer => {
+            const id = drawer.id;
+            const titleHinglish = drawer.getAttribute('data-title-hinglish') || drawer.getAttribute('data-title') || 'Deep Dive';
+            const titleEnglish = drawer.getAttribute('data-title-english') || drawer.getAttribute('data-title') || 'Deep Dive';
+            const titleSpanish = drawer.getAttribute('data-title-spanish') || drawer.getAttribute('data-title') || 'Deep Dive';
             
-            // Apply the slide-in transition
-            activePageEl.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-            activePageEl.style.transform = 'translateX(0)';
+            const originalContent = drawer.innerHTML;
             
-            setTimeout(() => {
-                activePageEl.style.transform = '';
-                activePageEl.style.transition = '';
-            }, 400);
-        } else {
-            htmlEl.classList.remove('swipe-navigating-next', 'swipe-navigating-prev');
+            drawer.className = 'drawer-container';
+            drawer.innerHTML = `
+                <div class="drawer-backdrop" onclick="closeDrawer('${id}')"></div>
+                <div class="drawer-content">
+                    <div class="drawer-header">
+                        <h3 class="lang-content lang-hinglish">${titleHinglish}</h3>
+                        <h3 class="lang-content lang-english">${titleEnglish}</h3>
+                        <h3 class="lang-content lang-spanish">${titleSpanish}</h3>
+                        <button class="drawer-close-btn" onclick="closeDrawer('${id}')">&times;</button>
+                    </div>
+                    <div class="drawer-body">
+                        ${originalContent}
+                    </div>
+                </div>
+            `;
+        });
+
+        // 2. Initialize Language Toggle wrapping on panel content
+        const main = panel.querySelector('main');
+        if (main) {
+            const children = Array.from(main.children);
+            let currentLangDiv = null;
+
+            children.forEach(child => {
+                if (child.classList.contains('lang-switch-container')) {
+                    child.remove();
+                    return;
+                }
+
+                if (child.classList.contains('lang-marker')) {
+                    const markerLang = child.getAttribute('data-lang');
+                    if (markerLang === 'shared') {
+                        currentLangDiv = null;
+                        child.remove();
+                        return;
+                    }
+
+                    currentLangDiv = document.createElement('div');
+                    currentLangDiv.className = 'lang-content lang-' + markerLang;
+                    currentLangDiv.style.display = 'none';
+                    
+                    main.insertBefore(currentLangDiv, child);
+                    child.remove();
+                    return;
+                }
+
+                if (currentLangDiv) {
+                    currentLangDiv.appendChild(child);
+                }
+            });
+
+            // Filter language
+            const contents = panel.querySelectorAll('.lang-content');
+            contents.forEach(el => {
+                if (el.classList.contains('lang-' + savedLang)) {
+                    el.style.display = 'block';
+                    el.classList.add('active');
+                    el.style.opacity = '1';
+                } else {
+                    el.style.display = 'none';
+                    el.classList.remove('active');
+                    el.style.opacity = '0';
+                }
+            });
         }
     }
 
@@ -1056,7 +1122,7 @@ document.addEventListener('keydown', (e) => {
                         const prevPanel = document.createElement('div');
                         prevPanel.className = 'swipe-preview-panel swipe-prev-panel';
                         prevPanel.innerHTML = content.innerHTML;
-                        syncPanelLanguage(prevPanel, savedLang);
+                        preparePreviewPanel(prevPanel, savedLang);
                         pageEl.appendChild(prevPanel);
                         typesetElement(prevPanel);
                     }
@@ -1075,7 +1141,7 @@ document.addEventListener('keydown', (e) => {
                         const nextPanel = document.createElement('div');
                         nextPanel.className = 'swipe-preview-panel swipe-next-panel';
                         nextPanel.innerHTML = content.innerHTML;
-                        syncPanelLanguage(nextPanel, savedLang);
+                        preparePreviewPanel(nextPanel, savedLang);
                         pageEl.appendChild(nextPanel);
                         typesetElement(nextPanel);
                     }
@@ -1275,9 +1341,6 @@ document.addEventListener('keydown', (e) => {
             const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
             const prevLink = prevLinkElement ? prevLinkElement.href : null;
             if (prevLink) {
-                try {
-                    sessionStorage.setItem('swipe-navigating', 'prev');
-                } catch (err) {}
                 setTimeout(() => {
                     window.location.href = prevLink;
                 }, 300); // Wait for transition to complete
@@ -1288,9 +1351,6 @@ document.addEventListener('keydown', (e) => {
             const nextLinkElement = document.querySelector('.nav-chapters.next') || document.querySelector('.mobile-nav-chapters.next');
             const nextLink = nextLinkElement ? nextLinkElement.href : null;
             if (nextLink) {
-                try {
-                    sessionStorage.setItem('swipe-navigating', 'next');
-                } catch (err) {}
                 setTimeout(() => {
                     window.location.href = nextLink;
                 }, 300); // Wait for transition to complete

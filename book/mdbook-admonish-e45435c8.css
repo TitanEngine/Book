@@ -1394,12 +1394,3 @@ html, body, .page-wrapper {
   left: 100% !important;
 }
 
-/* Swipe Navigation continuous entry slide styles */
-html.swipe-navigating-next .page {
-  transform: translateX(100vw) !important;
-  transition: none !important;
-}
-html.swipe-navigating-prev .page {
-  transform: translateX(-100vw) !important;
-  transition: none !important;
-}
