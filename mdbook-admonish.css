@@ -1288,4 +1288,80 @@ img, iframe {
   );
 }
 
+/* Prevent white flashes during swipe transitions by forcing the theme's background */
+html, body, .page-wrapper {
+  background-color: var(--bg) !important;
+}
+
+/* Premium Desktop Hover Side Navigation Arrows */
+.nav-chapters {
+  position: fixed;
+  top: 60px; /* Sits below the header bar */
+  bottom: 0;
+  width: 60px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  cursor: pointer;
+  background: transparent !important;
+  opacity: 0;
+  pointer-events: none; /* Avoid blocking clicks on text/elements underneath */
+  text-decoration: none !important;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), left 0.3s ease, right 0.3s ease !important;
+}
+
+.nav-chapters.previous {
+  left: 0;
+}
+
+.nav-chapters.next {
+  right: 0;
+}
+
+/* Enable pointer events and make arrow visible when mouse enters hover zone */
+.nav-chapters.reveal {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Subtle directional slide and scale transitions inside pointer-enabled media query (guards hybrid laptops) */
+@media (hover: hover) and (pointer: fine) {
+  .nav-chapters.previous.reveal:hover {
+    transform: translateX(8px);
+  }
+  
+  .nav-chapters.next.reveal:hover {
+    transform: translateX(-8px);
+  }
+}
+
+/* Style for FontAwesome Icons inside Navigation Arrows */
+.nav-chapters svg, .nav-chapters .fa-svg, .nav-chapters i {
+  font-size: 3rem !important;
+  background: linear-gradient(135deg, #a27b5c 0%, #855838 100%);
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease !important;
+}
+
+/* Scale up arrow icon and increase glow size on hover */
+@media (hover: hover) and (pointer: fine) {
+  .nav-chapters.reveal:hover svg, 
+  .nav-chapters.reveal:hover .fa-svg, 
+  .nav-chapters.reveal:hover i {
+    filter: drop-shadow(0 4px 12px rgba(162, 123, 92, 0.45));
+    transform: scale(1.15);
+  }
+}
+
+/* Hide navigation arrows completely on touch devices (where swipes are used) */
+@media (max-width: 1024px) {
+  .nav-chapters, .mobile-nav-chapters {
+    display: none !important;
+  }
+}
+
+
 

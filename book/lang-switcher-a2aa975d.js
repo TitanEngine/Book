@@ -968,4 +968,173 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Cache bust update: Force mobile browsers to detect a new hash
+// Premium Navigation System: Desktop Hover Edge Reveal & Mobile Touch Swipe Navigation
+(function() {
+    // 1. Desktop Edge Hover Navigation Reveal Handler
+    document.addEventListener('mousemove', (e) => {
+        if (window.innerWidth <= 1024) return; // Only run on desktop viewports
+        
+        const width = window.innerWidth;
+        const margin = 60; // Margin width from screen edge
+        const leftArrow = document.querySelector('.nav-chapters.previous');
+        const rightArrow = document.querySelector('.nav-chapters.next');
+        
+        // Check if sidebar is open
+        const sidebarToggle = document.getElementById('mdbook-sidebar-toggle-anchor');
+        const isSidebarOpen = sidebarToggle ? sidebarToggle.checked : false;
+        
+        // Calculate left hover zone start/end depending on sidebar visibility
+        const sidebarWidth = isSidebarOpen ? 300 : 0;
+        const leftZoneStart = sidebarWidth;
+        const leftZoneEnd = sidebarWidth + margin;
+        
+        // Calculate right hover zone
+        const rightZoneStart = width - margin;
+        
+        // Reveal or hide previous arrow
+        if (leftArrow) {
+            if (e.clientX >= leftZoneStart && e.clientX <= leftZoneEnd) {
+                leftArrow.classList.add('reveal');
+            } else {
+                leftArrow.classList.remove('reveal');
+            }
+        }
+        
+        // Reveal or hide next arrow
+        if (rightArrow) {
+            if (e.clientX >= rightZoneStart && e.clientX <= width) {
+                rightArrow.classList.add('reveal');
+            } else {
+                rightArrow.classList.remove('reveal');
+            }
+        }
+    });
+
+    // 2. Mobile Page Navigation Touch Swipe Gestures
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let currentDeltaX = 0;
+    let isHorizontalSwipe = false;
+    let pageEl = null;
+
+    document.addEventListener('touchstart', (e) => {
+        if (window.innerWidth > 1024) return; // Swipe is only enabled on mobile/tablet viewports
+        
+        // Exclude swipe trigger when drawers, tooltips, sidebar, search overlay or interactive elements are targeted
+        if (document.body.classList.contains('drawer-open') || 
+            document.body.classList.contains('sidebar-visible') || 
+            e.target.closest('pre, code, table, .MathJax_Display, .MathJax, mjx-container, .sidebar, .drawer-container, .keyword-tooltip-box, .lang-switch-container, button, a, input, textarea, [contenteditable="true"]')) {
+            return;
+        }
+
+        const startX = e.touches[0].clientX;
+        const startY = e.touches[0].clientY;
+        
+        // iOS Native back/forward swipe compatibility: Ignore swipes starting within 20px of screen edges
+        if (startX < 20 || startX > window.innerWidth - 20) {
+            return;
+        }
+
+        touchStartX = startX;
+        touchStartY = startY;
+        touchStartTime = Date.now();
+        currentDeltaX = 0;
+        isHorizontalSwipe = false;
+        pageEl = document.querySelector('.page');
+        
+        if (pageEl) {
+            pageEl.style.transition = 'none';
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!pageEl) return;
+
+        const deltaX = e.touches[0].clientX - touchStartX;
+        const deltaY = e.touches[0].clientY - touchStartY;
+
+        if (!isHorizontalSwipe) {
+            // Determine horizontal intent: minimum X displacement of 10px and at least 2x greater than vertical displacement
+            if (Math.abs(deltaX) > 10 && Math.abs(deltaX) > Math.abs(deltaY) * 2) {
+                isHorizontalSwipe = true;
+            }
+        }
+
+        if (isHorizontalSwipe) {
+            // Prevent default vertical page scrolling when horizontal swipe is active
+            if (e.cancelable) e.preventDefault();
+
+            // Check if pages exist in respective directions
+            const hasPrev = !!document.querySelector('.nav-chapters.previous');
+            const hasNext = !!document.querySelector('.nav-chapters.next');
+
+            let dragX = deltaX;
+            // Apply rubber-banding friction factor if pulling where no adjacent page exists
+            if ((deltaX > 0 && !hasPrev) || (deltaX < 0 && !hasNext)) {
+                dragX = deltaX * 0.25;
+            }
+
+            currentDeltaX = dragX;
+            pageEl.style.transform = `translateX(${dragX}px)`;
+        }
+    }, { passive: false });
+
+    function handleTouchEndOrCancel(e) {
+        if (!pageEl || !isHorizontalSwipe) return;
+
+        const timeDiff = Date.now() - touchStartTime;
+        const velocity = Math.abs(currentDeltaX) / timeDiff; // Pixels per millisecond
+        const threshold = window.innerWidth * 0.25; // 25% of screen width
+
+        // Snappy flick: velocity > 0.5px/ms and minimum 30px drag distance
+        const isFlick = velocity > 0.5 && Math.abs(currentDeltaX) > 30;
+        const isLongSwipe = Math.abs(currentDeltaX) > threshold;
+
+        const hasPrev = !!document.querySelector('.nav-chapters.previous');
+        const hasNext = !!document.querySelector('.nav-chapters.next');
+
+        pageEl.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+
+        if ((isFlick || isLongSwipe) && currentDeltaX > 0 && hasPrev) {
+            // Swipe Right -> Previous Page
+            pageEl.style.transform = 'translateX(100vw)';
+            const prevLinkElement = document.querySelector('.nav-chapters.previous');
+            const prevLink = prevLinkElement ? prevLinkElement.href : null;
+            if (prevLink) {
+                setTimeout(() => {
+                    window.location.href = prevLink;
+                }, 150);
+            }
+        } else if ((isFlick || isLongSwipe) && currentDeltaX < 0 && hasNext) {
+            // Swipe Left -> Next Page
+            pageEl.style.transform = 'translateX(-100vw)';
+            const nextLinkElement = document.querySelector('.nav-chapters.next');
+            const nextLink = nextLinkElement ? nextLinkElement.href : null;
+            if (nextLink) {
+                setTimeout(() => {
+                    window.location.href = nextLink;
+                }, 150);
+            }
+        } else {
+            // Snap back to starting position
+            pageEl.style.transform = 'translateX(0)';
+            
+            // Clean up inline styles after transitions finish
+            setTimeout(() => {
+                if (pageEl && !isHorizontalSwipe) {
+                    pageEl.style.transform = '';
+                    pageEl.style.transition = '';
+                }
+            }, 400);
+        }
+
+        isHorizontalSwipe = false;
+        pageEl = null;
+    }
+
+    document.addEventListener('touchend', handleTouchEndOrCancel, { passive: true });
+    document.addEventListener('touchcancel', handleTouchEndOrCancel, { passive: true });
+})();
+
+// Cache bust update: Force mobile browsers to detect a new hash update
