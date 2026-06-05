@@ -74,30 +74,32 @@
                         const now = Date.now();
                         if (!lastReload || (now - lastReload > 10000)) {
                             sessionStorage.setItem('last-error-reload', now);
-                            window.location.reload(true); // Force clear-cache reload from server
+                            // Force clear-cache reload by appending a query parameter
+                            window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
                         }
                     }
                 };
 
                 // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
-                // and compare the compiled script hash to detect if our local cached HTML is outdated.
+                // and compare the compiled script/css hashes to detect if our local cached HTML is outdated.
                 if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
                     sessionStorage.setItem('did-version-check', 'true');
-                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + Date.now();
-                    fetch(checkUrl)
+                    const now = Date.now();
+                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
+                    fetch(checkUrl, { cache: 'no-store' })
                         .then(response => response.text())
                         .then(htmlText => {
-                            // Find the lang-switcher script filename in the server's HTML response
-                            const match = htmlText.match(/lang-switcher-[a-f0-9]+\.js/);
-                            if (match) {
-                                const serverJsFile = match[0];
-                                // Check if this new script is already loaded in the document
-                                const currentScripts = Array.from(document.getElementsByTagName('script'));
-                                const isLoaded = currentScripts.some(s => s.src && s.src.indexOf(serverJsFile) !== -1);
-                                if (!isLoaded) {
-                                    // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
-                                    window.location.reload(true);
-                                }
+                            // Find all hashed CSS and JS filenames in the server's HTML response
+                            const newHashes = htmlText.match(/[a-zA-Z0-9_-]+-[a-f0-9]{8}\.(js|css)/g) || [];
+                            const currentHtml = document.documentElement.outerHTML;
+                            
+                            // If any hashed file on the server is not present in our current HTML, we are outdated
+                            const hasOutdated = newHashes.some(hash => currentHtml.indexOf(hash) === -1);
+                            
+                            if (hasOutdated) {
+                                // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
+                                // Using query param because mobile webviews often ignore reload(true)
+                                window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
                             }
                         })
                         .catch(err => console.warn("Cache check skipped:", err));

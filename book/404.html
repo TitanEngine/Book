@@ -56,80 +56,38 @@
                         const now = Date.now();
                         if (!lastReload || (now - lastReload > 10000)) {
                             sessionStorage.setItem('last-error-reload', now);
-                            window.location.replace(window.location.origin + window.location.pathname + '?v=' + now);
+                            // Force clear-cache reload by appending a query parameter
+                            window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
                         }
                     }
                 };
 
-                let lastChecked = 0;
-                function checkVersion() {
-                    if (!navigator.onLine) return;
+                // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
+                // and compare the compiled script/css hashes to detect if our local cached HTML is outdated.
+                if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
+                    sessionStorage.setItem('did-version-check', 'true');
                     const now = Date.now();
-                    // Throttle checks to at most once every 5 seconds to avoid spamming requests
-                    if (now - lastChecked < 5000) return;
-                    lastChecked = now;
-
                     const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
                     fetch(checkUrl, { cache: 'no-store' })
                         .then(response => response.text())
                         .then(htmlText => {
-                            // Find the lang-switcher script filename in the server's HTML response
-                            const match = htmlText.match(/lang-switcher-[a-f0-9]+\.js/);
-                            if (match) {
-                                const serverJsFile = match[0];
-                                // Check if this new script is already loaded in the document
-                                const currentScripts = Array.from(document.getElementsByTagName('script'));
-                                const isLoaded = currentScripts.some(s => s.src && s.src.indexOf(serverJsFile) !== -1);
-                                if (!isLoaded) {
-                                    // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
-                                    window.location.replace(window.location.origin + window.location.pathname + '?v=' + now);
-                                }
+                            // Find all hashed CSS and JS filenames in the server's HTML response
+                            const newHashes = htmlText.match(/[a-zA-Z0-9_-]+-[a-f0-9]{8}\.(js|css)/g) || [];
+                            const currentHtml = document.documentElement.outerHTML;
+                            
+                            // If any hashed file on the server is not present in our current HTML, we are outdated
+                            const hasOutdated = newHashes.some(hash => currentHtml.indexOf(hash) === -1);
+                            
+                            if (hasOutdated) {
+                                // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
+                                // Using query param because mobile webviews often ignore reload(true)
+                                window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
                             }
                         })
                         .catch(err => console.warn("Cache check skipped:", err));
                 }
-
-                // Rewrite URL to include version parameter for sharing
-                function updateUrlVersion() {
-                    const scripts = Array.from(document.getElementsByTagName('script'));
-                    for (const s of scripts) {
-                        if (s.src) {
-                            const match = s.src.match(/lang-switcher-([a-f0-9]+)\.js/);
-                            if (match) {
-                                const currentHash = match[1];
-                                const url = new URL(window.location.href);
-                                if (url.searchParams.get('v') !== currentHash) {
-                                    url.searchParams.set('v', currentHash);
-                                    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Check version on initial load
-                checkVersion();
-
-                // Check version when tab is brought to the foreground or restored
-                document.addEventListener('visibilitychange', function() {
-                    if (document.visibilityState === 'visible') {
-                        checkVersion();
-                    }
-                });
-                window.addEventListener('pageshow', function(event) {
-                    checkVersion();
-                });
-
-                // Run URL version rewriting
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', updateUrlVersion);
-                } else {
-                    updateUrlVersion();
-                }
             })();
         </script>
-
 
         <!-- Start loading toc.js asap -->
         <script src="toc-ce6044a5.js"></script>
