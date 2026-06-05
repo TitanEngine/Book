@@ -31,7 +31,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="mdbook-admonish-aec2573c.css">
+        <link rel="stylesheet" href="mdbook-admonish-c65fb30e.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -41,12 +41,17 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cdc83db6.js";
+            window.path_to_searchindex_js = "searchindex-b1777dd4.js";
         </script>
 
         <!-- Automatic client-side cache buster & version auto-updater -->
         <script>
             (function() {
+                // If we already appended ?v= to force reload, don't run the check again to prevent infinite loops
+                if (window.location.search.indexOf('v=') !== -1) {
+                    return;
+                }
+
                 // Global error handler for compiled scripts. If they fail to load due to a changed hash (404),
                 // it indicates that the browser is running a cached HTML page pointing to an outdated script hash.
                 window.handleScriptError = function() {
@@ -61,35 +66,35 @@
                     }
                 };
 
-                // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
-                // and compare the compiled script/css hashes to detect if our local cached HTML is outdated.
-                if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
-                    sessionStorage.setItem('did-version-check', 'true');
-                    const now = Date.now();
-                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
-                    fetch(checkUrl, { cache: 'no-store' })
-                        .then(response => response.text())
-                        .then(htmlText => {
-                            // Find all hashed CSS and JS filenames in the server's HTML response
-                            const newHashes = htmlText.match(/[a-zA-Z0-9_-]+-[a-f0-9]{8}\.(js|css)/g) || [];
-                            const currentHtml = document.documentElement.outerHTML;
-                            
-                            // If any hashed file on the server is not present in our current HTML, we are outdated
-                            const hasOutdated = newHashes.some(hash => currentHtml.indexOf(hash) === -1);
-                            
-                            if (hasOutdated) {
-                                // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
-                                // Using query param because mobile webviews often ignore reload(true)
-                                window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
-                            }
-                        })
-                        .catch(err => console.warn("Cache check skipped:", err));
-                }
+                // Run the check only after the page has fully loaded so we have the complete DOM
+                window.addEventListener('load', function() {
+                    if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
+                        sessionStorage.setItem('did-version-check', 'true');
+                        const now = Date.now();
+                        const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
+                        fetch(checkUrl, { cache: 'no-store' })
+                            .then(response => response.text())
+                            .then(htmlText => {
+                                // Find all hashed CSS and JS filenames in the server's HTML response
+                                const newHashes = htmlText.match(/[a-zA-Z0-9_-]+-[a-f0-9]{8}\.(js|css)/g) || [];
+                                const currentHtml = document.documentElement.outerHTML;
+                                
+                                // If any hashed file on the server is not present in our current HTML, we are outdated
+                                const hasOutdated = newHashes.some(hash => currentHtml.indexOf(hash) === -1);
+                                
+                                if (hasOutdated) {
+                                    // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
+                                    window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
+                                }
+                            })
+                            .catch(err => console.warn("Cache check skipped:", err));
+                    }
+                });
             })();
         </script>
 
         <!-- Start loading toc.js asap -->
-        <script src="toc-ce6044a5.js"></script>
+        <script src="toc-b8fc52c2.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -729,6 +734,9 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
 
+                            <a rel="next prefetch" href="Chapter_1/Chapter_1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -737,6 +745,9 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
 
+                    <a rel="next prefetch" href="Chapter_1/Chapter_1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>

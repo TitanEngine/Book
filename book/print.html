@@ -32,7 +32,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="mdbook-admonish-aec2573c.css">
+        <link rel="stylesheet" href="mdbook-admonish-c65fb30e.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -42,12 +42,17 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cdc83db6.js";
+            window.path_to_searchindex_js = "searchindex-b1777dd4.js";
         </script>
 
         <!-- Automatic client-side cache buster & version auto-updater -->
         <script>
             (function() {
+                // If we already appended ?v= to force reload, don't run the check again to prevent infinite loops
+                if (window.location.search.indexOf('v=') !== -1) {
+                    return;
+                }
+
                 // Global error handler for compiled scripts. If they fail to load due to a changed hash (404),
                 // it indicates that the browser is running a cached HTML page pointing to an outdated script hash.
                 window.handleScriptError = function() {
@@ -62,35 +67,35 @@
                     }
                 };
 
-                // Asynchronously fetch the current page HTML from the server (bypassing cache with a query string)
-                // and compare the compiled script/css hashes to detect if our local cached HTML is outdated.
-                if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
-                    sessionStorage.setItem('did-version-check', 'true');
-                    const now = Date.now();
-                    const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
-                    fetch(checkUrl, { cache: 'no-store' })
-                        .then(response => response.text())
-                        .then(htmlText => {
-                            // Find all hashed CSS and JS filenames in the server's HTML response
-                            const newHashes = htmlText.match(/[a-zA-Z0-9_-]+-[a-f0-9]{8}\.(js|css)/g) || [];
-                            const currentHtml = document.documentElement.outerHTML;
-                            
-                            // If any hashed file on the server is not present in our current HTML, we are outdated
-                            const hasOutdated = newHashes.some(hash => currentHtml.indexOf(hash) === -1);
-                            
-                            if (hasOutdated) {
-                                // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
-                                // Using query param because mobile webviews often ignore reload(true)
-                                window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
-                            }
-                        })
-                        .catch(err => console.warn("Cache check skipped:", err));
-                }
+                // Run the check only after the page has fully loaded so we have the complete DOM
+                window.addEventListener('load', function() {
+                    if (navigator.onLine && !sessionStorage.getItem('did-version-check')) {
+                        sessionStorage.setItem('did-version-check', 'true');
+                        const now = Date.now();
+                        const checkUrl = window.location.origin + window.location.pathname + '?cache_bust=' + now;
+                        fetch(checkUrl, { cache: 'no-store' })
+                            .then(response => response.text())
+                            .then(htmlText => {
+                                // Find all hashed CSS and JS filenames in the server's HTML response
+                                const newHashes = htmlText.match(/[a-zA-Z0-9_-]+-[a-f0-9]{8}\.(js|css)/g) || [];
+                                const currentHtml = document.documentElement.outerHTML;
+                                
+                                // If any hashed file on the server is not present in our current HTML, we are outdated
+                                const hasOutdated = newHashes.some(hash => currentHtml.indexOf(hash) === -1);
+                                
+                                if (hasOutdated) {
+                                    // Outdated HTML detected! Force a cache-clearing reload to fetch the latest HTML.
+                                    window.location.href = window.location.pathname + '?v=' + now + window.location.hash;
+                                }
+                            })
+                            .catch(err => console.warn("Cache check skipped:", err));
+                    }
+                });
             })();
         </script>
 
         <!-- Start loading toc.js asap -->
-        <script src="toc-ce6044a5.js"></script>
+        <script src="toc-b8fc52c2.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -724,6 +729,42 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
 </div>
 
 </div>
+
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="chapter-1"><a href="#chapter-1" class="header">Chapter 1</a></h1>
+<div class="lang-switch-container">
+  <button class="lang-btn active" onclick="switchLanguage(&#39;hinglish&#39;)">Hinglish</button>
+  <button class="lang-btn" onclick="switchLanguage(&#39;english&#39;)">English</button>
+  <button class="lang-btn" onclick="switchLanguage(&#39;spanish&#39;)">Español</button>
+</div>
+
+<h1 class="chapter-heading">
+  <span class="chapter-title-group">
+    <span class="first-letter">C</span><span class="rest-title">hapter 1</span>
+  </span>
+  <span class="chapter-subtitle">
+    <span class="lang-content lang-hinglish">Registers</span>
+    <span class="lang-content lang-english">Registers</span>
+    <span class="lang-content lang-spanish">Registros</span>
+  </span>
+  <span></span>
+</h1>
+
+<div class="fading-hr"></div>
+
+<div class="lang-marker" data-lang="hinglish"></div>
+
+<h2 id="registers-hinglish"><a class="header" href="#registers-hinglish">Registers (Hinglish)</a></h2>
+<p>Registers ke baare mein content yahan aayega…</p>
+<div class="lang-marker" data-lang="english"></div>
+
+<h2 id="registers-english"><a class="header" href="#registers-english">Registers (English)</a></h2>
+<p>Content about registers will go here…</p>
+<div class="lang-marker" data-lang="spanish"></div>
+
+<h2 id="registros-español"><a class="header" href="#registros-español">Registros (Español)</a></h2>
+<p>El contenido sobre los registros se escribirá aquí…</p>
+<div class="lang-marker" data-lang="shared"></div>
 
 
                     </main>

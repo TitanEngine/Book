@@ -1202,3 +1202,91 @@ img, iframe {
   }
 }
 
+/* Chapter Title Heading Styling */
+.chapter-heading {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* Symmetric grid columns for centering */
+  align-items: baseline;
+  margin-top: 30px;
+  margin-bottom: 5px;
+  line-height: 1;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.chapter-heading .chapter-title-group {
+  display: flex;
+  align-items: baseline;
+  justify-self: start;
+}
+
+.chapter-heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0.8rem; /* shifted slightly to the right, past the start of C */
+  height: 2px;
+  width: 7.7rem; /* extends to e */
+  background: linear-gradient(
+    to right,
+    rgba(162, 123, 92, 1) 0%,      /* maximum visibility at start */
+    rgba(162, 123, 92, 0.05) 95%,   /* 95% visibility gone by e */
+    transparent 100%
+  );
+}
+
+.chapter-heading .first-letter {
+  font-size: 5.5rem; /* ~3x base header size */
+  color: #a27b5c; /* elegant light brown */
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 0.85;
+  font-weight: normal;
+  display: inline-block;
+}
+
+.chapter-heading .rest-title {
+  font-size: 2.2rem;
+  color: #a27b5c;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-style: italic;
+  font-weight: normal;
+  margin-left: 2px;
+}
+
+.chapter-heading .chapter-subtitle {
+  justify-self: center; /* Center horizontally inside middle grid column */
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-style: italic; /* Use the same font style as hapter 1 (italics) */
+  font-size: 3.2rem; /* Reduced by an additional 16% for perfect proportions */
+  color: #855838; /* elegant, slightly darker brown than Chapter 1 */
+  font-weight: normal;
+  line-height: 0.85;
+}
+
+/* Force inline display for active subtitle language spans to preserve baseline flex alignment */
+.chapter-subtitle .lang-content {
+  display: none !important;
+}
+.chapter-subtitle .lang-content.active {
+  display: inline !important;
+}
+
+/* Fading Horizontal Rule */
+.fading-hr {
+  height: 1.5px;
+  width: 100%;
+  margin: 10px 0 40px 0;
+  border: none;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 15%,
+    rgba(162, 123, 92, 0.4) 30%,
+    rgba(162, 123, 92, 0.4) 70%,
+    transparent 85%,
+    transparent 100%
+  );
+}
+
+
