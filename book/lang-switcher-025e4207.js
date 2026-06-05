@@ -560,6 +560,20 @@ function initLanguageToggle() {
 
     // Filter sidebar ToC once built dynamically
     setTimeout(updateSidebarToC, 100);
+
+    // Reveal page content only after MathJax typesetting is complete to prevent raw text flash and layout shifts
+    if (window.MathJax && window.MathJax.Hub) {
+        window.MathJax.Hub.Queue(function() {
+            document.documentElement.classList.add('lang-ready');
+        });
+    } else {
+        document.documentElement.classList.add('lang-ready');
+    }
+    
+    // Safety fallback timeout
+    setTimeout(() => {
+        document.documentElement.classList.add('lang-ready');
+    }, 800);
 }
 
 let activeTooltip = null;

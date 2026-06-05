@@ -1394,3 +1394,17 @@ html, body, .page-wrapper {
   left: 100% !important;
 }
 
+/* Prevent layout shift and flashes on load: hide content wrapper until language and MathJax are ready */
+html.js #mdbook-content main {
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+html.js.lang-ready #mdbook-content main {
+  opacity: 1;
+}
+
+/* Ensure the main content inside swipe previews is always visible during gesture drag */
+.swipe-preview-panel #mdbook-content main {
+  opacity: 1 !important;
+}
