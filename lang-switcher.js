@@ -1032,3 +1032,5 @@ document.addEventListener('keydown', (e) => {
         });
     }
 });
+
+// Cache bust update: Force mobile browsers to detect a new hash
