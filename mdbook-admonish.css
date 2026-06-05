@@ -1363,5 +1363,37 @@ html, body, .page-wrapper {
   }
 }
 
+/* Force page container overflow settings for horizontal swipe slides visibility */
+.page {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Hide horizontal scrollbar clips on page wrapper */
+.page-wrapper {
+  overflow-x: hidden !important;
+}
+
+/* Swipe Preview Panels styling (native app overlay look) */
+.swipe-preview-panel {
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  background-color: var(--bg) !important; /* Matches theme background to keep content solid */
+}
+
+.swipe-prev-panel {
+  left: -100% !important;
+}
+
+.swipe-next-panel {
+  left: 100% !important;
+}
+
+
 
 

@@ -970,6 +970,113 @@ document.addEventListener('keydown', (e) => {
 
 // Premium Navigation System: Desktop Hover Edge Reveal & Mobile Touch Swipe Navigation
 (function() {
+    // Helper to sync language inside adjacent preview panels
+    function syncPanelLanguage(panel, lang) {
+        const contents = panel.querySelectorAll('.lang-content');
+        contents.forEach(el => {
+            if (el.classList.contains('lang-' + lang)) {
+                el.style.display = 'block';
+                el.classList.add('active');
+                el.style.opacity = '1';
+            } else {
+                el.style.display = 'none';
+                el.classList.remove('active');
+                el.style.opacity = '0';
+            }
+        });
+    }
+
+    // Fetch adjacent pages asynchronously and render side panels
+    function initSwipePreviews() {
+        if (window.innerWidth > 1024) return; // Swipe previews only on mobile
+        
+        const prevLinkElement = document.querySelector('.nav-chapters.previous');
+        const prevHref = prevLinkElement ? prevLinkElement.getAttribute('href') : null;
+        
+        const nextLinkElement = document.querySelector('.nav-chapters.next');
+        const nextHref = nextLinkElement ? nextLinkElement.getAttribute('href') : null;
+        
+        const pageEl = document.querySelector('.page');
+        if (!pageEl) return;
+        
+        const savedLang = localStorage.getItem('preferred-language') || 'hinglish';
+
+        if (prevHref) {
+            fetch(prevHref)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const content = doc.querySelector('.page');
+                    if (content) {
+                        const prevPanel = document.createElement('div');
+                        prevPanel.className = 'swipe-preview-panel swipe-prev-panel';
+                        prevPanel.innerHTML = content.innerHTML;
+                        syncPanelLanguage(prevPanel, savedLang);
+                        pageEl.appendChild(prevPanel);
+                    }
+                })
+                .catch(err => console.warn("Failed to fetch prev page preview:", err));
+        }
+
+        if (nextHref) {
+            fetch(nextHref)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const content = doc.querySelector('.page');
+                    if (content) {
+                        const nextPanel = document.createElement('div');
+                        nextPanel.className = 'swipe-preview-panel swipe-next-panel';
+                        nextPanel.innerHTML = content.innerHTML;
+                        syncPanelLanguage(nextPanel, savedLang);
+                        pageEl.appendChild(nextPanel);
+                    }
+                })
+                .catch(err => console.warn("Failed to fetch next page preview:", err));
+        }
+    }
+
+    // Wiggle/nudge hint on page load
+    function triggerSwipeWiggleHint() {
+        if (window.innerWidth > 1024) return; // Only on mobile
+        
+        const pageEl = document.querySelector('.page');
+        if (!pageEl) return;
+        
+        const hasNext = !!document.querySelector('.nav-chapters.next');
+        const hasPrev = !!document.querySelector('.nav-chapters.previous');
+        
+        let nudgeAmount = 0;
+        if (hasNext) {
+            nudgeAmount = -30;
+        } else if (hasPrev) {
+            nudgeAmount = 30;
+        }
+        
+        if (nudgeAmount === 0) return;
+        
+        setTimeout(() => {
+            if (document.body.classList.contains('drawer-open') || document.body.classList.contains('sidebar-visible')) {
+                return;
+            }
+            
+            pageEl.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+            pageEl.style.transform = `translateX(${nudgeAmount}px)`;
+            
+            setTimeout(() => {
+                pageEl.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                pageEl.style.transform = 'translateX(0)';
+                
+                setTimeout(() => {
+                    pageEl.style.transform = '';
+                    pageEl.style.transition = '';
+                }, 600);
+            }, 350);
+        }, 800);
+    }
+
     // 1. Desktop Edge Hover Navigation Reveal Handler
     document.addEventListener('mousemove', (e) => {
         if (window.innerWidth <= 1024) return; // Only run on desktop viewports
@@ -1135,6 +1242,20 @@ document.addEventListener('keydown', (e) => {
 
     document.addEventListener('touchend', handleTouchEndOrCancel, { passive: true });
     document.addEventListener('touchcancel', handleTouchEndOrCancel, { passive: true });
+
+    // Initialize swipe preview panels and wiggle hint on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initSwipePreviews();
+            triggerSwipeWiggleHint();
+        });
+    } else {
+        initSwipePreviews();
+        triggerSwipeWiggleHint();
+    }
 })();
+
+// Cache bust update: Force mobile browsers to detect a new hash update
+
 
 // Cache bust update: Force mobile browsers to detect a new hash update
