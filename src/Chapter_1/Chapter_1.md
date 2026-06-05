@@ -1,7 +1,16 @@
 <div class="lang-switch-container">
-  <button class="lang-btn active" onclick="switchLanguage('hinglish')">Hinglish</button>
-  <button class="lang-btn" onclick="switchLanguage('english')">English</button>
-  <button class="lang-btn" onclick="switchLanguage('spanish')">Español</button>
+  <div class="lang-dropdown">
+    <button class="lang-dropdown-trigger" onclick="toggleLangDropdown(event)" aria-haspopup="true" aria-expanded="false">
+      <span class="lang-globe-icon">🌐</span>
+      <span class="current-lang-text">Hinglish</span>
+      <span class="chevron-arrow">▼</span>
+    </button>
+    <div class="lang-dropdown-menu">
+      <button class="lang-dropdown-item active" data-lang="hinglish" onclick="selectLanguage('hinglish', event)">Hinglish</button>
+      <button class="lang-dropdown-item" data-lang="english" onclick="selectLanguage('english', event)">English</button>
+      <button class="lang-dropdown-item" data-lang="spanish" onclick="selectLanguage('spanish', event)">Español</button>
+    </div>
+  </div>
 </div>
 
 <h1 class="chapter-heading">

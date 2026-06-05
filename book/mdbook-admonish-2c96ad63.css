@@ -372,49 +372,135 @@ summary.admonition-title::-webkit-details-marker {
 /* Custom Language Switcher styling */
 .lang-switch-container {
   display: flex;
-  gap: 8px;
   justify-content: flex-end;
   margin: 15px 24px 25px 24px;
   position: sticky;
   top: 10px;
   z-index: 100;
+  height: 38px; /* Stable fixed height to reserve space and prevent layout shifts */
 }
-.lang-btn {
-  background: rgba(255, 255, 255, 0.15);
+
+.lang-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.lang-dropdown-trigger {
+  background: rgba(120, 120, 120, 0.1);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(120, 120, 120, 0.2);
   color: var(--fg);
   padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
-  font-size: 0.95em;
+  font-size: 0.9em;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  height: 38px;
+  box-sizing: border-box;
 }
-.lang-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
+
+.lang-dropdown-trigger:hover {
+  background: rgba(120, 120, 120, 0.18);
+  border-color: rgba(120, 120, 120, 0.3);
 }
-.lang-btn.active {
-  background: #3B2E2A;
-  color: #fff;
-  border-color: #3B2E2A;
-  box-shadow: 0 4px 10px rgba(59, 46, 42, 0.25);
+
+.lang-globe-icon {
+  font-size: 1.1em;
 }
-.coal .lang-btn, .navy .lang-btn, .ayu .lang-btn {
+
+.chevron-arrow {
+  font-size: 0.75em;
+  transition: transform 0.2s ease-in-out;
+  display: inline-block;
+  opacity: 0.7;
+}
+
+.lang-dropdown.open .chevron-arrow {
+  transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--theme-hover);
+  border-radius: 12px;
+  min-width: 140px;
+  padding: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px) scale(0.95);
+  transform-origin: top right;
+  transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+.lang-dropdown.open .lang-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.lang-dropdown-item {
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease-in-out, color 0.15s ease-in-out;
+  display: block;
+  box-sizing: border-box;
+}
+
+.lang-dropdown-item:hover {
+  background: var(--theme-hover);
+}
+
+.lang-dropdown-item.active {
+  background-color: var(--theme-hover);
+  color: var(--fg);
+  font-weight: 600;
+  border-left: 3px solid #3B2E2A;
+  border-radius: 0 8px 8px 0; /* adjust radius to account for left border */
+  padding-left: 13px; /* shift padding slightly to account for border */
+}
+
+.rust .lang-dropdown-item.active, .light .lang-dropdown-item.active {
+  border-left-color: #3B2E2A;
+}
+
+.coal .lang-dropdown-item.active, .navy .lang-dropdown-item.active, .ayu .lang-dropdown-item.active {
+  border-left-color: var(--sidebar-fg); /* matches active text color of sidebar */
+}
+
+/* Dark theme specific modifications to make the dropdown overlay pop nicely */
+.coal .lang-dropdown-trigger, .navy .lang-dropdown-trigger, .ayu .lang-dropdown-trigger {
   background: rgba(0, 0, 0, 0.4);
   border-color: rgba(255, 255, 255, 0.08);
 }
-.coal .lang-btn:hover, .navy .lang-btn:hover, .ayu .lang-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.coal .lang-dropdown-trigger:hover, .navy .lang-dropdown-trigger:hover, .ayu .lang-dropdown-trigger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
 }
-.coal .lang-btn.active, .navy .lang-btn.active, .ayu .lang-btn.active {
-  background: #3B2E2A;
-  color: #fff;
-  border-color: #3B2E2A;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+.coal .lang-dropdown-menu, .navy .lang-dropdown-menu, .ayu .lang-dropdown-menu {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
 }
 
 /* Dynamic Keyword Hover Tooltip Styling */
@@ -755,32 +841,21 @@ summary.admonition-title::-webkit-details-marker {
     font-size: 0.68rem !important;
   }
 
-  /* Language Switcher to Flat GitHub Tags on Mobile/Split Screen */
+  /* Mobile Language Switcher Styles */
   .lang-switch-container {
     justify-content: center !important;
     margin: 15px 0 25px 0 !important;
     position: relative !important;
     top: auto !important;
+    height: 38px !important;
   }
-  
-  .lang-btn {
-    background: rgba(120, 120, 120, 0.1) !important;
-    color: var(--fg) !important;
-    border: 1px solid transparent !important;
-    border-radius: 6px !important; /* GitHub tag rectangular design */
-    padding: 6px 12px !important; /* Increased for better readability on desktop split-screen */
-    font-size: 0.88rem !important; /* Readable text size */
-    font-weight: 500 !important;
-    box-shadow: none !important;
-    transition: all 0.15s ease-in-out !important;
+  .lang-dropdown-menu {
+    right: 50% !important;
+    transform: translateX(50%) translateY(-8px) scale(0.95) !important;
+    transform-origin: top center !important;
   }
-  
-  /* Active Cohesive Color for GitHub tags */
-  .lang-btn.active {
-    background-color: #3B2E2A !important;
-    color: #ffffff !important;
-    border: 1px solid #3B2E2A !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  .lang-dropdown.open .lang-dropdown-menu {
+    transform: translateX(50%) translateY(0) scale(1) !important;
   }
 }
 
@@ -800,64 +875,21 @@ summary.admonition-title::-webkit-details-marker {
     font-size: 0.68rem !important;
   }
 
-  /* Language Switcher to Flat GitHub Tags on Mobile/Split Screen */
+  /* Mobile Language Switcher Styles */
   .lang-switch-container {
     justify-content: center !important;
     margin: 15px 0 25px 0 !important;
     position: relative !important;
     top: auto !important;
+    height: 38px !important;
   }
-  
-  .lang-btn {
-    background: rgba(120, 120, 120, 0.1) !important;
-    color: var(--fg) !important;
-    border: 1px solid transparent !important;
-    border-radius: 6px !important; /* GitHub tag rectangular design */
-    padding: 6px 12px !important; /* Touch-friendly size */
-    font-size: 0.88rem !important; /* Readable text size */
-    font-weight: 500 !important;
-    box-shadow: none !important;
-    transition: all 0.15s ease-in-out !important;
+  .lang-dropdown-menu {
+    right: 50% !important;
+    transform: translateX(50%) translateY(-8px) scale(0.95) !important;
+    transform-origin: top center !important;
   }
-  
-  /* Active Distinct Colors for GitHub tags (Light Theme values by default) */
-  .lang-btn[onclick*="hinglish"].active {
-    background-color: rgba(240, 140, 0, 0.12) !important;
-    color: #e65100 !important;
-    border: 1px solid rgba(240, 140, 0, 0.25) !important;
-  }
-  .lang-btn[onclick*="english"].active {
-    background-color: rgba(68, 138, 255, 0.12) !important;
-    color: #0d47a1 !important;
-    border: 1px solid rgba(68, 138, 255, 0.25) !important;
-  }
-  .lang-btn[onclick*="spanish"].active {
-    background-color: rgba(76, 175, 80, 0.12) !important;
-    color: #1b5e20 !important;
-    border: 1px solid rgba(76, 175, 80, 0.25) !important;
-  }
-
-  /* Active Distinct Colors for Dark Themes (coal, navy, ayu) */
-  .coal .lang-btn[onclick*="hinglish"].active,
-  .navy .lang-btn[onclick*="hinglish"].active,
-  .ayu .lang-btn[onclick*="hinglish"].active {
-    background-color: rgba(240, 140, 0, 0.2) !important;
-    color: #ffb74d !important;
-    border: 1px solid rgba(240, 140, 0, 0.4) !important;
-  }
-  .coal .lang-btn[onclick*="english"].active,
-  .navy .lang-btn[onclick*="english"].active,
-  .ayu .lang-btn[onclick*="english"].active {
-    background-color: rgba(68, 138, 255, 0.2) !important;
-    color: #90caf9 !important;
-    border: 1px solid rgba(68, 138, 255, 0.4) !important;
-  }
-  .coal .lang-btn[onclick*="spanish"].active,
-  .navy .lang-btn[onclick*="spanish"].active,
-  .ayu .lang-btn[onclick*="spanish"].active {
-    background-color: rgba(76, 175, 80, 0.2) !important;
-    color: #a5d6a7 !important;
-    border: 1px solid rgba(76, 175, 80, 0.4) !important;
+  .lang-dropdown.open .lang-dropdown-menu {
+    transform: translateX(50%) translateY(0) scale(1) !important;
   }
 
   /* 1. Sidebar Left Drawer Overlay (Floating drawer on top, no gap created) */

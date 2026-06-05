@@ -450,6 +450,43 @@ function updateSidebarToC() {
     }
 }
 
+function toggleLangDropdown(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const trigger = event.currentTarget;
+    const dropdown = trigger.closest('.lang-dropdown');
+    if (!dropdown) return;
+    
+    const isOpen = dropdown.classList.contains('open');
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.lang-dropdown').forEach(d => {
+        d.classList.remove('open');
+        const t = d.querySelector('.lang-dropdown-trigger');
+        if (t) t.setAttribute('aria-expanded', 'false');
+    });
+    
+    if (!isOpen) {
+        dropdown.classList.add('open');
+        trigger.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function selectLanguage(lang, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    switchLanguage(lang);
+    
+    // Close all dropdowns
+    document.querySelectorAll('.lang-dropdown').forEach(d => {
+        d.classList.remove('open');
+        const t = d.querySelector('.lang-dropdown-trigger');
+        if (t) t.setAttribute('aria-expanded', 'false');
+    });
+}
+
 function switchLanguage(lang) {
     const contents = document.querySelectorAll('.lang-content');
     
@@ -499,12 +536,38 @@ function switchLanguage(lang) {
         performSwitch();
     }
     
+    // Sync legacy buttons (if any exist in DOM)
     const buttons = document.querySelectorAll('.lang-btn');
     buttons.forEach(btn => {
         btn.classList.remove('active');
-        if (btn.getAttribute('onclick').includes(lang)) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(lang)) {
             btn.classList.add('active');
         }
+    });
+
+    // Sync new dropdown elements active state and update trigger text
+    const langNames = {
+        hinglish: 'Hinglish',
+        english: 'English',
+        spanish: 'Español'
+    };
+
+    const dropdowns = document.querySelectorAll('.lang-dropdown');
+    dropdowns.forEach(d => {
+        const textEl = d.querySelector('.current-lang-text');
+        if (textEl) {
+            textEl.textContent = langNames[lang] || lang;
+        }
+        
+        const items = d.querySelectorAll('.lang-dropdown-item');
+        items.forEach(item => {
+            item.classList.remove('active');
+            const itemLang = item.getAttribute('data-lang');
+            const itemOnclick = item.getAttribute('onclick');
+            if (itemLang === lang || (itemOnclick && itemOnclick.includes(lang))) {
+                item.classList.add('active');
+            }
+        });
     });
 
     localStorage.setItem('preferred-language', lang);
@@ -846,6 +909,15 @@ function initTooltips() {
 
     // Click handler to open the dynamic keyword deep dive drawer or show/hide tooltip
     document.addEventListener('click', (e) => {
+        // Close language dropdowns if clicked outside
+        if (!e.target.closest('.lang-dropdown')) {
+            document.querySelectorAll('.lang-dropdown').forEach(d => {
+                d.classList.remove('open');
+                const t = d.querySelector('.lang-dropdown-trigger');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            });
+        }
+
         // Close sidebar on mobile/split-screen if clicked outside the sidebar and not on the sidebar toggle icon
         const isSidebarOverlay = window.innerWidth <= 1024;
         if (isSidebarOverlay && document.documentElement.classList.contains('sidebar-visible')) {
@@ -1356,7 +1428,10 @@ document.addEventListener('keydown', (e) => {
             const prevLink = prevLinkElement ? prevLinkElement.href : null;
             if (prevLink) {
                 setTimeout(() => {
-                    window.location.href = prevLink;
+                    const swapped = navigateToPage(prevLink, 'prev');
+                    if (!swapped) {
+                        window.location.href = prevLink;
+                    }
                 }, 300); // Wait for transition to complete
             }
         } else if ((isFlick || isLongSwipe) && currentDeltaX < 0 && hasNext) {
@@ -1366,7 +1441,10 @@ document.addEventListener('keydown', (e) => {
             const nextLink = nextLinkElement ? nextLinkElement.href : null;
             if (nextLink) {
                 setTimeout(() => {
-                    window.location.href = nextLink;
+                    const swapped = navigateToPage(nextLink, 'next');
+                    if (!swapped) {
+                        window.location.href = nextLink;
+                    }
                 }, 300); // Wait for transition to complete
             }
         } else {
@@ -1388,6 +1466,164 @@ document.addEventListener('keydown', (e) => {
 
     document.addEventListener('touchend', handleTouchEndOrCancel, { passive: true });
     document.addEventListener('touchcancel', handleTouchEndOrCancel, { passive: true });
+
+    function updateSidebarActiveLink(url) {
+        const sidebar = document.querySelector('.sidebar-scrollbox');
+        if (!sidebar) return;
+        
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        let pathname = new URL(url, window.location.origin).pathname;
+        if (pathname.endsWith('/')) {
+            pathname += 'index.html';
+        }
+        
+        sidebar.querySelectorAll('a').forEach(link => {
+            const linkPath = new URL(link.href, window.location.origin).pathname;
+            if (linkPath === pathname || (pathname.endsWith('index.html') && linkPath.endsWith('index.html'))) {
+                link.classList.add('active');
+                link.scrollIntoView({ block: 'nearest' });
+            }
+        });
+    }
+
+    function navigateToPage(url, direction) {
+        const pageEl = document.querySelector('.page');
+        if (!pageEl) return false;
+        
+        const isNext = direction === 'next';
+        const panelClass = isNext ? '.swipe-next-panel' : '.swipe-prev-panel';
+        const panel = pageEl.querySelector(panelClass);
+        
+        if (!panel) return false;
+        
+        // 1. Update URL history
+        window.history.pushState(null, '', url);
+        
+        // 2. Perform the swap
+        const newMenuBar = panel.querySelector('#mdbook-menu-bar');
+        const newContent = panel.querySelector('#mdbook-content');
+        
+        if (!newMenuBar || !newContent) return false;
+        
+        const currentMenuBar = pageEl.querySelector('#mdbook-menu-bar');
+        const currentContent = pageEl.querySelector('#mdbook-content');
+        
+        if (currentMenuBar) currentMenuBar.replaceWith(newMenuBar.cloneNode(true));
+        if (currentContent) currentContent.replaceWith(newContent.cloneNode(true));
+        
+        // Scroll page to top
+        window.scrollTo(0, 0);
+        
+        // 3. Remove preview panels
+        pageEl.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
+        
+        // Reset page transformations
+        pageEl.style.transform = '';
+        pageEl.style.transition = '';
+        
+        // 4. Update sidebar link active state
+        updateSidebarActiveLink(url);
+        
+        // 5. Re-initialize page scripts
+        initLanguageToggle();
+        initKeywordDrawer();
+        initTooltips();
+        initSwipePreviews();
+        
+        return true;
+    }
+
+    function fetchPageAndSwap(url) {
+        const pageEl = document.querySelector('.page');
+        if (!pageEl) {
+            window.location.reload();
+            return;
+        }
+        
+        pageEl.style.transition = 'opacity 0.2s ease-in-out';
+        pageEl.style.opacity = '0.5';
+        
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newPage = doc.querySelector('.page');
+                
+                if (newPage) {
+                    const newMenuBar = newPage.querySelector('#mdbook-menu-bar');
+                    const newContent = newPage.querySelector('#mdbook-content');
+                    
+                    const currentMenuBar = pageEl.querySelector('#mdbook-menu-bar');
+                    const currentContent = pageEl.querySelector('#mdbook-content');
+                    
+                    if (newMenuBar && currentMenuBar) currentMenuBar.replaceWith(newMenuBar.cloneNode(true));
+                    if (newContent && currentContent) currentContent.replaceWith(newContent.cloneNode(true));
+                    
+                    window.scrollTo(0, 0);
+                    
+                    pageEl.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
+                    
+                    pageEl.style.transform = '';
+                    pageEl.style.transition = '';
+                    pageEl.style.opacity = '1';
+                    
+                    updateSidebarActiveLink(url);
+                    
+                    initLanguageToggle();
+                    initKeywordDrawer();
+                    initTooltips();
+                    initSwipePreviews();
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(() => {
+                window.location.reload();
+            });
+    }
+
+    // Intercept arrow clicks for SPA navigation
+    document.addEventListener('click', (e) => {
+        const arrow = e.target.closest('.nav-chapters, .mobile-nav-chapters');
+        if (arrow) {
+            const href = arrow.getAttribute('href');
+            if (!href) return;
+            
+            e.preventDefault();
+            
+            const isNext = arrow.classList.contains('next');
+            const direction = isNext ? 'next' : 'prev';
+            const pageEl = document.querySelector('.page');
+            
+            if (pageEl) {
+                const panelClass = isNext ? '.swipe-next-panel' : '.swipe-prev-panel';
+                const panel = pageEl.querySelector(panelClass);
+                
+                if (panel) {
+                    pageEl.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                    pageEl.style.transform = isNext ? 'translateX(-100vw)' : 'translateX(100vw)';
+                    
+                    setTimeout(() => {
+                        const swapped = navigateToPage(href, direction);
+                        if (!swapped) {
+                            window.location.href = href;
+                        }
+                    }, 300);
+                    return;
+                }
+            }
+            
+            window.location.href = href;
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        fetchPageAndSwap(window.location.href);
+    });
 
     // Initialize swipe preview panels and wiggle hint on DOM ready
     if (document.readyState === 'loading') {
