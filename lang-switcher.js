@@ -1042,17 +1042,26 @@ document.addEventListener('keydown', (e) => {
     function triggerSwipeWiggleHint() {
         if (window.innerWidth > 1024) return; // Only on mobile
         
+        // 1. Only run on the landing page (which has no previous page link)
+        const hasPrev = !!document.querySelector('.nav-chapters.previous');
+        if (hasPrev) return; // Not the landing page, exit!
+        
+        // 2. Check if we have already wiggled in this session, unless this is a page reload/refresh
+        const wiggleShown = sessionStorage.getItem('swipe-wiggle-shown');
+        const navigationEntries = performance.getEntriesByType('navigation');
+        const isReload = navigationEntries.length > 0 && navigationEntries[0].type === 'reload';
+        
+        if (wiggleShown && !isReload) {
+            return; // Already shown in this session and not a refresh, exit!
+        }
+        
         const pageEl = document.querySelector('.page');
         if (!pageEl) return;
         
         const hasNext = !!document.querySelector('.nav-chapters.next');
-        const hasPrev = !!document.querySelector('.nav-chapters.previous');
-        
         let nudgeAmount = 0;
         if (hasNext) {
             nudgeAmount = -30;
-        } else if (hasPrev) {
-            nudgeAmount = 30;
         }
         
         if (nudgeAmount === 0) return;
@@ -1061,6 +1070,9 @@ document.addEventListener('keydown', (e) => {
             if (document.body.classList.contains('drawer-open') || document.body.classList.contains('sidebar-visible')) {
                 return;
             }
+            
+            // Mark as shown for the current session
+            sessionStorage.setItem('swipe-wiggle-shown', 'true');
             
             pageEl.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
             pageEl.style.transform = `translateX(${nudgeAmount}px)`;
@@ -1076,6 +1088,7 @@ document.addEventListener('keydown', (e) => {
             }, 350);
         }, 800);
     }
+
 
     // 1. Desktop Edge Hover Navigation Reveal Handler
     document.addEventListener('mousemove', (e) => {
