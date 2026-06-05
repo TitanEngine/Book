@@ -970,6 +970,50 @@ document.addEventListener('keydown', (e) => {
 
 // Premium Navigation System: Desktop Hover Edge Reveal & Mobile Touch Swipe Navigation
 (function() {
+    // Helper to trigger MathJax typesetting on preview panels
+    function typesetElement(element) {
+        if (!window.MathJax) return;
+        if (window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([element]).catch(err => console.warn(err));
+        } else if (window.MathJax.typeset) {
+            window.MathJax.typeset([element]);
+        } else if (window.MathJax.Hub && window.MathJax.Hub.Queue) {
+            ensureMathJaxConfigured();
+            window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, element]);
+        }
+    }
+
+    // Trigger continuous slide-in animation on load if navigated via swipe
+    const htmlEl = document.documentElement;
+    const isSwipeNext = htmlEl.classList.contains('swipe-navigating-next');
+    const isSwipePrev = htmlEl.classList.contains('swipe-navigating-prev');
+    
+    if (isSwipeNext || isSwipePrev) {
+        try {
+            sessionStorage.removeItem('swipe-navigating');
+        } catch (e) {}
+        
+        const activePageEl = document.querySelector('.page');
+        if (activePageEl) {
+            // Force layout reflow
+            void activePageEl.offsetHeight;
+            
+            // Remove the block class to trigger transition
+            htmlEl.classList.remove('swipe-navigating-next', 'swipe-navigating-prev');
+            
+            // Apply the slide-in transition
+            activePageEl.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            activePageEl.style.transform = 'translateX(0)';
+            
+            setTimeout(() => {
+                activePageEl.style.transform = '';
+                activePageEl.style.transition = '';
+            }, 400);
+        } else {
+            htmlEl.classList.remove('swipe-navigating-next', 'swipe-navigating-prev');
+        }
+    }
+
     // Helper to sync language inside adjacent preview panels
     function syncPanelLanguage(panel, lang) {
         const contents = panel.querySelectorAll('.lang-content');
@@ -1014,6 +1058,7 @@ document.addEventListener('keydown', (e) => {
                         prevPanel.innerHTML = content.innerHTML;
                         syncPanelLanguage(prevPanel, savedLang);
                         pageEl.appendChild(prevPanel);
+                        typesetElement(prevPanel);
                     }
                 })
                 .catch(err => console.warn("Failed to fetch prev page preview:", err));
@@ -1032,6 +1077,7 @@ document.addEventListener('keydown', (e) => {
                         nextPanel.innerHTML = content.innerHTML;
                         syncPanelLanguage(nextPanel, savedLang);
                         pageEl.appendChild(nextPanel);
+                        typesetElement(nextPanel);
                     }
                 })
                 .catch(err => console.warn("Failed to fetch next page preview:", err));
@@ -1042,14 +1088,23 @@ document.addEventListener('keydown', (e) => {
     function triggerSwipeWiggleHint() {
         if (window.innerWidth > 1024) return; // Only on mobile
         
-        // 1. Only run on the landing page (which has no previous page link)
-        const hasPrev = !!document.querySelector('.nav-chapters.previous');
+        // 1. Mark as shown immediately for ANY page load in this session.
+        // This ensures that if the user starts or refreshes on another page first,
+        // they won't get a wiggle if they navigate back to the landing page later.
+        const wiggleShown = sessionStorage.getItem('swipe-wiggle-shown');
+        sessionStorage.setItem('swipe-wiggle-shown', 'true');
+        
+        // Track the visited paths in sessionStorage to reliably detect page refreshes/reloads
+        const currentPath = window.location.pathname;
+        const lastPath = sessionStorage.getItem('swipe-last-path');
+        sessionStorage.setItem('swipe-last-path', currentPath);
+        
+        // 2. Only run on the landing page (which has no previous page link)
+        const hasPrev = !!document.querySelector('.nav-chapters.previous') || !!document.querySelector('.mobile-nav-chapters.previous');
         if (hasPrev) return; // Not the landing page, exit!
         
-        // 2. Check if we have already wiggled in this session, unless this is a page reload/refresh
-        const wiggleShown = sessionStorage.getItem('swipe-wiggle-shown');
-        const navigationEntries = performance.getEntriesByType('navigation');
-        const isReload = navigationEntries.length > 0 && navigationEntries[0].type === 'reload';
+        // 3. Check if we have already wiggled in this session, unless this is a page reload/refresh of the landing page itself
+        const isReload = (lastPath === currentPath);
         
         if (wiggleShown && !isReload) {
             return; // Already shown in this session and not a refresh, exit!
@@ -1070,9 +1125,7 @@ document.addEventListener('keydown', (e) => {
             if (document.body.classList.contains('drawer-open') || document.body.classList.contains('sidebar-visible')) {
                 return;
             }
-            
-            // Mark as shown for the current session
-            sessionStorage.setItem('swipe-wiggle-shown', 'true');
+
             
             pageEl.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
             pageEl.style.transform = `translateX(${nudgeAmount}px)`;
@@ -1189,10 +1242,10 @@ document.addEventListener('keydown', (e) => {
             const hasPrev = !!document.querySelector('.nav-chapters.previous');
             const hasNext = !!document.querySelector('.nav-chapters.next');
 
-            let dragX = deltaX;
+            let dragX = deltaX * 0.85; // 0.85 mass resistance factor
             // Apply rubber-banding friction factor if pulling where no adjacent page exists
             if ((deltaX > 0 && !hasPrev) || (deltaX < 0 && !hasNext)) {
-                dragX = deltaX * 0.25;
+                dragX = deltaX * 0.22; // stronger rubber banding for weight feel
             }
 
             currentDeltaX = dragX;
@@ -1211,30 +1264,36 @@ document.addEventListener('keydown', (e) => {
         const isFlick = velocity > 0.5 && Math.abs(currentDeltaX) > 30;
         const isLongSwipe = Math.abs(currentDeltaX) > threshold;
 
-        const hasPrev = !!document.querySelector('.nav-chapters.previous');
-        const hasNext = !!document.querySelector('.nav-chapters.next');
+        const hasPrev = !!document.querySelector('.nav-chapters.previous') || !!document.querySelector('.mobile-nav-chapters.previous');
+        const hasNext = !!document.querySelector('.nav-chapters.next') || !!document.querySelector('.mobile-nav-chapters.next');
 
-        pageEl.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        pageEl.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
 
         if ((isFlick || isLongSwipe) && currentDeltaX > 0 && hasPrev) {
             // Swipe Right -> Previous Page
             pageEl.style.transform = 'translateX(100vw)';
-            const prevLinkElement = document.querySelector('.nav-chapters.previous');
+            const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
             const prevLink = prevLinkElement ? prevLinkElement.href : null;
             if (prevLink) {
+                try {
+                    sessionStorage.setItem('swipe-navigating', 'prev');
+                } catch (err) {}
                 setTimeout(() => {
                     window.location.href = prevLink;
-                }, 150);
+                }, 300); // Wait for transition to complete
             }
         } else if ((isFlick || isLongSwipe) && currentDeltaX < 0 && hasNext) {
             // Swipe Left -> Next Page
             pageEl.style.transform = 'translateX(-100vw)';
-            const nextLinkElement = document.querySelector('.nav-chapters.next');
+            const nextLinkElement = document.querySelector('.nav-chapters.next') || document.querySelector('.mobile-nav-chapters.next');
             const nextLink = nextLinkElement ? nextLinkElement.href : null;
             if (nextLink) {
+                try {
+                    sessionStorage.setItem('swipe-navigating', 'next');
+                } catch (err) {}
                 setTimeout(() => {
                     window.location.href = nextLink;
-                }, 150);
+                }, 300); // Wait for transition to complete
             }
         } else {
             // Snap back to starting position
@@ -1246,7 +1305,7 @@ document.addEventListener('keydown', (e) => {
                     pageEl.style.transform = '';
                     pageEl.style.transition = '';
                 }
-            }, 400);
+            }, 350);
         }
 
         isHorizontalSwipe = false;

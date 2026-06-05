@@ -64,6 +64,20 @@
         {{/if}}
         </script>
 
+        <!-- Pre-check swipe navigation state to prevent visual rendering flash -->
+        <script>
+            (function() {
+                try {
+                    const swipeNav = sessionStorage.getItem('swipe-navigating');
+                    if (swipeNav === 'next') {
+                        document.documentElement.classList.add('swipe-navigating-next');
+                    } else if (swipeNav === 'prev') {
+                        document.documentElement.classList.add('swipe-navigating-prev');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+
         <!-- Automatic client-side cache buster & version auto-updater -->
         <script>
             (function() {
