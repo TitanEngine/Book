@@ -167,6 +167,7 @@ function initSwipePreviews() {
                     const prevPanel = document.createElement('div');
                     prevPanel.className = 'swipe-preview-panel swipe-prev-panel';
                     prevPanel.innerHTML = content.innerHTML;
+                    prevPanel.pageTitle = doc.title; // Save fetched document title
                     if (wideNav) {
                         prevPanel.wideNavHTML = wideNav.outerHTML;
                     }
@@ -193,6 +194,7 @@ function initSwipePreviews() {
                     const nextPanel = document.createElement('div');
                     nextPanel.className = 'swipe-preview-panel swipe-next-panel';
                     nextPanel.innerHTML = content.innerHTML;
+                    nextPanel.pageTitle = doc.title; // Save fetched document title
                     if (wideNav) {
                         nextPanel.wideNavHTML = wideNav.outerHTML;
                     }
@@ -607,6 +609,16 @@ function navigateToPage(url, direction) {
     panel.style.position = '';
     panel.style.pointerEvents = '';
     
+    // Update document title
+    if (panel.pageTitle) {
+        document.title = panel.pageTitle;
+    }
+    
+    // Save reading progress to localStorage
+    try {
+        localStorage.setItem('last-visited-page', new URL(url, window.location.origin).href);
+    } catch(e) {}
+    
     // Remove other preview panels inside it
     panel.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
     
@@ -670,6 +682,16 @@ function fetchPageAndSwap(url) {
                 
                 const currentWideNav = document.querySelector('.nav-wide-wrapper');
                 if (currentWideNav && newWideNav) currentWideNav.replaceWith(newWideNav.cloneNode(true));
+                
+                // Update document title
+                if (doc.title) {
+                    document.title = doc.title;
+                }
+                
+                // Save reading progress to localStorage
+                try {
+                    localStorage.setItem('last-visited-page', new URL(url, window.location.origin).href);
+                } catch(e) {}
                 
                 window.scrollTo(0, 0);
                 
@@ -740,8 +762,21 @@ window.addEventListener('popstate', () => {
     fetchPageAndSwap(window.location.href);
 });
 
-// Initialize swipe preview panels, relative-to-absolute links, and wiggle hint on DOM ready
+// Initialize swipe preview panels, relative-to-absolute links, progress restoration, and wiggle hint on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Session-based reading progress restoration on first visit
+    try {
+        if (!sessionStorage.getItem('reading-redirected')) {
+            sessionStorage.setItem('reading-redirected', 'true');
+            const lastPage = localStorage.getItem('last-visited-page');
+            if (lastPage && lastPage !== window.location.href) {
+                window.location.href = lastPage;
+                return;
+            }
+        }
+        localStorage.setItem('last-visited-page', window.location.href);
+    } catch(e) {}
+
     absoluteifyLinks(document, window.location.href);
     initSwipePreviews();
     triggerSwipeWiggleHint();

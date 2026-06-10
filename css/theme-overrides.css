@@ -1,6 +1,25 @@
-/* Scrollbar stability */
-html {
+/* Scrollbar stability and overscroll containment */
+html, body {
   scrollbar-gutter: stable;
+  overscroll-behavior-y: contain; /* Prevents accidental pull-to-refresh page reloads */
+}
+
+/* Notch safe area margin padding support for modern mobile viewports */
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Push menu bar sticky header below status bars and notches */
+.menu-bar {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+/* Adjust sidebar alignment for notch margins */
+.sidebar {
+  padding-top: env(safe-area-inset-top, 0px) !important;
 }
 
 /* Global Text Box Safety to prevent container blowouts */
