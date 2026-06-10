@@ -135,6 +135,22 @@
         <script src="{{ resource "toc.js" }}"></script>
     </head>
     <body>
+    <!-- Universal Language Drawer -->
+    <div id="universal-lang-drawer" class="universal-lang-drawer">
+        <div class="lang-drawer-peak" onclick="toggleUniversalLangDrawer(event)" aria-label="Toggle language drawer">
+            <span class="lang-globe-icon">🌐</span>
+        </div>
+        <div class="lang-drawer-header">
+            <h3>Choose Language / भाषा चुनें</h3>
+        </div>
+        <div class="lang-drawer-body">
+            <button class="lang-drawer-item active" data-lang="hinglish" onclick="selectUniversalLanguage('hinglish', event)">Hinglish</button>
+            <button class="lang-drawer-item" data-lang="english" onclick="selectUniversalLanguage('english', event)">English</button>
+            <button class="lang-drawer-item" data-lang="spanish" onclick="selectUniversalLanguage('spanish', event)">Español</button>
+        </div>
+    </div>
+    <div id="universal-lang-overlay" class="universal-lang-overlay" onclick="closeUniversalLangDrawer()"></div>
+
     <div id="mdbook-help-container">
         <div id="mdbook-help-popup">
             <h2 class="mdbook-help-title">Keyboard shortcuts</h2>

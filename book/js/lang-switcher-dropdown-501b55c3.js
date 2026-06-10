@@ -151,6 +151,15 @@ function switchLanguage(lang, forceInstant = false) {
         });
     });
 
+    // Sync universal language drawer items
+    const drawerItems = document.querySelectorAll('.lang-drawer-item');
+    drawerItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-lang') === lang) {
+            item.classList.add('active');
+        }
+    });
+
     localStorage.setItem('preferred-language', lang);
 }
 
@@ -229,6 +238,11 @@ function initLanguageToggle(forceInstant = false) {
 }
 
 document.addEventListener('click', (e) => {
+    // Close universal language drawer if clicked outside
+    if (!e.target.closest('#universal-lang-drawer') && !e.target.closest('#universal-lang-overlay')) {
+        closeUniversalLangDrawer();
+    }
+
     // Close language dropdowns if clicked outside
     if (!e.target.closest('.lang-dropdown')) {
         document.querySelectorAll('.lang-dropdown').forEach(d => {
@@ -273,3 +287,39 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("ToC MutationObserver failed:", e);
     }
 });
+
+// Universal Language Drawer Control Functions
+function toggleUniversalLangDrawer(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const drawer = document.getElementById('universal-lang-drawer');
+    const overlay = document.getElementById('universal-lang-overlay');
+    if (drawer && overlay) {
+        const isOpen = drawer.classList.contains('open');
+        if (isOpen) {
+            drawer.classList.remove('open');
+            overlay.classList.remove('visible');
+        } else {
+            drawer.classList.add('open');
+            overlay.classList.add('visible');
+        }
+    }
+}
+
+function closeUniversalLangDrawer() {
+    const drawer = document.getElementById('universal-lang-drawer');
+    const overlay = document.getElementById('universal-lang-overlay');
+    if (drawer && overlay) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('visible');
+    }
+}
+
+function selectUniversalLanguage(lang, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    switchLanguage(lang);
+    closeUniversalLangDrawer();
+}

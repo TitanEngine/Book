@@ -1,3 +1,64 @@
+// BookPage Class representing a page object to manage its UI, JS, and CSS
+class BookPage {
+    constructor(role) {
+        this.role = role; // 'prev' | 'current' | 'next'
+        this.el = null;   // DOM element container
+        this.url = null;  // page url
+        this.title = '';  // document title
+        this.wideNavHTML = ''; // desktop navigation html
+    }
+
+    setElement(el, url, title = '') {
+        this.el = el;
+        this.url = url;
+        this.title = title || (el ? el.pageTitle || '' : '');
+    }
+
+    translate(x) {
+        if (this.el) {
+            this.el.style.transform = `translateX(${x}px)`;
+        }
+    }
+
+    setTransition(transitionStr) {
+        if (this.el) {
+            this.el.style.transition = transitionStr;
+        }
+    }
+
+    makeCurrent() {
+        if (!this.el) return;
+        this.role = 'current';
+        this.el.id = 'mdbook-content';
+        this.el.className = 'content';
+        this.el.style.transform = '';
+        this.el.style.transition = '';
+        this.el.style.left = '';
+        this.el.style.width = '';
+        this.el.style.height = '';
+        this.el.style.position = '';
+        this.el.style.pointerEvents = '';
+        
+        // Remove nested preview panels if any
+        this.el.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
+    }
+
+    destroy() {
+        if (this.el) {
+            this.el.remove();
+            this.el = null;
+        }
+        this.url = null;
+        this.title = '';
+        this.wideNavHTML = '';
+    }
+}
+
+// Global active page objects
+const currentPage = new BookPage('current');
+const previousPage = new BookPage('prev');
+const nextPage = new BookPage('next');
+
 // Absolute Link Resolver to convert relative links/images to absolute based on base URL
 function absoluteifyLinks(container, baseUrl) {
     if (!container) return;
@@ -144,14 +205,19 @@ function syncPanelLanguage(panel, lang) {
 function initSwipePreviews() {
     if (window.innerWidth > 1024) return; // Swipe previews only on mobile
     
+    // Clean up old objects first
+    previousPage.destroy();
+    nextPage.destroy();
+    
+    const contentEl = document.querySelector('#mdbook-content');
+    if (!contentEl) return;
+    currentPage.setElement(contentEl, window.location.href, document.title);
+    
     const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
     const prevHref = prevLinkElement ? prevLinkElement.href : null;
     
     const nextLinkElement = document.querySelector('.nav-chapters.next') || document.querySelector('.mobile-nav-chapters.next');
     const nextHref = nextLinkElement ? nextLinkElement.href : null;
-    
-    const contentEl = document.querySelector('#mdbook-content');
-    if (!contentEl) return;
     
     const savedLang = localStorage.getItem('preferred-language') || 'hinglish';
 
@@ -174,6 +240,10 @@ function initSwipePreviews() {
                     preparePreviewPanel(prevPanel, savedLang);
                     absoluteifyLinks(prevPanel, prevHref);
                     contentEl.appendChild(prevPanel);
+                    
+                    previousPage.setElement(prevPanel, prevHref, doc.title);
+                    previousPage.wideNavHTML = wideNav ? wideNav.outerHTML : '';
+                    
                     if (typeof typesetElement === 'function') {
                         typesetElement(prevPanel);
                     }
@@ -201,6 +271,10 @@ function initSwipePreviews() {
                     preparePreviewPanel(nextPanel, savedLang);
                     absoluteifyLinks(nextPanel, nextHref);
                     contentEl.appendChild(nextPanel);
+                    
+                    nextPage.setElement(nextPanel, nextHref, doc.title);
+                    nextPage.wideNavHTML = wideNav ? wideNav.outerHTML : '';
+                    
                     if (typeof typesetElement === 'function') {
                         typesetElement(nextPanel);
                     }
@@ -307,7 +381,6 @@ let touchStartY = 0;
 let touchStartTime = 0;
 let currentDeltaX = 0;
 let isHorizontalSwipe = false;
-let contentEl = null;
 
 document.addEventListener('touchstart', (e) => {
     if (window.innerWidth > 1024) return; // Swipe is only enabled on mobile/tablet viewports
@@ -338,22 +411,24 @@ document.addEventListener('touchstart', (e) => {
     touchStartTime = Date.now();
     currentDeltaX = 0;
     isHorizontalSwipe = false;
-    contentEl = document.querySelector('#mdbook-content');
     
+    // Bind currentPage element dynamically on touch start
+    const contentEl = document.querySelector('#mdbook-content');
     if (contentEl) {
-        contentEl.style.transition = 'none';
+        currentPage.setElement(contentEl, window.location.href, document.title);
+        currentPage.setTransition('none');
     }
 }, { passive: true });
 
 document.addEventListener('touchmove', (e) => {
-    if (!contentEl) return;
+    if (!currentPage.el) return;
 
     // Abort swipe if user starts selecting/highlighting text
     const selection = window.getSelection();
     if (selection && selection.toString().length > 0) {
-        contentEl.style.transform = '';
+        currentPage.clearStyles();
         isHorizontalSwipe = false;
-        contentEl = null;
+        currentPage.el = null;
         return;
     }
 
@@ -371,9 +446,9 @@ document.addEventListener('touchmove', (e) => {
         // Prevent default vertical page scrolling when horizontal swipe is active
         if (e.cancelable) e.preventDefault();
 
-        // Check if pages exist in respective directions
-        const hasPrev = !!document.querySelector('.nav-chapters.previous') || !!document.querySelector('.mobile-nav-chapters.previous');
-        const hasNext = !!document.querySelector('.nav-chapters.next') || !!document.querySelector('.mobile-nav-chapters.next');
+        // Check if pages exist in respective directions in our objects
+        const hasPrev = previousPage.url !== null && previousPage.el !== null;
+        const hasNext = nextPage.url !== null && nextPage.el !== null;
 
         let dragX = deltaX * 0.85; // 0.85 mass resistance factor
         // Apply rubber-banding friction factor if pulling where no adjacent page exists
@@ -382,67 +457,65 @@ document.addEventListener('touchmove', (e) => {
         }
 
         currentDeltaX = dragX;
-        contentEl.style.transform = `translateX(${dragX}px)`;
+        currentPage.translate(dragX);
     }
 }, { passive: false });
 
 function handleTouchEndOrCancel(e) {
-    if (!contentEl || !isHorizontalSwipe) return;
+    if (!currentPage.el || !isHorizontalSwipe) return;
 
     const timeDiff = Date.now() - touchStartTime;
-    const velocity = Math.abs(currentDeltaX) / timeDiff; // Pixels per millisecond
+    const dragX = currentDeltaX;
+    const velocity = Math.abs(dragX) / timeDiff; // Pixels per millisecond
     const threshold = window.innerWidth * 0.25; // 25% of screen width
 
     // Snappy flick: velocity > 0.5px/ms and minimum 30px drag distance
-    const isFlick = velocity > 0.5 && Math.abs(currentDeltaX) > 30;
-    const isLongSwipe = Math.abs(currentDeltaX) > threshold;
+    const isFlick = velocity > 0.5 && Math.abs(dragX) > 30;
+    const isLongSwipe = Math.abs(dragX) > threshold;
 
-    const hasPrev = !!document.querySelector('.nav-chapters.previous') || !!document.querySelector('.mobile-nav-chapters.previous');
-    const hasNext = !!document.querySelector('.nav-chapters.next') || !!document.querySelector('.mobile-nav-chapters.next');
+    const hasPrev = previousPage.url !== null && previousPage.el !== null;
+    const hasNext = nextPage.url !== null && nextPage.el !== null;
 
-    contentEl.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+    currentPage.setTransition('transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)');
 
-    if ((isFlick || isLongSwipe) && currentDeltaX > 0 && hasPrev) {
+    let targetDirection = null;
+
+    const onTransitionEnd = (event) => {
+        if (event.propertyName !== 'transform') return;
+        currentPage.el.removeEventListener('transitionend', onTransitionEnd);
+
+        if (targetDirection === 'prev') {
+            const swapped = navigateToPage(previousPage.url, 'prev');
+            if (!swapped) {
+                window.location.href = previousPage.url;
+            }
+        } else if (targetDirection === 'next') {
+            const swapped = navigateToPage(nextPage.url, 'next');
+            if (!swapped) {
+                window.location.href = nextPage.url;
+            }
+        } else {
+            currentPage.clearStyles();
+        }
+    };
+
+    currentPage.el.addEventListener('transitionend', onTransitionEnd);
+
+    if ((isFlick || isLongSwipe) && dragX > 0 && hasPrev) {
         // Swipe Right -> Previous Page
-        contentEl.style.transform = 'translateX(100vw)';
-        const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
-        const prevLink = prevLinkElement ? prevLinkElement.href : null;
-        if (prevLink) {
-            setTimeout(() => {
-                const swapped = navigateToPage(prevLink, 'prev');
-                if (!swapped) {
-                    window.location.href = prevLink;
-                }
-            }, 300); // Wait for transition to complete
-        }
-    } else if ((isFlick || isLongSwipe) && currentDeltaX < 0 && hasNext) {
+        targetDirection = 'prev';
+        currentPage.translate(window.innerWidth);
+    } else if ((isFlick || isLongSwipe) && dragX < 0 && hasNext) {
         // Swipe Left -> Next Page
-        contentEl.style.transform = 'translateX(-100vw)';
-        const nextLinkElement = document.querySelector('.nav-chapters.next') || document.querySelector('.mobile-nav-chapters.next');
-        const nextLink = nextLinkElement ? nextLinkElement.href : null;
-        if (nextLink) {
-            setTimeout(() => {
-                const swapped = navigateToPage(nextLink, 'next');
-                if (!swapped) {
-                    window.location.href = nextLink;
-                }
-            }, 300); // Wait for transition to complete
-        }
+        targetDirection = 'next';
+        currentPage.translate(-window.innerWidth);
     } else {
         // Snap back to starting position
-        contentEl.style.transform = 'translateX(0)';
-        
-        // Clean up inline styles after transitions finish
-        setTimeout(() => {
-            if (contentEl && !isHorizontalSwipe) {
-                contentEl.style.transform = '';
-                contentEl.style.transition = '';
-            }
-        }, 350);
+        targetDirection = 'reset';
+        currentPage.translate(0);
     }
 
     isHorizontalSwipe = false;
-    contentEl = null;
 }
 
 document.addEventListener('touchend', handleTouchEndOrCancel, { passive: true });
@@ -589,8 +662,8 @@ function navigateToPage(url, direction) {
     if (!contentEl) return false;
     
     const isNext = direction === 'next';
-    const panelClass = isNext ? '.swipe-next-panel' : '.swipe-prev-panel';
-    const panel = contentEl.querySelector(panelClass);
+    const pageObj = isNext ? nextPage : previousPage;
+    const panel = pageObj.el;
     
     if (!panel) return false;
     
@@ -598,20 +671,11 @@ function navigateToPage(url, direction) {
     window.history.pushState(null, '', url);
     
     // 2. Perform the swap
-    // Convert panel into the main content block directly to preserve already pre-rendered styles and equations
-    panel.id = 'mdbook-content';
-    panel.className = 'content';
-    panel.style.transform = '';
-    panel.style.transition = '';
-    panel.style.left = '';
-    panel.style.width = '';
-    panel.style.height = '';
-    panel.style.position = '';
-    panel.style.pointerEvents = '';
+    pageObj.makeCurrent();
     
     // Update document title
-    if (panel.pageTitle) {
-        document.title = panel.pageTitle;
+    if (pageObj.title) {
+        document.title = pageObj.title;
     }
     
     // Save reading progress to localStorage
@@ -619,14 +683,11 @@ function navigateToPage(url, direction) {
         localStorage.setItem('last-visited-page', new URL(url, window.location.origin).href);
     } catch(e) {}
     
-    // Remove other preview panels inside it
-    panel.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
-    
     // Swap wide navigation wrapper
     const currentWideNav = document.querySelector('.nav-wide-wrapper');
-    if (currentWideNav && panel.wideNavHTML) {
+    if (currentWideNav && pageObj.wideNavHTML) {
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = panel.wideNavHTML;
+        tempDiv.innerHTML = pageObj.wideNavHTML;
         const newWideNav = tempDiv.firstElementChild;
         if (newWideNav) {
             currentWideNav.replaceWith(newWideNav);
@@ -734,27 +795,27 @@ document.addEventListener('click', (e) => {
         
         const isNext = arrow.classList.contains('next');
         const direction = isNext ? 'next' : 'prev';
-        const contentEl = document.querySelector('#mdbook-content');
+        const pageObj = isNext ? nextPage : previousPage;
         
-        if (contentEl) {
-            const panelClass = isNext ? '.swipe-next-panel' : '.swipe-prev-panel';
-            const panel = contentEl.querySelector(panelClass);
+        if (currentPage.el && pageObj.el && pageObj.url) {
+            currentPage.setTransition('transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)');
             
-            if (panel) {
-                contentEl.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
-                contentEl.style.transform = isNext ? 'translateX(-100vw)' : 'translateX(100vw)';
+            const onTransitionEnd = (event) => {
+                if (event.propertyName !== 'transform') return;
+                currentPage.el.removeEventListener('transitionend', onTransitionEnd);
                 
-                setTimeout(() => {
-                    const swapped = navigateToPage(arrow.href, direction);
-                    if (!swapped) {
-                        window.location.href = arrow.href;
-                    }
-                }, 300);
-                return;
-            }
+                const swapped = navigateToPage(pageObj.url, direction);
+                if (!swapped) {
+                    window.location.href = pageObj.url;
+                }
+            };
+            
+            currentPage.el.addEventListener('transitionend', onTransitionEnd);
+            currentPage.translate(isNext ? -window.innerWidth : window.innerWidth);
+            return;
         }
         
-        window.location.href = arrow.href;
+        window.location.href = href;
     }
 });
 

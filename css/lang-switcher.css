@@ -1,12 +1,6 @@
 /* Custom Language Switcher styling */
 .lang-switch-container {
-  display: flex;
-  justify-content: flex-end;
-  margin: 15px 24px 25px 24px;
-  position: sticky;
-  top: 10px;
-  z-index: 100;
-  height: 38px; /* Stable fixed height to reserve space and prevent layout shifts */
+  display: none !important; /* Hide old inline dropdown switcher from all pages */
 }
 
 .lang-dropdown {
@@ -180,3 +174,184 @@
     font-weight: 600 !important;
   }
 }
+
+/* ==========================================================================
+   Universal Language Drawer Styling
+   ========================================================================== */
+.universal-lang-drawer {
+  position: fixed;
+  top: 25%;
+  right: 0;
+  width: 250px;
+  max-width: 80vw;
+  background: rgba(26, 26, 32, 0.94);
+  color: #f5f5f7;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px 0 0 16px;
+  box-shadow: -8px 0 35px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 100009; /* Sits above everything including sidebar and deep dive */
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px 20px;
+  box-sizing: border-box;
+}
+
+.universal-lang-drawer.open {
+  transform: translateX(0);
+}
+
+/* Peak Tab Handle on screen edge */
+.lang-drawer-peak {
+  position: absolute;
+  top: 20px;
+  left: -46px;
+  width: 46px;
+  height: 46px;
+  background: rgba(162, 123, 92, 0.95);
+  color: #fff;
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.18);
+  font-size: 1.3rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lang-drawer-peak:hover {
+  background: rgba(133, 88, 56, 1);
+  transform: scaleX(1.05);
+  transform-origin: right center;
+}
+
+/* Header inside drawer */
+.lang-drawer-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.lang-drawer-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  text-transform: uppercase;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Language Selection buttons list */
+.lang-drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lang-drawer-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e3e3e7;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lang-drawer-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.lang-drawer-item.active {
+  background: rgba(162, 123, 92, 0.15);
+  border-color: rgba(162, 123, 92, 0.4);
+  color: #f6d2b4;
+  font-weight: 600;
+  box-shadow: inset 0 0 8px rgba(162, 123, 92, 0.1);
+}
+
+.lang-drawer-item::after {
+  content: '✓';
+  opacity: 0;
+  font-size: 0.9rem;
+  transition: opacity 0.15s ease;
+}
+
+.lang-drawer-item.active::after {
+  opacity: 1;
+}
+
+/* Backdrop Overlay */
+.universal-lang-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 100008; /* Sits just below the drawer */
+}
+
+.universal-lang-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Theme Adaptive Styles for Universal Drawer */
+.light .universal-lang-drawer, .rust .universal-lang-drawer {
+  background: rgba(248, 248, 250, 0.95);
+  color: #2c2c30;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: -8px 0 35px rgba(0, 0, 0, 0.12);
+}
+
+.light .lang-drawer-header, .rust .lang-drawer-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+.light .lang-drawer-item, .rust .lang-drawer-item {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.05);
+  color: #3e3e42;
+}
+
+.light .lang-drawer-item:hover, .rust .lang-drawer-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1d1d1f;
+}
+
+.light .lang-drawer-item.active, .rust .lang-drawer-item.active {
+  background: rgba(162, 123, 92, 0.08);
+  border-color: rgba(162, 123, 92, 0.3);
+  color: #855838;
+}
+
+/* Theme color adjustments based on active mdbook theme */
+.navy .universal-lang-drawer {
+  background: rgba(15, 23, 42, 0.95);
+}
+.coal .universal-lang-drawer {
+  background: rgba(20, 20, 20, 0.95);
+}
+.ayu .universal-lang-drawer {
+  background: rgba(15, 20, 25, 0.95);
+}
+

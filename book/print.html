@@ -53,7 +53,7 @@
         <link rel="stylesheet" href="mdbook-admonish-3866bf65.css">
         <link rel="stylesheet" href="css/chapter-heading-ee8fec2a.css">
         <link rel="stylesheet" href="css/theme-overrides-b397af09.css">
-        <link rel="stylesheet" href="css/lang-switcher-beca8390.css">
+        <link rel="stylesheet" href="css/lang-switcher-0d10cb23.css">
         <link rel="stylesheet" href="css/hover-tooltip-f22e2404.css">
         <link rel="stylesheet" href="css/deepdive-drawer-386980a9.css">
         <link rel="stylesheet" href="css/swipe-nav-79d42617.css">
@@ -123,6 +123,22 @@
         <script src="toc-b8fc52c2.js"></script>
     </head>
     <body>
+    <!-- Universal Language Drawer -->
+    <div id="universal-lang-drawer" class="universal-lang-drawer">
+        <div class="lang-drawer-peak" onclick="toggleUniversalLangDrawer(event)" aria-label="Toggle language drawer">
+            <span class="lang-globe-icon">🌐</span>
+        </div>
+        <div class="lang-drawer-header">
+            <h3>Choose Language / भाषा चुनें</h3>
+        </div>
+        <div class="lang-drawer-body">
+            <button class="lang-drawer-item active" data-lang="hinglish" onclick="selectUniversalLanguage('hinglish', event)">Hinglish</button>
+            <button class="lang-drawer-item" data-lang="english" onclick="selectUniversalLanguage('english', event)">English</button>
+            <button class="lang-drawer-item" data-lang="spanish" onclick="selectUniversalLanguage('spanish', event)">Español</button>
+        </div>
+    </div>
+    <div id="universal-lang-overlay" class="universal-lang-overlay" onclick="closeUniversalLangDrawer()"></div>
+
     <div id="mdbook-help-container">
         <div id="mdbook-help-popup">
             <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
@@ -863,8 +879,8 @@ B1 Total 'Slip' (Displacement due to gravity and constraint resolution): 0.00004
         <script src="js/keyword-data-c8720f36.js" onerror="handleScriptError()"></script>
         <script src="js/hover-tooltip-11102337.js" onerror="handleScriptError()"></script>
         <script src="js/deepdive-drawer-d12f13cc.js" onerror="handleScriptError()"></script>
-        <script src="js/lang-switcher-dropdown-a041d8c4.js" onerror="handleScriptError()"></script>
-        <script src="js/swipe-nav-00c118ff.js" onerror="handleScriptError()"></script>
+        <script src="js/lang-switcher-dropdown-501b55c3.js" onerror="handleScriptError()"></script>
+        <script src="js/swipe-nav-899cdf00.js" onerror="handleScriptError()"></script>
 
         <script>
         window.addEventListener('load', function() {
