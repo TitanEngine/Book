@@ -93,7 +93,7 @@ html, body, .page-wrapper {
 }
 
 /* Swipe Preview Panels styling (native app overlay look) */
-.swipe-preview-panel {
+.content.swipe-preview-panel {
   position: absolute !important;
   top: 0 !important;
   width: 100% !important;
@@ -103,19 +103,14 @@ html, body, .page-wrapper {
   box-sizing: border-box !important;
   background-color: var(--bg) !important; /* Matches theme background to keep content solid */
   touch-action: pan-y !important;
-  visibility: hidden !important; /* Hide previews by default to prevent margin spill and rendering overhead */
+  visibility: visible !important; /* Keep visible so MathJax can render/typeset it offscreen */
 }
 
-/* Make preview panels visible only during active swipe navigation transitions */
-#mdbook-content.swiping .swipe-preview-panel {
-  visibility: visible !important;
-}
-
-.swipe-prev-panel {
+.content.swipe-prev-panel {
   left: -100% !important;
 }
 
-.swipe-next-panel {
+.content.swipe-next-panel {
   left: 100% !important;
 }
 
@@ -130,7 +125,7 @@ html.js.lang-ready #mdbook-content main {
 }
 
 /* Ensure the main content inside swipe previews is always visible during gesture drag */
-.swipe-preview-panel main {
+.content.swipe-preview-panel main {
   opacity: 1 !important;
 }
 

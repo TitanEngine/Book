@@ -6,12 +6,16 @@ class BookPage {
         this.url = null;  // page url
         this.title = '';  // document title
         this.wideNavHTML = ''; // desktop navigation html
+        this.isReady = false;  // Whether typesetting/rendering is complete
+        this.readyPromise = null; // Promise resolving when page is fully ready
     }
 
     setElement(el, url, title = '') {
         this.el = el;
         this.url = url;
         this.title = title || (el ? el.pageTitle || '' : '');
+        this.isReady = false;
+        this.readyPromise = null;
     }
 
     translate(x) {
@@ -39,9 +43,17 @@ class BookPage {
         this.el.style.height = '';
         this.el.style.position = '';
         this.el.style.pointerEvents = '';
+        this.el.removeAttribute('aria-hidden');
         
         // Remove nested preview panels if any
         this.el.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
+    }
+
+    clearStyles() {
+        if (this.el) {
+            this.el.style.transform = '';
+            this.el.style.transition = '';
+        }
     }
 
     destroy() {
@@ -52,6 +64,8 @@ class BookPage {
         this.url = null;
         this.title = '';
         this.wideNavHTML = '';
+        this.isReady = false;
+        this.readyPromise = null;
     }
 }
 
@@ -213,6 +227,8 @@ function initSwipePreviews() {
     const contentEl = document.querySelector('#mdbook-content');
     if (!contentEl) return;
     currentPage.setElement(contentEl, window.location.href, document.title);
+    currentPage.isReady = true;
+    currentPage.readyPromise = Promise.resolve();
     
     const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
     const prevHref = prevLinkElement ? prevLinkElement.href : null;
@@ -232,7 +248,8 @@ function initSwipePreviews() {
                 const wideNav = doc.querySelector('.nav-wide-wrapper');
                 if (content) {
                     const prevPanel = document.createElement('div');
-                    prevPanel.className = 'swipe-preview-panel swipe-prev-panel';
+                    prevPanel.className = 'content swipe-preview-panel swipe-prev-panel';
+                    prevPanel.setAttribute('aria-hidden', 'true');
                     prevPanel.innerHTML = content.innerHTML;
                     prevPanel.pageTitle = doc.title; // Save fetched document title
                     if (wideNav) {
@@ -245,8 +262,14 @@ function initSwipePreviews() {
                     previousPage.setElement(prevPanel, prevHref, doc.title);
                     previousPage.wideNavHTML = wideNav ? wideNav.outerHTML : '';
                     
+                    previousPage.isReady = false;
                     if (typeof typesetElement === 'function') {
-                        typesetElement(prevPanel);
+                        previousPage.readyPromise = typesetElement(prevPanel).then(() => {
+                            previousPage.isReady = true;
+                        });
+                    } else {
+                        previousPage.isReady = true;
+                        previousPage.readyPromise = Promise.resolve();
                     }
                 }
             })
@@ -263,7 +286,8 @@ function initSwipePreviews() {
                 const wideNav = doc.querySelector('.nav-wide-wrapper');
                 if (content) {
                     const nextPanel = document.createElement('div');
-                    nextPanel.className = 'swipe-preview-panel swipe-next-panel';
+                    nextPanel.className = 'content swipe-preview-panel swipe-next-panel';
+                    nextPanel.setAttribute('aria-hidden', 'true');
                     nextPanel.innerHTML = content.innerHTML;
                     nextPanel.pageTitle = doc.title; // Save fetched document title
                     if (wideNav) {
@@ -276,8 +300,14 @@ function initSwipePreviews() {
                     nextPage.setElement(nextPanel, nextHref, doc.title);
                     nextPage.wideNavHTML = wideNav ? wideNav.outerHTML : '';
                     
+                    nextPage.isReady = false;
                     if (typeof typesetElement === 'function') {
-                        typesetElement(nextPanel);
+                        nextPage.readyPromise = typesetElement(nextPanel).then(() => {
+                            nextPage.isReady = true;
+                        });
+                    } else {
+                        nextPage.isReady = true;
+                        nextPage.readyPromise = Promise.resolve();
                     }
                 }
             })
@@ -491,14 +521,62 @@ function handleTouchEndOrCancel(e) {
         currentPage.el.removeEventListener('transitionend', onTransitionEnd);
 
         if (targetDirection === 'prev') {
-            const swapped = navigateToPage(previousPage.url, 'prev');
-            if (!swapped) {
-                window.location.href = previousPage.url;
+            const swapFn = () => {
+                const swapped = navigateToPage(previousPage.url, 'prev');
+                if (!swapped) {
+                    window.location.href = previousPage.url;
+                }
+            };
+            if (previousPage.isReady) {
+                swapFn();
+            } else {
+                let resolved = false;
+                const fallbackId = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        swapFn();
+                    }
+                }, 200);
+                if (previousPage.readyPromise) {
+                    previousPage.readyPromise.then(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            clearTimeout(fallbackId);
+                            swapFn();
+                        }
+                    });
+                } else {
+                    swapFn();
+                }
             }
         } else if (targetDirection === 'next') {
-            const swapped = navigateToPage(nextPage.url, 'next');
-            if (!swapped) {
-                window.location.href = nextPage.url;
+            const swapFn = () => {
+                const swapped = navigateToPage(nextPage.url, 'next');
+                if (!swapped) {
+                    window.location.href = nextPage.url;
+                }
+            };
+            if (nextPage.isReady) {
+                swapFn();
+            } else {
+                let resolved = false;
+                const fallbackId = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        swapFn();
+                    }
+                }, 200);
+                if (nextPage.readyPromise) {
+                    nextPage.readyPromise.then(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            clearTimeout(fallbackId);
+                            swapFn();
+                        }
+                    });
+                } else {
+                    swapFn();
+                }
             }
         } else {
             currentPage.el.classList.remove('swiping');
@@ -715,6 +793,8 @@ function navigateToPage(url, direction) {
 
     // Reset currentPage reference to point to the new active element in the DOM
     currentPage.setElement(panel, url, pageObj.title);
+    currentPage.isReady = true;
+    currentPage.readyPromise = Promise.resolve();
     
     // Scroll page to top
     window.scrollTo(0, 0);
@@ -824,9 +904,33 @@ document.addEventListener('click', (e) => {
                 if (event.propertyName !== 'transform') return;
                 currentPage.el.removeEventListener('transitionend', onTransitionEnd);
                 
-                const swapped = navigateToPage(pageObj.url, direction);
-                if (!swapped) {
-                    window.location.href = pageObj.url;
+                const swapFn = () => {
+                    const swapped = navigateToPage(pageObj.url, direction);
+                    if (!swapped) {
+                        window.location.href = pageObj.url;
+                    }
+                };
+                if (pageObj.isReady) {
+                    swapFn();
+                } else {
+                    let resolved = false;
+                    const fallbackId = setTimeout(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            swapFn();
+                        }
+                    }, 200);
+                    if (pageObj.readyPromise) {
+                        pageObj.readyPromise.then(() => {
+                            if (!resolved) {
+                                resolved = true;
+                                clearTimeout(fallbackId);
+                                swapFn();
+                            }
+                        });
+                    } else {
+                        swapFn();
+                    }
                 }
             };
             
