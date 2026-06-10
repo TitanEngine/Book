@@ -52,10 +52,10 @@
         <link rel="stylesheet" href="../mdbook-admonish-3866bf65.css">
         <link rel="stylesheet" href="../css/chapter-heading-ee8fec2a.css">
         <link rel="stylesheet" href="../css/theme-overrides-b397af09.css">
-        <link rel="stylesheet" href="../css/lang-switcher-ed1b761a.css">
+        <link rel="stylesheet" href="../css/lang-switcher-94b3bf0d.css">
         <link rel="stylesheet" href="../css/hover-tooltip-f22e2404.css">
         <link rel="stylesheet" href="../css/deepdive-drawer-386980a9.css">
-        <link rel="stylesheet" href="../css/swipe-nav-81daefd3.css">
+        <link rel="stylesheet" href="../css/swipe-nav-19ccc22b.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -124,9 +124,6 @@
     <body>
     <!-- Universal Language Drawer -->
     <div id="universal-lang-drawer" class="universal-lang-drawer">
-        <div class="lang-drawer-peak" onclick="toggleUniversalLangDrawer(event)" aria-label="Toggle language drawer">
-            <span class="lang-globe-icon">🌐</span>
-        </div>
         <div class="lang-drawer-header">
             <h3>Choose Language / भाषा चुनें</h3>
         </div>
@@ -237,6 +234,9 @@
                     <h1 class="menu-title">TitanEngine Preview</h1>
 
                     <div class="right-buttons">
+                        <button id="universal-lang-toggle" class="icon-button" type="button" title="Change language" aria-label="Change language" onclick="toggleUniversalLangDrawer(event)">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 21 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192H131.2c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z"/></svg></span>
+                        </button>
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
@@ -371,7 +371,7 @@
         <script src="../js/hover-tooltip-11102337.js" onerror="handleScriptError()"></script>
         <script src="../js/deepdive-drawer-d12f13cc.js" onerror="handleScriptError()"></script>
         <script src="../js/lang-switcher-dropdown-501b55c3.js" onerror="handleScriptError()"></script>
-        <script src="../js/swipe-nav-25394fa6.js" onerror="handleScriptError()"></script>
+        <script src="../js/swipe-nav-b4f84b92.js" onerror="handleScriptError()"></script>
 
 
 

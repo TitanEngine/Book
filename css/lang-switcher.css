@@ -202,30 +202,7 @@
   transform: translateX(0);
 }
 
-/* Peak Tab Handle on screen edge */
-.lang-drawer-peak {
-  position: absolute;
-  top: 10px; /* Positioned near the top of the drawer */
-  left: -46px;
-  width: 46px;
-  height: 46px;
-  background: rgba(162, 123, 92, 0.95);
-  color: #fff;
-  border-radius: 10px 0 0 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.18);
-  font-size: 1.3rem;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
 
-.lang-drawer-peak:hover {
-  background: rgba(133, 88, 56, 1);
-  transform: scaleX(1.05);
-  transform-origin: right center;
-}
 
 /* Header inside drawer */
 .lang-drawer-header {

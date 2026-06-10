@@ -106,6 +106,10 @@ html, body, .page-wrapper {
   visibility: visible !important; /* Keep visible so MathJax can render/typeset it offscreen */
 }
 
+.content.swipe-preview-panel.swipe-hidden {
+  visibility: hidden !important; /* Hide after typesetting is done to prevent spills and scroll leakage */
+}
+
 .content.swipe-prev-panel {
   left: -100% !important;
 }

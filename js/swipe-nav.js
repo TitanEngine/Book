@@ -266,9 +266,11 @@ function initSwipePreviews() {
                     if (typeof typesetElement === 'function') {
                         previousPage.readyPromise = typesetElement(prevPanel).then(() => {
                             previousPage.isReady = true;
+                            prevPanel.classList.add('swipe-hidden');
                         });
                     } else {
                         previousPage.isReady = true;
+                        prevPanel.classList.add('swipe-hidden');
                         previousPage.readyPromise = Promise.resolve();
                     }
                 }
@@ -304,9 +306,11 @@ function initSwipePreviews() {
                     if (typeof typesetElement === 'function') {
                         nextPage.readyPromise = typesetElement(nextPanel).then(() => {
                             nextPage.isReady = true;
+                            nextPanel.classList.add('swipe-hidden');
                         });
                     } else {
                         nextPage.isReady = true;
+                        nextPanel.classList.add('swipe-hidden');
                         nextPage.readyPromise = Promise.resolve();
                     }
                 }
@@ -480,6 +484,8 @@ document.addEventListener('touchmove', (e) => {
         // Add swiping class to parent element to make previews visible
         if (currentPage.el && !currentPage.el.classList.contains('swiping')) {
             currentPage.el.classList.add('swiping');
+            if (previousPage.el) previousPage.el.classList.remove('swipe-hidden');
+            if (nextPage.el) nextPage.el.classList.remove('swipe-hidden');
         }
 
         // Check if pages exist in respective directions in our objects
@@ -580,6 +586,8 @@ function handleTouchEndOrCancel(e) {
             }
         } else {
             currentPage.el.classList.remove('swiping');
+            if (previousPage.el) previousPage.el.classList.add('swipe-hidden');
+            if (nextPage.el) nextPage.el.classList.add('swipe-hidden');
             currentPage.clearStyles();
         }
     };
@@ -898,6 +906,7 @@ document.addEventListener('click', (e) => {
         
         if (currentPage.el && pageObj.el && pageObj.url) {
             currentPage.el.classList.add('swiping');
+            pageObj.el.classList.remove('swipe-hidden');
             currentPage.setTransition('transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)');
             
             const onTransitionEnd = (event) => {
