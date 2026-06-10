@@ -73,11 +73,17 @@ html, body, .page-wrapper {
   }
 }
 
-/* Force page container overflow settings for horizontal swipe slides visibility */
-.page {
+/* Force content container overflow settings for horizontal swipe slides visibility */
+#mdbook-content, .content {
   position: relative !important;
   overflow: visible !important;
   touch-action: pan-y !important;
+  will-change: transform;
+}
+
+.page {
+  position: relative !important;
+  overflow-x: hidden !important;
 }
 
 /* Hide horizontal scrollbar clips on page wrapper */
@@ -118,7 +124,7 @@ html.js.lang-ready #mdbook-content main {
 }
 
 /* Ensure the main content inside swipe previews is always visible during gesture drag */
-.swipe-preview-panel #mdbook-content main {
+.swipe-preview-panel main {
   opacity: 1 !important;
 }
 

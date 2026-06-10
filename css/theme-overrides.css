@@ -65,13 +65,21 @@ main, .content, p {
   }
 }
 
-/* Disable text selection on mobile and tablet viewports to prevent accidental selections */
+/* Disable text selection on mobile UI elements to prevent accidental highlight behaviors, but preserve reading content selection */
 @media (max-width: 1024px) {
   body {
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Enable text highlighting/selection on paragraphs, headers, and list items in the main reading document */
+  .content main p, .content main li, .content main h1, .content main h2, .content main h3, .content main h4, .content main h5, .content main h6 {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
   }
   
   /* Ensure form inputs, text fields, and editable elements remain interactive and selectable */

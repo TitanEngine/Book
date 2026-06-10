@@ -144,14 +144,14 @@ function syncPanelLanguage(panel, lang) {
 function initSwipePreviews() {
     if (window.innerWidth > 1024) return; // Swipe previews only on mobile
     
-    const prevLinkElement = document.querySelector('.nav-chapters.previous');
+    const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
     const prevHref = prevLinkElement ? prevLinkElement.href : null;
     
-    const nextLinkElement = document.querySelector('.nav-chapters.next');
+    const nextLinkElement = document.querySelector('.nav-chapters.next') || document.querySelector('.mobile-nav-chapters.next');
     const nextHref = nextLinkElement ? nextLinkElement.href : null;
     
-    const pageEl = document.querySelector('.page');
-    if (!pageEl) return;
+    const contentEl = document.querySelector('#mdbook-content');
+    if (!contentEl) return;
     
     const savedLang = localStorage.getItem('preferred-language') || 'hinglish';
 
@@ -161,14 +161,18 @@ function initSwipePreviews() {
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                const content = doc.querySelector('.page');
+                const content = doc.querySelector('#mdbook-content');
+                const wideNav = doc.querySelector('.nav-wide-wrapper');
                 if (content) {
                     const prevPanel = document.createElement('div');
                     prevPanel.className = 'swipe-preview-panel swipe-prev-panel';
                     prevPanel.innerHTML = content.innerHTML;
+                    if (wideNav) {
+                        prevPanel.wideNavHTML = wideNav.outerHTML;
+                    }
                     preparePreviewPanel(prevPanel, savedLang);
                     absoluteifyLinks(prevPanel, prevHref);
-                    pageEl.appendChild(prevPanel);
+                    contentEl.appendChild(prevPanel);
                     if (typeof typesetElement === 'function') {
                         typesetElement(prevPanel);
                     }
@@ -183,14 +187,18 @@ function initSwipePreviews() {
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                const content = doc.querySelector('.page');
+                const content = doc.querySelector('#mdbook-content');
+                const wideNav = doc.querySelector('.nav-wide-wrapper');
                 if (content) {
                     const nextPanel = document.createElement('div');
                     nextPanel.className = 'swipe-preview-panel swipe-next-panel';
                     nextPanel.innerHTML = content.innerHTML;
+                    if (wideNav) {
+                        nextPanel.wideNavHTML = wideNav.outerHTML;
+                    }
                     preparePreviewPanel(nextPanel, savedLang);
                     absoluteifyLinks(nextPanel, nextHref);
-                    pageEl.appendChild(nextPanel);
+                    contentEl.appendChild(nextPanel);
                     if (typeof typesetElement === 'function') {
                         typesetElement(nextPanel);
                     }
@@ -220,10 +228,10 @@ function triggerSwipeWiggleHint() {
         return; // Already shown in this session and not a refresh, exit!
     }
     
-    const pageEl = document.querySelector('.page');
-    if (!pageEl) return;
+    const contentEl = document.querySelector('#mdbook-content');
+    if (!contentEl) return;
     
-    const hasNext = !!document.querySelector('.nav-chapters.next');
+    const hasNext = !!document.querySelector('.nav-chapters.next') || !!document.querySelector('.mobile-nav-chapters.next');
     let nudgeAmount = 0;
     if (hasNext) {
         nudgeAmount = -30;
@@ -236,16 +244,16 @@ function triggerSwipeWiggleHint() {
             return;
         }
 
-        pageEl.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-        pageEl.style.transform = `translateX(${nudgeAmount}px)`;
+        contentEl.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+        contentEl.style.transform = `translateX(${nudgeAmount}px)`;
         
         setTimeout(() => {
-            pageEl.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            pageEl.style.transform = 'translateX(0)';
+            contentEl.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            contentEl.style.transform = 'translateX(0)';
             
             setTimeout(() => {
-                pageEl.style.transform = '';
-                pageEl.style.transition = '';
+                contentEl.style.transform = '';
+                contentEl.style.transition = '';
             }, 600);
         }, 350);
     }, 800);
@@ -297,7 +305,7 @@ let touchStartY = 0;
 let touchStartTime = 0;
 let currentDeltaX = 0;
 let isHorizontalSwipe = false;
-let pageEl = null;
+let contentEl = null;
 
 document.addEventListener('touchstart', (e) => {
     if (window.innerWidth > 1024) return; // Swipe is only enabled on mobile/tablet viewports
@@ -309,11 +317,17 @@ document.addEventListener('touchstart', (e) => {
         return;
     }
 
+    // Exclude swipe if text is currently highlighted/selected
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+        return;
+    }
+
     const startX = e.touches[0].clientX;
     const startY = e.touches[0].clientY;
     
-    // iOS Native back/forward swipe compatibility: Ignore swipes starting within 20px of screen edges
-    if (startX < 20 || startX > window.innerWidth - 20) {
+    // iOS/Android Native back/forward swipe compatibility: Ignore swipes starting within 35px of screen edges
+    if (startX < 35 || startX > window.innerWidth - 35) {
         return;
     }
 
@@ -322,22 +336,22 @@ document.addEventListener('touchstart', (e) => {
     touchStartTime = Date.now();
     currentDeltaX = 0;
     isHorizontalSwipe = false;
-    pageEl = document.querySelector('.page');
+    contentEl = document.querySelector('#mdbook-content');
     
-    if (pageEl) {
-        pageEl.style.transition = 'none';
+    if (contentEl) {
+        contentEl.style.transition = 'none';
     }
 }, { passive: true });
 
 document.addEventListener('touchmove', (e) => {
-    if (!pageEl) return;
+    if (!contentEl) return;
 
-    // Abort swipe if user is currently selecting/highlighting text
+    // Abort swipe if user starts selecting/highlighting text
     const selection = window.getSelection();
     if (selection && selection.toString().length > 0) {
-        pageEl.style.transform = '';
+        contentEl.style.transform = '';
         isHorizontalSwipe = false;
-        pageEl = null;
+        contentEl = null;
         return;
     }
 
@@ -356,8 +370,8 @@ document.addEventListener('touchmove', (e) => {
         if (e.cancelable) e.preventDefault();
 
         // Check if pages exist in respective directions
-        const hasPrev = !!document.querySelector('.nav-chapters.previous');
-        const hasNext = !!document.querySelector('.nav-chapters.next');
+        const hasPrev = !!document.querySelector('.nav-chapters.previous') || !!document.querySelector('.mobile-nav-chapters.previous');
+        const hasNext = !!document.querySelector('.nav-chapters.next') || !!document.querySelector('.mobile-nav-chapters.next');
 
         let dragX = deltaX * 0.85; // 0.85 mass resistance factor
         // Apply rubber-banding friction factor if pulling where no adjacent page exists
@@ -366,12 +380,12 @@ document.addEventListener('touchmove', (e) => {
         }
 
         currentDeltaX = dragX;
-        pageEl.style.transform = `translateX(${dragX}px)`;
+        contentEl.style.transform = `translateX(${dragX}px)`;
     }
 }, { passive: false });
 
 function handleTouchEndOrCancel(e) {
-    if (!pageEl || !isHorizontalSwipe) return;
+    if (!contentEl || !isHorizontalSwipe) return;
 
     const timeDiff = Date.now() - touchStartTime;
     const velocity = Math.abs(currentDeltaX) / timeDiff; // Pixels per millisecond
@@ -384,11 +398,11 @@ function handleTouchEndOrCancel(e) {
     const hasPrev = !!document.querySelector('.nav-chapters.previous') || !!document.querySelector('.mobile-nav-chapters.previous');
     const hasNext = !!document.querySelector('.nav-chapters.next') || !!document.querySelector('.mobile-nav-chapters.next');
 
-    pageEl.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+    contentEl.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
 
     if ((isFlick || isLongSwipe) && currentDeltaX > 0 && hasPrev) {
         // Swipe Right -> Previous Page
-        pageEl.style.transform = 'translateX(100vw)';
+        contentEl.style.transform = 'translateX(100vw)';
         const prevLinkElement = document.querySelector('.nav-chapters.previous') || document.querySelector('.mobile-nav-chapters.previous');
         const prevLink = prevLinkElement ? prevLinkElement.href : null;
         if (prevLink) {
@@ -401,7 +415,7 @@ function handleTouchEndOrCancel(e) {
         }
     } else if ((isFlick || isLongSwipe) && currentDeltaX < 0 && hasNext) {
         // Swipe Left -> Next Page
-        pageEl.style.transform = 'translateX(-100vw)';
+        contentEl.style.transform = 'translateX(-100vw)';
         const nextLinkElement = document.querySelector('.nav-chapters.next') || document.querySelector('.mobile-nav-chapters.next');
         const nextLink = nextLinkElement ? nextLinkElement.href : null;
         if (nextLink) {
@@ -414,19 +428,19 @@ function handleTouchEndOrCancel(e) {
         }
     } else {
         // Snap back to starting position
-        pageEl.style.transform = 'translateX(0)';
+        contentEl.style.transform = 'translateX(0)';
         
         // Clean up inline styles after transitions finish
         setTimeout(() => {
-            if (pageEl && !isHorizontalSwipe) {
-                pageEl.style.transform = '';
-                pageEl.style.transition = '';
+            if (contentEl && !isHorizontalSwipe) {
+                contentEl.style.transform = '';
+                contentEl.style.transition = '';
             }
         }, 350);
     }
 
     isHorizontalSwipe = false;
-    pageEl = null;
+    contentEl = null;
 }
 
 document.addEventListener('touchend', handleTouchEndOrCancel, { passive: true });
@@ -454,13 +468,127 @@ function updateSidebarActiveLink(url) {
     });
 }
 
+// Scans headers of the new page and dynamically updates the Table of Contents "On this page" outline in the sidebar
+function rebuildSidebarHeaders() {
+    const activeSection = document.querySelector('#mdbook-sidebar .active');
+    if (!activeSection) return;
+
+    // Remove existing "On this page" header submenus in the sidebar to prevent duplicate accumulations
+    document.querySelectorAll('#mdbook-sidebar .on-this-page').forEach(el => el.remove());
+
+    const main = document.getElementsByTagName('main')[0];
+    if (!main) return;
+
+    const headers = Array.from(main.querySelectorAll('h2, h3, h4, h5, h6'))
+        .filter(h => h.id !== '' && h.children.length && h.children[0].tagName === 'A');
+
+    if (headers.length === 0) return;
+
+    const stack = [];
+    const firstLevel = parseInt(headers[0].tagName.charAt(1));
+    for (let i = 1; i < firstLevel; i++) {
+        const ol = document.createElement('ol');
+        ol.classList.add('section');
+        if (stack.length > 0) {
+            stack[stack.length - 1].ol.appendChild(ol);
+        }
+        stack.push({level: i + 1, ol: ol});
+    }
+
+    const foldLevel = 3;
+
+    for (let i = 0; i < headers.length; i++) {
+        const header = headers[i];
+        const level = parseInt(header.tagName.charAt(1));
+
+        const currentLevel = stack[stack.length - 1].level;
+        if (level > currentLevel) {
+            for (let nextLevel = currentLevel + 1; nextLevel <= level; nextLevel++) {
+                const ol = document.createElement('ol');
+                ol.classList.add('section');
+                const last = stack[stack.length - 1];
+                const lastChild = last.ol.lastChild;
+                if (lastChild) {
+                    lastChild.appendChild(ol);
+                } else {
+                    last.ol.appendChild(ol);
+                }
+                stack.push({level: nextLevel, ol: ol});
+            }
+        } else if (level < currentLevel) {
+            while (stack.length > 1 && stack[stack.length - 1].level > level) {
+                stack.pop();
+            }
+        }
+
+        const li = document.createElement('li');
+        li.className = 'header-item expanded';
+        if (level < foldLevel) {
+            li.classList.add('expanded');
+        }
+        const span = document.createElement('span');
+        span.className = 'chapter-link-wrapper';
+        const a = document.createElement('a');
+        span.appendChild(a);
+        a.href = '#' + header.id;
+        a.className = 'header-in-summary';
+        
+        // Clone header text/elements
+        const clone = header.children[0].cloneNode(true);
+        clone.querySelectorAll('mark').forEach(mark => {
+            mark.replaceWith(...mark.childNodes);
+        });
+        a.append(...clone.childNodes);
+
+        a.addEventListener('click', (event) => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const targetElement = document.getElementById(header.id);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+
+        const nextHeader = headers[i + 1];
+        if (nextHeader !== undefined) {
+            const nextLevel = parseInt(nextHeader.tagName.charAt(1));
+            if (nextLevel > level && level >= foldLevel) {
+                const toggle = document.createElement('a');
+                toggle.className = 'chapter-fold-toggle header-toggle';
+                toggle.addEventListener('click', () => {
+                    li.classList.toggle('expanded');
+                });
+                const toggleDiv = document.createElement('div');
+                toggleDiv.textContent = '❱';
+                toggle.appendChild(toggleDiv);
+                span.appendChild(toggle);
+            }
+        }
+        li.appendChild(span);
+
+        const currentParent = stack[stack.length - 1];
+        currentParent.ol.appendChild(li);
+    }
+
+    const onThisPage = document.createElement('div');
+    onThisPage.className = 'on-this-page';
+    onThisPage.append(stack[0].ol);
+    
+    const activeItemSpan = activeSection.parentElement;
+    if (activeItemSpan) {
+        activeItemSpan.after(onThisPage);
+    }
+}
+
 function navigateToPage(url, direction) {
-    const pageEl = document.querySelector('.page');
-    if (!pageEl) return false;
+    const contentEl = document.querySelector('#mdbook-content');
+    if (!contentEl) return false;
     
     const isNext = direction === 'next';
     const panelClass = isNext ? '.swipe-next-panel' : '.swipe-prev-panel';
-    const panel = pageEl.querySelector(panelClass);
+    const panel = contentEl.querySelector(panelClass);
     
     if (!panel) return false;
     
@@ -468,26 +596,36 @@ function navigateToPage(url, direction) {
     window.history.pushState(null, '', url);
     
     // 2. Perform the swap
-    const newMenuBar = panel.querySelector('#mdbook-menu-bar');
-    const newContent = panel.querySelector('#mdbook-content');
+    // Convert panel into the main content block directly to preserve already pre-rendered styles and equations
+    panel.id = 'mdbook-content';
+    panel.className = 'content';
+    panel.style.transform = '';
+    panel.style.transition = '';
+    panel.style.left = '';
+    panel.style.width = '';
+    panel.style.height = '';
+    panel.style.position = '';
+    panel.style.pointerEvents = '';
     
-    if (!newMenuBar || !newContent) return false;
+    // Remove other preview panels inside it
+    panel.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
     
-    const currentMenuBar = pageEl.querySelector('#mdbook-menu-bar');
-    const currentContent = pageEl.querySelector('#mdbook-content');
+    // Swap wide navigation wrapper
+    const currentWideNav = document.querySelector('.nav-wide-wrapper');
+    if (currentWideNav && panel.wideNavHTML) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = panel.wideNavHTML;
+        const newWideNav = tempDiv.firstElementChild;
+        if (newWideNav) {
+            currentWideNav.replaceWith(newWideNav);
+        }
+    }
     
-    if (currentMenuBar) currentMenuBar.replaceWith(newMenuBar.cloneNode(true));
-    if (currentContent) currentContent.replaceWith(newContent.cloneNode(true));
+    // Swap contentEl in the DOM
+    contentEl.replaceWith(panel);
     
     // Scroll page to top
     window.scrollTo(0, 0);
-    
-    // 3. Remove preview panels
-    pageEl.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
-    
-    // Reset page transformations
-    pageEl.style.transform = '';
-    pageEl.style.transition = '';
     
     // 4. Update sidebar link active state
     updateSidebarActiveLink(url);
@@ -496,56 +634,63 @@ function navigateToPage(url, direction) {
     absoluteifyLinks(document, url);
 
     // 6. Re-initialize page scripts
-    if (typeof initLanguageToggle === 'function') initLanguageToggle();
+    if (typeof initLanguageToggle === 'function') initLanguageToggle(true); // forceInstant = true
     if (typeof initKeywordDrawer === 'function') initKeywordDrawer();
     if (typeof initTooltips === 'function') initTooltips();
+    
+    // Rebuild sidebar headers
+    rebuildSidebarHeaders();
+    
     initSwipePreviews();
     
     return true;
 }
 
 function fetchPageAndSwap(url) {
-    const pageEl = document.querySelector('.page');
-    if (!pageEl) {
+    const contentEl = document.querySelector('#mdbook-content');
+    if (!contentEl) {
         window.location.reload();
         return;
     }
     
-    pageEl.style.transition = 'opacity 0.2s ease-in-out';
-    pageEl.style.opacity = '0.5';
+    contentEl.style.transition = 'opacity 0.2s ease-in-out';
+    contentEl.style.opacity = '0.5';
     
     fetch(url)
         .then(response => response.text())
         .then(html => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            const newPage = doc.querySelector('.page');
+            const newContent = doc.querySelector('#mdbook-content');
+            const newWideNav = doc.querySelector('.nav-wide-wrapper');
             
-            if (newPage) {
-                const newMenuBar = newPage.querySelector('#mdbook-menu-bar');
-                const newContent = newPage.querySelector('#mdbook-content');
+            if (newContent) {
+                const currentContent = document.querySelector('#mdbook-content');
+                if (currentContent) currentContent.replaceWith(newContent.cloneNode(true));
                 
-                const currentMenuBar = pageEl.querySelector('#mdbook-menu-bar');
-                const currentContent = pageEl.querySelector('#mdbook-content');
-                
-                if (newMenuBar && currentMenuBar) currentMenuBar.replaceWith(newMenuBar.cloneNode(true));
-                if (newContent && currentContent) currentContent.replaceWith(newContent.cloneNode(true));
+                const currentWideNav = document.querySelector('.nav-wide-wrapper');
+                if (currentWideNav && newWideNav) currentWideNav.replaceWith(newWideNav.cloneNode(true));
                 
                 window.scrollTo(0, 0);
                 
-                pageEl.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
+                const freshlySwappedContent = document.querySelector('#mdbook-content');
+                freshlySwappedContent.querySelectorAll('.swipe-preview-panel').forEach(p => p.remove());
                 
-                pageEl.style.transform = '';
-                pageEl.style.transition = '';
-                pageEl.style.opacity = '1';
+                freshlySwappedContent.style.transform = '';
+                freshlySwappedContent.style.transition = '';
+                freshlySwappedContent.style.opacity = '1';
                 
                 updateSidebarActiveLink(url);
                 
                 absoluteifyLinks(document, url);
 
-                if (typeof initLanguageToggle === 'function') initLanguageToggle();
+                if (typeof initLanguageToggle === 'function') initLanguageToggle(true);
                 if (typeof initKeywordDrawer === 'function') initKeywordDrawer();
                 if (typeof initTooltips === 'function') initTooltips();
+                
+                // Rebuild sidebar headers
+                rebuildSidebarHeaders();
+                
                 initSwipePreviews();
             } else {
                 window.location.reload();
@@ -567,15 +712,15 @@ document.addEventListener('click', (e) => {
         
         const isNext = arrow.classList.contains('next');
         const direction = isNext ? 'next' : 'prev';
-        const pageEl = document.querySelector('.page');
+        const contentEl = document.querySelector('#mdbook-content');
         
-        if (pageEl) {
+        if (contentEl) {
             const panelClass = isNext ? '.swipe-next-panel' : '.swipe-prev-panel';
-            const panel = pageEl.querySelector(panelClass);
+            const panel = contentEl.querySelector(panelClass);
             
             if (panel) {
-                pageEl.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
-                pageEl.style.transform = isNext ? 'translateX(-100vw)' : 'translateX(100vw)';
+                contentEl.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                contentEl.style.transform = isNext ? 'translateX(-100vw)' : 'translateX(100vw)';
                 
                 setTimeout(() => {
                     const swapped = navigateToPage(arrow.href, direction);

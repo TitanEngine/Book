@@ -62,7 +62,7 @@ function selectLanguage(lang, event) {
     });
 }
 
-function switchLanguage(lang) {
+function switchLanguage(lang, forceInstant = false) {
     const contents = document.querySelectorAll('.lang-content');
     
     // Find currently visible content
@@ -84,19 +84,25 @@ function switchLanguage(lang) {
 
         targetContents.forEach(el => {
             el.style.display = 'block';
-            el.style.transition = 'opacity 0.25s ease-in-out';
-            el.style.opacity = '0';
-            // Trigger reflow to ensure display: block is registered before setting opacity
-            el.offsetHeight; 
-            el.classList.add('active');
-            el.style.opacity = '1';
+            if (forceInstant) {
+                el.style.transition = 'none';
+                el.style.opacity = '1';
+                el.classList.add('active');
+            } else {
+                el.style.transition = 'opacity 0.25s ease-in-out';
+                el.style.opacity = '0';
+                // Trigger reflow to ensure display: block is registered before setting opacity
+                el.offsetHeight; 
+                el.classList.add('active');
+                el.style.opacity = '1';
+            }
         });
 
         // Sync sidebar Table of Contents with visible headers
         updateSidebarToC();
     };
 
-    if (activeContent && activeContent !== targetContents[0]) {
+    if (!forceInstant && activeContent && activeContent !== targetContents[0]) {
         // Fade out active content first
         contents.forEach(el => {
             if (el.style.display === 'block' || el.classList.contains('active')) {
@@ -107,7 +113,7 @@ function switchLanguage(lang) {
         // Wait for fade out to finish, then switch and fade in
         setTimeout(performSwitch, 200);
     } else {
-        // Instant switch if no active content (first load)
+        // Instant switch if no active content (first load or page swap)
         performSwitch();
     }
     
@@ -148,7 +154,7 @@ function switchLanguage(lang) {
     localStorage.setItem('preferred-language', lang);
 }
 
-function initLanguageToggle() {
+function initLanguageToggle(forceInstant = false) {
     if (typeof initDynamicTriggers === 'function') {
         initDynamicTriggers();
     }
@@ -198,18 +204,22 @@ function initLanguageToggle() {
 
     // Restore selected language
     const savedLang = localStorage.getItem('preferred-language') || 'hinglish';
-    switchLanguage(savedLang);
+    switchLanguage(savedLang, forceInstant);
 
     // Filter sidebar ToC once built dynamically
     setTimeout(updateSidebarToC, 100);
 
     // Reveal page content only after MathJax typesetting is complete to prevent raw text flash and layout shifts
-    if (window.MathJax && window.MathJax.Hub) {
-        window.MathJax.Hub.Queue(function() {
-            document.documentElement.classList.add('lang-ready');
-        });
-    } else {
+    if (forceInstant) {
         document.documentElement.classList.add('lang-ready');
+    } else {
+        if (window.MathJax && window.MathJax.Hub) {
+            window.MathJax.Hub.Queue(function() {
+                document.documentElement.classList.add('lang-ready');
+            });
+        } else {
+            document.documentElement.classList.add('lang-ready');
+        }
     }
     
     // Safety fallback timeout
