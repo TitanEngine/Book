@@ -1,0 +1,181 @@
+:root {
+  --keyword-color: #a24322;
+  --keyword-hover-bg: rgba(162, 67, 34, 0.08);
+  --keyword-shadow: rgba(162, 67, 34, 0.25);
+}
+.coal, .navy, .ayu {
+  --keyword-color: #e07a48;
+  --keyword-hover-bg: rgba(224, 122, 72, 0.08);
+  --keyword-shadow: rgba(224, 122, 72, 0.25);
+}
+
+/* Dynamic Keyword Hover Tooltip Styling */
+.keyword-highlight {
+  color: var(--keyword-color);
+  font-weight: 700;
+  border-bottom: none !important;
+  cursor: pointer;
+  display: inline;
+  border-radius: 3px;
+  padding: 2px 3px;
+  margin: -2px -3px;
+  background-color: transparent;
+  transition: background-color 0.2s, text-shadow 0.2s;
+}
+.keyword-highlight:hover {
+  background-color: var(--keyword-hover-bg);
+  text-shadow: 0 0 10px var(--keyword-shadow);
+}
+.keyword-highlight.tooltip-only {
+  border-bottom: none !important;
+  cursor: help !important;
+}
+.keyword-highlight.tooltip-only:hover {
+  background-color: var(--keyword-hover-bg) !important;
+  text-shadow: none !important;
+}
+.tooltip-click-cta {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  justify-content: flex-end;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.keyword-tooltip-box.global-tooltip {
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 9999;
+  max-width: 290px;
+  width: calc(100vw - 32px);
+  background-color: rgba(25, 25, 25, 0.98);
+  color: #e2d1b7;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  pointer-events: none;
+  font-weight: 400;
+  white-space: normal;
+  transform: translateY(8px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.25s;
+}
+
+/* Tooltip Section & Divider Styling */
+.tooltip-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tooltip-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  line-height: 1.2;
+}
+.physics-label {
+  color: #64b5f6; /* Premium soft blue in dark mode */
+}
+.game-physics-label {
+  color: #81c784; /* Premium soft green in dark mode */
+}
+.tooltip-desc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.tooltip-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 10px 0;
+  width: 100%;
+}
+
+/* Light & Rust Theme overrides for tooltip sections and divider */
+.light .physics-label, .rust .physics-label {
+  color: #0d47a1; /* Deep blue */
+}
+.light .game-physics-label, .rust .game-physics-label {
+  color: #1b5e20; /* Deep green */
+}
+.light .tooltip-divider, .rust .tooltip-divider {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.keyword-tooltip-box.global-tooltip.tooltip-show {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+.keyword-tooltip-box.global-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(25, 25, 25, 0.98) transparent transparent transparent;
+}
+.keyword-tooltip-box.global-tooltip.tooltip-bottom::after {
+  top: auto;
+  bottom: 100%;
+  border-color: transparent transparent rgba(25, 25, 25, 0.98) transparent;
+}
+.light .keyword-tooltip-box.global-tooltip, .rust .keyword-tooltip-box.global-tooltip {
+  background-color: rgba(255, 255, 255, 0.99);
+  color: #5d4037;
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+.light .keyword-tooltip-box.global-tooltip::after, .rust .keyword-tooltip-box.global-tooltip::after {
+  border-color: rgba(255, 255, 255, 0.99) transparent transparent transparent;
+}
+.light .keyword-tooltip-box.global-tooltip.tooltip-bottom::after, .rust .keyword-tooltip-box.global-tooltip.tooltip-bottom::after {
+  border-color: transparent transparent rgba(25, 25, 25, 0.99) transparent;
+}
+.light .tooltip-click-cta, .rust .tooltip-click-cta {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Make sure tooltips are visible over all drawers */
+.keyword-tooltip-box.global-tooltip {
+  z-index: 10035 !important;
+}
+
+/* Mobile and Split-Screen General Optimizations (<= 1024px) */
+@media (max-width: 1024px) {
+  /* Tooltip (Sticky Note) Sizing: Compact and responsive max-width */
+  .keyword-tooltip-box.global-tooltip {
+    font-size: 0.9rem !important;
+    padding: 14px 18px !important;
+    border-radius: 12px !important;
+    max-width: min(260px, calc(100vw - 32px)) !important;
+    box-sizing: border-box !important;
+  }
+  .tooltip-click-cta {
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+    font-size: 0.68rem !important;
+  }
+}
+
+/* Touch Device Sizing Adjustments (Fat Finger support) */
+@media (pointer: coarse) {
+  /* Expanded hover highlights without layout shifts */
+  .keyword-highlight {
+    padding: 2px 4px !important;
+    margin: -2px -4px !important;
+  }
+}

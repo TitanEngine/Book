@@ -1,0 +1,157 @@
+/* Prevent white flashes during swipe transitions by forcing the theme's background */
+html, body, .page-wrapper {
+  background-color: var(--bg) !important;
+}
+
+/* Premium Desktop Hover Side Navigation Arrows */
+.nav-chapters {
+  position: fixed;
+  top: 60px; /* Sits below the header bar */
+  bottom: 0;
+  width: 60px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  cursor: pointer;
+  background: transparent !important;
+  opacity: 0;
+  pointer-events: none; /* Avoid blocking clicks on text/elements underneath */
+  text-decoration: none !important;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), left 0.3s ease, right 0.3s ease !important;
+}
+
+.nav-chapters.previous {
+  left: 0;
+}
+
+.nav-chapters.next {
+  right: 0;
+}
+
+/* Enable pointer events and make arrow visible when mouse enters hover zone */
+.nav-chapters.reveal {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Subtle directional slide and scale transitions inside pointer-enabled media query (guards hybrid laptops) */
+@media (hover: hover) and (pointer: fine) {
+  .nav-chapters.previous.reveal:hover {
+    transform: translateX(8px);
+  }
+  
+  .nav-chapters.next.reveal:hover {
+    transform: translateX(-8px);
+  }
+}
+
+/* Style for FontAwesome Icons inside Navigation Arrows */
+.nav-chapters svg, .nav-chapters .fa-svg, .nav-chapters i {
+  font-size: 3rem !important;
+  background: linear-gradient(135deg, #a27b5c 0%, #855838 100%);
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease !important;
+}
+
+/* Scale up arrow icon and increase glow size on hover */
+@media (hover: hover) and (pointer: fine) {
+  .nav-chapters.reveal:hover svg, 
+  .nav-chapters.reveal:hover .fa-svg, 
+  .nav-chapters.reveal:hover i {
+    filter: drop-shadow(0 4px 12px rgba(162, 123, 92, 0.45));
+    transform: scale(1.15);
+  }
+}
+
+/* Hide navigation arrows completely on touch devices (where swipes are used) */
+@media (max-width: 1024px) {
+  .nav-chapters, .mobile-nav-chapters {
+    display: none !important;
+  }
+}
+
+/* Force page container overflow settings for horizontal swipe slides visibility */
+.page {
+  position: relative !important;
+  overflow: visible !important;
+  touch-action: pan-y !important;
+}
+
+/* Hide horizontal scrollbar clips on page wrapper */
+.page-wrapper {
+  overflow-x: hidden !important;
+  touch-action: pan-y !important;
+}
+
+/* Swipe Preview Panels styling (native app overlay look) */
+.swipe-preview-panel {
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  background-color: var(--bg) !important; /* Matches theme background to keep content solid */
+  touch-action: pan-y !important;
+}
+
+.swipe-prev-panel {
+  left: -100% !important;
+}
+
+.swipe-next-panel {
+  left: 100% !important;
+}
+
+/* Prevent layout shift and flashes on load: hide content wrapper until language and MathJax are ready */
+html.js #mdbook-content main {
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+html.js.lang-ready #mdbook-content main {
+  opacity: 1;
+}
+
+/* Ensure the main content inside swipe previews is always visible during gesture drag */
+.swipe-preview-panel #mdbook-content main {
+  opacity: 1 !important;
+}
+
+/* Fix mdBook previous chapter button transition jitter */
+.nav-chapters.previous {
+  left: 0;
+  transition: left 0.3s ease;
+}
+#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper .nav-chapters.previous {
+  left: var(--sidebar-width, 300px);
+}
+@media (max-width: 1024px) {
+  .nav-chapters.previous,
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper .nav-chapters.previous {
+    left: 0 !important;
+  }
+}
+
+/* --- Mobile Viewport & Horizontal Overflow Prevention --- */
+/* Prevents wide elements (like code, tables, math formulas) from expanding the page width and zooming out the mobile layout */
+#mdbook-body-container, .page-wrapper, .page, .content, main {
+  max-width: 100vw !important;
+}
+
+/* Allow horizontal scrolling locally for code blocks, preformatted text, and MathJax block equations */
+pre, code, .MathJax_Display, .MathJax, mjx-container {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+/* Ensure images and iframe elements scale within the viewport bounds */
+img, iframe {
+  max-width: 100% !important;
+  height: auto !important;
+}

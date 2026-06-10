@@ -6,8 +6,25 @@ language = "en"
 [output.html]
 default-theme = "rust"
 mathjax-support = true
-additional-css = ["mdbook-admonish.css"]
-additional-js = ["mermaid.min.js", "mermaid-init.js", "lang-switcher.js"]
+additional-css = [
+  "mdbook-admonish.css",
+  "css/chapter-heading.css",
+  "css/theme-overrides.css",
+  "css/lang-switcher.css",
+  "css/hover-tooltip.css",
+  "css/deepdive-drawer.css",
+  "css/swipe-nav.css"
+]
+additional-js = [
+  "mermaid.min.js",
+  "mermaid-init.js",
+  "js/math-render.js",
+  "js/keyword-data.js",
+  "js/hover-tooltip.js",
+  "js/deepdive-drawer.js",
+  "js/lang-switcher-dropdown.js",
+  "js/swipe-nav.js"
+]
 hash-files = true
 
 [preprocessor.mermaid]

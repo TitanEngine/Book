@@ -1,0 +1,199 @@
+/* Scrollbar stability */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Global Text Box Safety to prevent container blowouts */
+main, .content, p {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Desktop layout breathing room and text justification overrides */
+@media (min-width: 1025px) {
+  .content main {
+    padding: 0 25px !important;
+  }
+  .content main p, .content main li {
+    text-align: justify;
+    text-justify: inter-word;
+    line-height: 1.68;
+  }
+}
+
+/* Make the header menu title adaptive across all screens */
+.menu-title {
+  font-size: clamp(1.1rem, 4.5vw, 2.0rem) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  padding: 0 4px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .menu-title {
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+  }
+}
+
+/* Mobile Typography, Justification and Math Scaling Rules (max-width: 768px) */
+@media (max-width: 768px) {
+  /* Scale down base font sizes to fit screen viewports comfortably */
+  body, .content main, .drawer-body {
+    font-size: 0.94rem !important;
+    line-height: 1.55 !important;
+  }
+  
+  /* Scale down code blocks text size to prevent excessive scrolling/wrapping */
+  .drawer-body pre, .drawer-body code, pre code {
+    font-size: 0.82rem !important;
+  }
+
+  /* Row Margins Justification: prevent ragged right edges for clean alignment */
+  .content p, .drawer-body p, .content li, .drawer-body li {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+  }
+
+  /* Math Scaling: Shrink MathJax block equations so they fit without scrollbars */
+  .MathJax_Display, mjx-container {
+    font-size: 0.72em !important;
+    padding: 2px 0 !important;
+  }
+}
+
+/* Disable text selection on mobile and tablet viewports to prevent accidental selections */
+@media (max-width: 1024px) {
+  body {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+  }
+  
+  /* Ensure form inputs, text fields, and editable elements remain interactive and selectable */
+  input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
+}
+
+/* --- Responsive Sidebar Text Truncation --- */
+/* Forces chapter links to dynamically truncate with ellipsis instead of wrapping or overflowing when sidebar is resized */
+.chapter-link-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.chapter-link-wrapper a, 
+.chapter li a {
+  display: block !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Mobile, Tablet, and Desktop Split-Screen Layouts (Width <= 1024px) */
+@media (max-width: 1024px) {
+  /* 1. Sidebar Left Drawer Overlay (Floating drawer on top, no gap created) */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    width: var(--sidebar-width, 300px) !important;
+    max-width: 85vw !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    border: none !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    background: rgba(20, 20, 25, 0.85) !important;
+    color: #f5f5f7 !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    z-index: 10008 !important; /* sit below the deep dive drawer but above page content */
+    
+    /* Animation: slide left/right on mobile/split-screen */
+    transform: translateX(-100%) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    will-change: transform;
+  }
+  
+  #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
+    transform: translateX(0) !important;
+    display: block !important; /* Force override inline display: none from mdbook JS */
+  }
+  
+  .light .sidebar, .rust .sidebar {
+    background: rgba(250, 250, 252, 0.85) !important;
+    color: #1d1d1f !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-top: none !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .sidebar-resize-handle {
+    display: none !important;
+  }
+  
+  .sidebar .sidebar-scrollbox {
+    padding: 24px 20px !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Prevent page content from shifting horizontally or creating any gap when sidebar is open */
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    transform: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+  }
+
+  /* Make sure the toggle menu button remains interactive to allow closing the sidebar */
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper #mdbook-sidebar-toggle {
+    pointer-events: auto !important;
+  }
+}
+
+/* --- Snapped Window / Split-Screen Sidebar Overlap Fix --- */
+/* 1. Ensure the page container dynamically respects the sidebar width when visible */
+@media (min-width: 1025px) {
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    margin-left: var(--sidebar-width, 300px) !important;
+    margin-inline-start: var(--sidebar-width, 300px) !important;
+    padding-left: 0 !important;
+    transform: none !important; /* Prevent double shift with mdbook default translateX */
+  }
+  #mdbook-sidebar-toggle-anchor:checked ~ .sidebar {
+    transform: translateX(0) !important; /* Force show when checked */
+    display: block !important; /* Force override inline display: none from mdbook JS */
+  }
+}
+
+/* Specific Mobile Portrait / Narrow layout adjustments (Width <= 768px) */
+@media (max-width: 768px) {
+  /* Page Wrapper Glassmorphic Blur and Dimming only on true mobile/tablet viewports */
+  #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    filter: blur(5px) !important;
+    opacity: 0.5 !important;
+    pointer-events: auto !important; /* Allow clicks to bubble up to document overlay outside-click handler */
+    transition: filter 0.3s ease, opacity 0.3s ease !important;
+  }
+  
+  #mdbook-sidebar-toggle-anchor:not(:checked) ~ .page-wrapper {
+    transition: filter 0.3s ease, opacity 0.3s ease !important;
+  }
+}
