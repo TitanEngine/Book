@@ -16,7 +16,7 @@ class BookPage {
 
     translate(x) {
         if (this.el) {
-            this.el.style.transform = `translateX(${x}px)`;
+            this.el.style.transform = typeof x === 'number' ? `translateX(${x}px)` : `translateX(${x})`;
         }
     }
 
@@ -504,11 +504,11 @@ function handleTouchEndOrCancel(e) {
     if ((isFlick || isLongSwipe) && dragX > 0 && hasPrev) {
         // Swipe Right -> Previous Page
         targetDirection = 'prev';
-        currentPage.translate(window.innerWidth);
+        currentPage.translate('100%');
     } else if ((isFlick || isLongSwipe) && dragX < 0 && hasNext) {
         // Swipe Left -> Next Page
         targetDirection = 'next';
-        currentPage.translate(-window.innerWidth);
+        currentPage.translate('-100%');
     } else {
         // Snap back to starting position
         targetDirection = 'reset';
@@ -697,6 +697,18 @@ function navigateToPage(url, direction) {
     // Swap contentEl in the DOM
     contentEl.replaceWith(panel);
     
+    // Disconnect the reference from the old objects so they don't delete the live DOM element
+    if (isNext) {
+        nextPage.el = null;
+    } else {
+        previousPage.el = null;
+    }
+    previousPage.destroy();
+    nextPage.destroy();
+
+    // Reset currentPage reference to point to the new active element in the DOM
+    currentPage.setElement(panel, url, pageObj.title);
+    
     // Scroll page to top
     window.scrollTo(0, 0);
     
@@ -811,7 +823,7 @@ document.addEventListener('click', (e) => {
             };
             
             currentPage.el.addEventListener('transitionend', onTransitionEnd);
-            currentPage.translate(isNext ? -window.innerWidth : window.innerWidth);
+            currentPage.translate(isNext ? '-100%' : '100%');
             return;
         }
         
