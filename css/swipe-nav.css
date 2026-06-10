@@ -97,17 +97,16 @@ html, body, .page-wrapper {
   position: absolute !important;
   top: 0 !important;
   width: 100% !important;
-  height: 100% !important;
+  height: 100vh !important; /* Viewport height ensures it never looks cut off when swiping from short to long pages */
   pointer-events: none !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
   background-color: var(--bg) !important; /* Matches theme background to keep content solid */
   touch-action: pan-y !important;
-  visibility: visible !important; /* Keep visible so MathJax can render/typeset it offscreen */
 }
 
 .content.swipe-preview-panel.swipe-hidden {
-  visibility: hidden !important; /* Hide after typesetting is done to prevent spills and scroll leakage */
+  display: none !important; /* Hide after typesetting is done to prevent spills and scroll leakage completely */
 }
 
 .content.swipe-prev-panel {
