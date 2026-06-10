@@ -103,6 +103,12 @@ html, body, .page-wrapper {
   box-sizing: border-box !important;
   background-color: var(--bg) !important; /* Matches theme background to keep content solid */
   touch-action: pan-y !important;
+  visibility: hidden !important; /* Hide previews by default to prevent margin spill and rendering overhead */
+}
+
+/* Make preview panels visible only during active swipe navigation transitions */
+#mdbook-content.swiping .swipe-preview-panel {
+  visibility: visible !important;
 }
 
 .swipe-prev-panel {

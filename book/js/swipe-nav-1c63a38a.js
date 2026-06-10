@@ -31,6 +31,7 @@ class BookPage {
         this.role = 'current';
         this.el.id = 'mdbook-content';
         this.el.className = 'content';
+        this.el.classList.remove('swiping');
         this.el.style.transform = '';
         this.el.style.transition = '';
         this.el.style.left = '';
@@ -446,6 +447,11 @@ document.addEventListener('touchmove', (e) => {
         // Prevent default vertical page scrolling when horizontal swipe is active
         if (e.cancelable) e.preventDefault();
 
+        // Add swiping class to parent element to make previews visible
+        if (currentPage.el && !currentPage.el.classList.contains('swiping')) {
+            currentPage.el.classList.add('swiping');
+        }
+
         // Check if pages exist in respective directions in our objects
         const hasPrev = previousPage.url !== null && previousPage.el !== null;
         const hasNext = nextPage.url !== null && nextPage.el !== null;
@@ -495,6 +501,7 @@ function handleTouchEndOrCancel(e) {
                 window.location.href = nextPage.url;
             }
         } else {
+            currentPage.el.classList.remove('swiping');
             currentPage.clearStyles();
         }
     };
@@ -810,6 +817,7 @@ document.addEventListener('click', (e) => {
         const pageObj = isNext ? nextPage : previousPage;
         
         if (currentPage.el && pageObj.el && pageObj.url) {
+            currentPage.el.classList.add('swiping');
             currentPage.setTransition('transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)');
             
             const onTransitionEnd = (event) => {
